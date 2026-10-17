@@ -1668,7 +1668,7 @@
           </div>
         </div>
         <div class="toolbar">
-          <label class="search-field">${ic('search')}<input type="search" placeholder="Filter tools, accounts and keys…" value="${esc(S.filter)}" data-input="filter" autocomplete="off" spellcheck="false" aria-label="Filter tools and keys"></label>
+          <label class="search-field">${ic('search')}<input type="search" placeholder="Filter tools, accounts and keys…" value="${esc(S.filter)}" data-input="filter" name="sv-filter" role="searchbox" autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other" spellcheck="false" aria-label="Filter tools and keys"></label>
           <button class="btn${S.revealAll ? ' is-on' : ''}" data-act="reveal-all" aria-pressed="${S.revealAll}">${ic(S.revealAll ? 'eye-off' : 'eye')}${S.revealAll ? 'Hide values' : 'Reveal values'}</button>
           <button class="btn btn-primary" data-act="add-tool">${ic('plus')}Add tool</button>
         </div>
@@ -1730,8 +1730,8 @@
       return `<div class="kv" id="kv-${fid}">
         <button class="kv-key" data-act="edit-field" data-owner="${oid}" data-id="${fid}" title="Edit">${secret ? ic('key', 'kv-ico') : ''}<span>${esc(f.label)}</span></button>
         <div class="kv-val">${multi
-          ? `<input type="${shown ? 'text' : 'password'}" value="${esc(shown ? f.value.split('\n')[0] + ' … (multi-line)' : f.value)}" readonly data-act="edit-field" data-owner="${oid}" data-id="${fid}" aria-label="${esc(f.label)} value (multi-line, click to edit)">`
-          : `<input type="${shown ? 'text' : 'password'}" value="${esc(f.value)}" placeholder="empty" data-change="field-value" data-owner="${oid}" data-id="${fid}" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" aria-label="${esc(f.label)} value">`}</div>
+          ? `<input type="${shown ? 'text' : 'password'}" value="${esc(shown ? f.value.split('\n')[0] + ' … (multi-line)' : f.value)}" readonly data-act="edit-field" data-owner="${oid}" data-id="${fid}" autocomplete="new-password" data-1p-ignore data-lpignore="true" aria-label="${esc(f.label)} value (multi-line, click to edit)">`
+          : `<input type="${shown ? 'text' : 'password'}" value="${esc(f.value)}" placeholder="empty" data-change="field-value" data-owner="${oid}" data-id="${fid}" autocomplete="new-password" spellcheck="false" data-1p-ignore data-lpignore="true" aria-label="${esc(f.label)} value">`}</div>
         <div class="kv-actions">
           ${secret ? `<button class="icon-btn" data-act="toggle-reveal" data-id="${fid}" title="${shown ? 'Hide' : 'Show'}" aria-label="${shown ? 'Hide' : 'Show'} ${esc(f.label)}">${ic(shown ? 'eye-off' : 'eye')}</button>` : ''}
           <button class="icon-btn" data-act="copy-field" data-owner="${oid}" data-id="${fid}" title="Copy value" aria-label="Copy ${esc(f.label)}">${ic('copy')}</button>
@@ -1770,7 +1770,7 @@
           <div class="head-actions"><button class="btn btn-primary" data-act="new-account">${ic('plus')}New account</button></div>
         </div>
         ${S.data.accounts.length ? `<div class="toolbar">
-          <label class="search-field">${ic('search')}<input type="search" placeholder="Filter accounts…" value="${esc(S.filter)}" data-input="filter" autocomplete="off" spellcheck="false" aria-label="Filter accounts"></label>
+          <label class="search-field">${ic('search')}<input type="search" placeholder="Filter accounts…" value="${esc(S.filter)}" data-input="filter" name="sv-filter" role="searchbox" autocomplete="off" data-1p-ignore data-lpignore="true" data-form-type="other" spellcheck="false" aria-label="Filter accounts"></label>
           <button class="btn${S.revealAll ? ' is-on' : ''}" data-act="reveal-all" aria-pressed="${S.revealAll}">${ic(S.revealAll ? 'eye-off' : 'eye')}${S.revealAll ? 'Hide values' : 'Reveal values'}</button>
         </div>` : ''}
         <div id="toolStack" class="tool-stack">${acctStack()}</div>
