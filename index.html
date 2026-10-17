@@ -199,6 +199,54 @@
     .tool-meta { display: flex; flex-wrap: wrap; gap: 0 12px; margin-top: 1px; font-size: 12px; color: var(--text-3); }
     .tool-meta span { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tool-actions { display: flex; gap: 0; }
+    .tool-meta { align-items: center; }
+    .acct-chip { display: inline-flex; align-items: center; gap: 6px; height: 22px; max-width: 240px; padding: 0 9px 0 3px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2); color: var(--text-2); font-size: 12px; font-weight: 500; cursor: pointer; transition: border-color .12s, color .12s; }
+    .acct-chip span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .acct-chip:hover { border-color: var(--accent); color: var(--text); }
+    .acct-chip.none { padding: 0 9px 0 6px; border-style: dashed; color: var(--text-3); background: transparent; }
+    .acct-chip .i { width: 12px; height: 12px; }
+    .avatar.xs { width: 16px; height: 16px; font-size: 9px; }
+    .acct-card .avatar.lg { margin-left: 2px; }
+    .usedby { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .usedby > span { flex: none; padding-top: 5px; color: var(--text-3); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+    .usedby > small { padding-top: 4px; }
+    .unlinked { margin-top: 16px; }
+    .unlinked .card-head > .i { color: var(--warn); }
+    button.stat { font: inherit; color: inherit; text-align: left; cursor: pointer; transition: border-color .12s; }
+    button.stat:hover:not(:disabled) { border-color: var(--accent); }
+    button.stat:disabled { cursor: default; }
+
+    /* catalog picker */
+    .modal-card.lg { width: min(780px, 100%); }
+    .picker, .form-step { display: flex; flex-direction: column; gap: 12px; }
+    .picker .search-field { flex: none; height: 40px; }
+    .cat-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+    .cat-chip { flex: none; height: 28px; padding: 0 11px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--text-2); font-size: 12.5px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+    .cat-chip:hover { border-color: var(--border-strong); color: var(--text); }
+    .cat-chip.active { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+    .preset-list { max-height: min(52vh, 460px); overflow-y: auto; margin: 0 -4px; padding: 2px 4px; }
+    .preset-group + .preset-group { margin-top: 16px; }
+    .preset-group h4 { margin: 0 0 7px; color: var(--text-3); font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; }
+    .preset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+    .preset { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); text-align: left; cursor: pointer; transition: border-color .12s, background .12s; }
+    .preset:hover, .preset:focus-visible { border-color: var(--accent); background: var(--accent-soft); outline: none; }
+    .preset > span:last-child { display: flex; flex-direction: column; min-width: 0; }
+    .preset b { font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preset small { color: var(--text-3); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preset.custom { border-style: dashed; }
+    .preset.custom > .i { width: 30px; height: 30px; padding: 7px; border-radius: 9px; background: var(--sunken); color: var(--text-2); }
+    .tool-avatar.sm { display: grid !important; width: 30px; height: 30px; border-radius: 9px; font-size: 13px; }
+    .picked { display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+    .picked > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .picked b { font-weight: 600; }
+    .picked small { color: var(--text-3); font-size: 12.5px; }
+    .key-checks { display: flex; flex-wrap: wrap; gap: 6px; }
+    .key-check { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); font-size: 12px; cursor: pointer; }
+    .key-check:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+    .key-check input { margin: 0; accent-color: var(--accent); }
+    .key-check .i { width: 12px; height: 12px; color: var(--accent); }
+    .new-acct { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 12px; border: 1px dashed var(--border-strong); border-radius: 10px; }
+    .pad { padding: 4px 2px 10px; }
     .tool-body { border-top: 1px solid var(--border); }
     .tool-notes { padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
     .kv { display: grid; grid-template-columns: minmax(140px, 32%) minmax(0, 1fr) auto; grid-template-areas: "key val act"; align-items: center; gap: 10px; padding: 7px 10px 7px 16px; transition: background .12s; }
@@ -341,7 +389,7 @@
     .choice small { color: var(--text-2); font-size: 12.5px; }
 
     /* ───────────────── Modal / palette / toasts ───────────────── */
-    .modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: var(--overlay); backdrop-filter: blur(3px); animation: fade .14s ease; }
+    .modal { position: fixed; inset: 0; z-index: 60; display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; padding: 16px; background: var(--overlay); backdrop-filter: blur(3px); animation: fade .14s ease; }
     .modal-card { display: flex; flex-direction: column; width: min(540px, 100%); max-height: calc(100dvh - 32px); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-lg); animation: pop .18s cubic-bezier(.2, .9, .3, 1.15); }
     .modal-card.sm { width: min(430px, 100%); }
     .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 14px 0 20px; }
@@ -420,7 +468,8 @@
       .kv { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "key act" "val val"; gap: 4px 8px; padding: 10px 8px 10px 14px; }
       .tool-avatar { display: none; }
       .tool-meta span { max-width: 170px; }
-      .form-grid { grid-template-columns: 1fr; }
+      .form-grid, .new-acct { grid-template-columns: 1fr; }
+      .preset-grid { grid-template-columns: 1fr 1fr; }
       .head-actions .btn-text { display: none; }
       .row { flex-wrap: wrap; }
       .acct-grid { grid-template-columns: 1fr; }
@@ -540,7 +589,341 @@
     const TOMBSTONE_TTL = 180 * 864e5;
     const POLL_MS = 60e3;
     const TIERS = ['Prod', 'Staging', 'Dev', 'Test'];
-    const CATEGORIES = ['Backend', 'Database', 'Auth', 'Hosting', 'Storage', 'Payments', 'Email', 'AI', 'Analytics', 'Monitoring', 'CI/CD', 'Other'];
+    /* ═════════════════ Service catalog ═════════════════
+       [name, console URL, default keys ("KEY" = secret, "KEY:t" = plain text), search aliases] */
+    const CATALOG_SRC = {
+      'Hosting': [
+        ['Vercel', 'vercel.com/dashboard', 'VERCEL_TOKEN VERCEL_ORG_ID:t VERCEL_PROJECT_ID:t', 'nextjs deploy'],
+        ['Netlify', 'app.netlify.com', 'NETLIFY_AUTH_TOKEN NETLIFY_SITE_ID:t', 'deploy jamstack'],
+        ['Cloudflare Pages', 'dash.cloudflare.com', 'CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID:t', 'workers deploy'],
+        ['Cloudflare Workers', 'dash.cloudflare.com', 'CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID:t', 'edge serverless wrangler'],
+        ['GitHub Pages', 'github.com', 'CUSTOM_DOMAIN:t', 'static site gh-pages'],
+        ['Render', 'dashboard.render.com', 'RENDER_API_KEY RENDER_SERVICE_ID:t', 'deploy'],
+        ['Railway', 'railway.app/dashboard', 'RAILWAY_TOKEN RAILWAY_PROJECT_ID:t', 'deploy'],
+        ['Fly.io', 'fly.io/dashboard', 'FLY_API_TOKEN FLY_APP_NAME:t', 'flyio deploy'],
+        ['Heroku', 'dashboard.heroku.com', 'HEROKU_API_KEY HEROKU_APP_NAME:t', 'salesforce deploy'],
+        ['Firebase Hosting', 'console.firebase.google.com', 'FIREBASE_TOKEN FIREBASE_PROJECT_ID:t', 'google deploy'],
+        ['Deno Deploy', 'dash.deno.com', 'DENO_DEPLOY_TOKEN', 'deno'],
+        ['Koyeb', 'app.koyeb.com', 'KOYEB_TOKEN', 'deploy'],
+        ['Surge', 'surge.sh', 'SURGE_LOGIN:t SURGE_TOKEN', 'static'],
+        ['Hostinger', 'hpanel.hostinger.com', 'FTP_HOST:t FTP_USER:t FTP_PASSWORD', 'shared hosting ftp'],
+      ],
+      'Cloud': [
+        ['AWS', 'console.aws.amazon.com', 'AWS_ACCESS_KEY_ID:t AWS_SECRET_ACCESS_KEY AWS_REGION:t', 'amazon web services ec2 lambda iam bedrock'],
+        ['Google Cloud', 'console.cloud.google.com', 'GOOGLE_CLOUD_PROJECT:t GOOGLE_APPLICATION_CREDENTIALS', 'gcp cloud run'],
+        ['Microsoft Azure', 'portal.azure.com', 'AZURE_TENANT_ID:t AZURE_CLIENT_ID:t AZURE_CLIENT_SECRET AZURE_SUBSCRIPTION_ID:t', 'azure'],
+        ['DigitalOcean', 'cloud.digitalocean.com', 'DIGITALOCEAN_ACCESS_TOKEN', 'droplet do spaces'],
+        ['Cloudflare', 'dash.cloudflare.com', 'CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID:t CLOUDFLARE_ZONE_ID:t', 'cdn dns'],
+        ['Hetzner Cloud', 'console.hetzner.cloud', 'HCLOUD_TOKEN', 'vps'],
+        ['Linode', 'cloud.linode.com', 'LINODE_TOKEN', 'akamai vps'],
+        ['Vultr', 'my.vultr.com', 'VULTR_API_KEY', 'vps'],
+        ['Oracle Cloud', 'cloud.oracle.com', 'OCI_TENANCY_OCID:t OCI_USER_OCID:t OCI_FINGERPRINT:t OCI_PRIVATE_KEY OCI_REGION:t', 'oci'],
+        ['IBM Cloud', 'cloud.ibm.com', 'IBMCLOUD_API_KEY', 'ibm'],
+      ],
+      'Backend': [
+        ['Firebase', 'console.firebase.google.com', 'FIREBASE_API_KEY:t FIREBASE_AUTH_DOMAIN:t FIREBASE_PROJECT_ID:t FIREBASE_STORAGE_BUCKET:t FIREBASE_MESSAGING_SENDER_ID:t FIREBASE_APP_ID:t FIREBASE_MEASUREMENT_ID:t', 'google firestore auth web config'],
+        ['Firebase Admin SDK', 'console.firebase.google.com', 'FIREBASE_PROJECT_ID:t FIREBASE_CLIENT_EMAIL:t FIREBASE_PRIVATE_KEY', 'service account server'],
+        ['Supabase', 'supabase.com/dashboard', 'SUPABASE_URL:t SUPABASE_ANON_KEY:t SUPABASE_SERVICE_ROLE_KEY SUPABASE_DB_PASSWORD', 'postgres baas'],
+        ['Appwrite', 'cloud.appwrite.io', 'APPWRITE_ENDPOINT:t APPWRITE_PROJECT_ID:t APPWRITE_API_KEY', 'baas'],
+        ['Convex', 'dashboard.convex.dev', 'CONVEX_DEPLOYMENT:t CONVEX_URL:t CONVEX_DEPLOY_KEY', 'realtime'],
+        ['PocketBase', '', 'POCKETBASE_URL:t POCKETBASE_ADMIN_EMAIL:t POCKETBASE_ADMIN_PASSWORD', 'self hosted baas'],
+        ['Nhost', 'app.nhost.io', 'NHOST_SUBDOMAIN:t NHOST_REGION:t NHOST_ADMIN_SECRET', 'hasura baas'],
+        ['Hasura', 'cloud.hasura.io', 'HASURA_GRAPHQL_ENDPOINT:t HASURA_GRAPHQL_ADMIN_SECRET', 'graphql'],
+        ['AWS Amplify', 'console.aws.amazon.com/amplify', 'AMPLIFY_APP_ID:t AWS_REGION:t', 'amazon'],
+        ['Back4App (Parse)', 'dashboard.back4app.com', 'PARSE_APP_ID:t PARSE_JAVASCRIPT_KEY:t PARSE_MASTER_KEY PARSE_SERVER_URL:t', 'parse server'],
+        ['Xano', 'app.xano.com', 'XANO_BASE_URL:t XANO_API_KEY', 'no-code backend'],
+      ],
+      'Database': [
+        ['PostgreSQL', '', 'DATABASE_URL PGHOST:t PGPORT:t PGUSER:t PGPASSWORD PGDATABASE:t', 'postgres sql'],
+        ['MySQL', '', 'DATABASE_URL MYSQL_HOST:t MYSQL_PORT:t MYSQL_USER:t MYSQL_PASSWORD MYSQL_DATABASE:t', 'mariadb sql'],
+        ['MongoDB Atlas', 'cloud.mongodb.com', 'MONGODB_URI MONGODB_DB:t', 'mongo nosql'],
+        ['Neon', 'console.neon.tech', 'DATABASE_URL NEON_API_KEY', 'serverless postgres'],
+        ['PlanetScale', 'app.planetscale.com', 'DATABASE_URL PLANETSCALE_SERVICE_TOKEN_ID:t PLANETSCALE_SERVICE_TOKEN', 'mysql vitess'],
+        ['Turso', 'app.turso.tech', 'TURSO_DATABASE_URL:t TURSO_AUTH_TOKEN', 'libsql sqlite'],
+        ['Upstash Redis', 'console.upstash.com', 'UPSTASH_REDIS_REST_URL:t UPSTASH_REDIS_REST_TOKEN', 'redis kv serverless'],
+        ['Redis', 'app.redislabs.com', 'REDIS_URL', 'cache redis cloud'],
+        ['CockroachDB', 'cockroachlabs.cloud', 'DATABASE_URL', 'postgres distributed'],
+        ['Xata', 'app.xata.io', 'XATA_API_KEY XATA_BRANCH:t', 'postgres'],
+        ['Prisma Postgres', 'console.prisma.io', 'DATABASE_URL DIRECT_URL', 'accelerate orm'],
+        ['Fauna', 'dashboard.fauna.com', 'FAUNA_SECRET', 'faunadb'],
+        ['Amazon DynamoDB', 'console.aws.amazon.com/dynamodb', 'DYNAMODB_TABLE:t AWS_REGION:t', 'aws nosql'],
+        ['Pinecone', 'app.pinecone.io', 'PINECONE_API_KEY PINECONE_INDEX:t', 'vector embeddings'],
+        ['Weaviate', 'console.weaviate.cloud', 'WEAVIATE_URL:t WEAVIATE_API_KEY', 'vector'],
+        ['Qdrant', 'cloud.qdrant.io', 'QDRANT_URL:t QDRANT_API_KEY', 'vector'],
+        ['Elastic Cloud', 'cloud.elastic.co', 'ELASTIC_CLOUD_ID:t ELASTIC_API_KEY', 'elasticsearch kibana'],
+        ['ClickHouse Cloud', 'clickhouse.cloud', 'CLICKHOUSE_HOST:t CLICKHOUSE_USER:t CLICKHOUSE_PASSWORD', 'analytics olap'],
+        ['SQLite Cloud', 'dashboard.sqlitecloud.io', 'SQLITECLOUD_CONNECTION_STRING', 'sqlite'],
+      ],
+      'Auth': [
+        ['Clerk', 'dashboard.clerk.com', 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:t CLERK_SECRET_KEY CLERK_WEBHOOK_SECRET', 'login users'],
+        ['Auth0', 'manage.auth0.com', 'AUTH0_DOMAIN:t AUTH0_CLIENT_ID:t AUTH0_CLIENT_SECRET AUTH0_SECRET AUTH0_AUDIENCE:t', 'okta login'],
+        ['Auth.js / NextAuth', 'authjs.dev', 'AUTH_SECRET NEXTAUTH_URL:t', 'nextauth'],
+        ['Google OAuth', 'console.cloud.google.com/apis/credentials', 'GOOGLE_CLIENT_ID:t GOOGLE_CLIENT_SECRET', 'sign in with google gis'],
+        ['GitHub OAuth App', 'github.com/settings/developers', 'GITHUB_CLIENT_ID:t GITHUB_CLIENT_SECRET', 'sign in with github'],
+        ['Sign in with Apple', 'developer.apple.com/account/resources', 'APPLE_CLIENT_ID:t APPLE_TEAM_ID:t APPLE_KEY_ID:t APPLE_PRIVATE_KEY', 'apple login'],
+        ['Microsoft Entra ID', 'entra.microsoft.com', 'AZURE_AD_TENANT_ID:t AZURE_AD_CLIENT_ID:t AZURE_AD_CLIENT_SECRET', 'azure ad microsoft login'],
+        ['Facebook Login', 'developers.facebook.com/apps', 'FACEBOOK_APP_ID:t FACEBOOK_APP_SECRET', 'meta login'],
+        ['Okta', 'login.okta.com', 'OKTA_DOMAIN:t OKTA_CLIENT_ID:t OKTA_CLIENT_SECRET', 'sso'],
+        ['WorkOS', 'dashboard.workos.com', 'WORKOS_API_KEY WORKOS_CLIENT_ID:t', 'sso enterprise'],
+        ['Stytch', 'stytch.com/dashboard', 'STYTCH_PROJECT_ID:t STYTCH_SECRET', 'passwordless'],
+        ['Kinde', 'app.kinde.com', 'KINDE_CLIENT_ID:t KINDE_CLIENT_SECRET KINDE_ISSUER_URL:t', 'login'],
+        ['Firebase Auth', 'console.firebase.google.com', 'FIREBASE_API_KEY:t FIREBASE_AUTH_DOMAIN:t', 'google login'],
+        ['Supabase Auth', 'supabase.com/dashboard', 'SUPABASE_URL:t SUPABASE_ANON_KEY:t SUPABASE_JWT_SECRET', 'login'],
+      ],
+      'Payments': [
+        ['Stripe', 'dashboard.stripe.com', 'STRIPE_PUBLISHABLE_KEY:t STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET', 'billing checkout subscriptions'],
+        ['PayPal', 'developer.paypal.com/dashboard', 'PAYPAL_CLIENT_ID:t PAYPAL_CLIENT_SECRET PAYPAL_MODE:t', 'checkout'],
+        ['Paddle', 'vendors.paddle.com', 'PADDLE_API_KEY PADDLE_CLIENT_TOKEN:t PADDLE_WEBHOOK_SECRET', 'merchant of record'],
+        ['Lemon Squeezy', 'app.lemonsqueezy.com', 'LEMONSQUEEZY_API_KEY LEMONSQUEEZY_STORE_ID:t LEMONSQUEEZY_WEBHOOK_SECRET', 'merchant of record'],
+        ['Polar', 'polar.sh', 'POLAR_ACCESS_TOKEN POLAR_WEBHOOK_SECRET', 'merchant of record'],
+        ['RevenueCat', 'app.revenuecat.com', 'REVENUECAT_SECRET_API_KEY REVENUECAT_IOS_KEY:t REVENUECAT_ANDROID_KEY:t', 'in-app purchases subscriptions'],
+        ['Square', 'developer.squareup.com/apps', 'SQUARE_ACCESS_TOKEN SQUARE_APPLICATION_ID:t SQUARE_LOCATION_ID:t', 'pos'],
+        ['Braintree', 'braintreegateway.com', 'BRAINTREE_MERCHANT_ID:t BRAINTREE_PUBLIC_KEY:t BRAINTREE_PRIVATE_KEY', 'paypal'],
+        ['Adyen', 'ca-test.adyen.com', 'ADYEN_API_KEY ADYEN_MERCHANT_ACCOUNT:t ADYEN_CLIENT_KEY:t ADYEN_HMAC_KEY', 'payments'],
+        ['Mollie', 'my.mollie.com', 'MOLLIE_API_KEY', 'payments eu'],
+        ['Razorpay', 'dashboard.razorpay.com', 'RAZORPAY_KEY_ID:t RAZORPAY_KEY_SECRET RAZORPAY_WEBHOOK_SECRET', 'india'],
+        ['Tranzila', 'my.tranzila.com', 'TRANZILA_TERMINAL:t TRANZILA_API_KEY', 'israel'],
+        ['Coinbase Commerce', 'beta.commerce.coinbase.com', 'COINBASE_COMMERCE_API_KEY COINBASE_WEBHOOK_SECRET', 'crypto'],
+      ],
+      'Email': [
+        ['Resend', 'resend.com/api-keys', 'RESEND_API_KEY EMAIL_FROM:t', 'transactional'],
+        ['SendGrid', 'app.sendgrid.com', 'SENDGRID_API_KEY SENDGRID_FROM_EMAIL:t', 'twilio transactional'],
+        ['Mailgun', 'app.mailgun.com', 'MAILGUN_API_KEY MAILGUN_DOMAIN:t', 'transactional'],
+        ['Postmark', 'account.postmarkapp.com', 'POSTMARK_SERVER_TOKEN EMAIL_FROM:t', 'transactional'],
+        ['Amazon SES', 'console.aws.amazon.com/ses', 'AWS_SES_REGION:t AWS_SES_ACCESS_KEY_ID:t AWS_SES_SECRET_ACCESS_KEY', 'aws transactional'],
+        ['Brevo', 'app.brevo.com', 'BREVO_API_KEY', 'sendinblue marketing'],
+        ['Mailchimp', 'admin.mailchimp.com', 'MAILCHIMP_API_KEY MAILCHIMP_SERVER_PREFIX:t MAILCHIMP_AUDIENCE_ID:t', 'newsletter marketing'],
+        ['Kit (ConvertKit)', 'app.kit.com', 'KIT_API_KEY KIT_API_SECRET', 'newsletter convertkit'],
+        ['Loops', 'app.loops.so', 'LOOPS_API_KEY', 'saas email'],
+        ['MailerLite', 'dashboard.mailerlite.com', 'MAILERLITE_API_KEY', 'newsletter'],
+        ['SMTP server', '', 'SMTP_HOST:t SMTP_PORT:t SMTP_USER:t SMTP_PASSWORD SMTP_FROM:t', 'mail generic gmail app password'],
+      ],
+      'Messaging': [
+        ['Twilio', 'console.twilio.com', 'TWILIO_ACCOUNT_SID:t TWILIO_AUTH_TOKEN TWILIO_PHONE_NUMBER:t', 'sms voice otp'],
+        ['Vonage', 'dashboard.nexmo.com', 'VONAGE_API_KEY:t VONAGE_API_SECRET', 'nexmo sms'],
+        ['MessageBird (Bird)', 'app.bird.com', 'MESSAGEBIRD_API_KEY', 'sms'],
+        ['WhatsApp Cloud API', 'developers.facebook.com/apps', 'WHATSAPP_TOKEN WHATSAPP_PHONE_NUMBER_ID:t WHATSAPP_VERIFY_TOKEN', 'meta whatsapp business'],
+        ['Telegram Bot', 't.me/BotFather', 'TELEGRAM_BOT_TOKEN TELEGRAM_CHAT_ID:t', 'bot'],
+        ['Slack App', 'api.slack.com/apps', 'SLACK_BOT_TOKEN SLACK_SIGNING_SECRET SLACK_WEBHOOK_URL', 'bot webhook'],
+        ['Discord Bot', 'discord.com/developers/applications', 'DISCORD_BOT_TOKEN DISCORD_CLIENT_ID:t DISCORD_CLIENT_SECRET DISCORD_WEBHOOK_URL', 'bot webhook'],
+        ['Pusher', 'dashboard.pusher.com', 'PUSHER_APP_ID:t PUSHER_KEY:t PUSHER_SECRET PUSHER_CLUSTER:t', 'websockets realtime'],
+        ['Ably', 'ably.com/accounts', 'ABLY_API_KEY', 'realtime pubsub'],
+        ['Stream', 'getstream.io/dashboard', 'STREAM_API_KEY:t STREAM_API_SECRET', 'chat feeds video'],
+        ['Sendbird', 'dashboard.sendbird.com', 'SENDBIRD_APP_ID:t SENDBIRD_API_TOKEN', 'chat'],
+        ['Intercom', 'app.intercom.com', 'INTERCOM_APP_ID:t INTERCOM_ACCESS_TOKEN', 'support chat'],
+        ['Crisp', 'app.crisp.chat', 'CRISP_WEBSITE_ID:t CRISP_API_IDENTIFIER:t CRISP_API_KEY', 'support chat'],
+      ],
+      'Push': [
+        ['OneSignal', 'dashboard.onesignal.com', 'ONESIGNAL_APP_ID:t ONESIGNAL_REST_API_KEY', 'notifications'],
+        ['Firebase Cloud Messaging', 'console.firebase.google.com', 'FCM_PROJECT_ID:t FCM_SERVICE_ACCOUNT_JSON FCM_VAPID_KEY:t', 'fcm notifications'],
+        ['Apple Push (APNs)', 'developer.apple.com/account/resources/authkeys', 'APNS_KEY_ID:t APNS_TEAM_ID:t APNS_BUNDLE_ID:t APNS_AUTH_KEY', 'ios notifications p8'],
+        ['Expo Push', 'expo.dev', 'EXPO_ACCESS_TOKEN', 'react native notifications'],
+        ['Novu', 'web.novu.co', 'NOVU_API_KEY', 'notification infrastructure'],
+        ['Knock', 'dashboard.knock.app', 'KNOCK_API_KEY KNOCK_PUBLIC_KEY:t', 'notifications'],
+        ['Web Push (VAPID)', '', 'VAPID_PUBLIC_KEY:t VAPID_PRIVATE_KEY VAPID_SUBJECT:t', 'pwa notifications'],
+      ],
+      'AI': [
+        ['OpenAI', 'platform.openai.com/api-keys', 'OPENAI_API_KEY OPENAI_ORG_ID:t', 'gpt chatgpt'],
+        ['Anthropic', 'console.anthropic.com', 'ANTHROPIC_API_KEY', 'claude'],
+        ['Google Gemini', 'aistudio.google.com/apikey', 'GEMINI_API_KEY', 'google ai studio'],
+        ['Google Vertex AI', 'console.cloud.google.com/vertex-ai', 'GOOGLE_CLOUD_PROJECT:t GOOGLE_CLOUD_LOCATION:t GOOGLE_APPLICATION_CREDENTIALS', 'gcp gemini'],
+        ['Azure OpenAI', 'ai.azure.com', 'AZURE_OPENAI_API_KEY AZURE_OPENAI_ENDPOINT:t AZURE_OPENAI_DEPLOYMENT:t', 'microsoft gpt'],
+        ['AWS Bedrock', 'console.aws.amazon.com/bedrock', 'AWS_ACCESS_KEY_ID:t AWS_SECRET_ACCESS_KEY AWS_REGION:t', 'amazon claude'],
+        ['Mistral', 'console.mistral.ai', 'MISTRAL_API_KEY', 'llm'],
+        ['Groq', 'console.groq.com/keys', 'GROQ_API_KEY', 'llm fast inference'],
+        ['xAI', 'console.x.ai', 'XAI_API_KEY', 'grok'],
+        ['DeepSeek', 'platform.deepseek.com', 'DEEPSEEK_API_KEY', 'llm'],
+        ['Cohere', 'dashboard.cohere.com/api-keys', 'COHERE_API_KEY', 'embeddings rerank'],
+        ['OpenRouter', 'openrouter.ai/keys', 'OPENROUTER_API_KEY', 'llm router'],
+        ['Together AI', 'api.together.ai', 'TOGETHER_API_KEY', 'llm inference'],
+        ['Fireworks AI', 'fireworks.ai/account/api-keys', 'FIREWORKS_API_KEY', 'llm inference'],
+        ['Perplexity', 'perplexity.ai/settings/api', 'PERPLEXITY_API_KEY', 'search llm'],
+        ['Hugging Face', 'huggingface.co/settings/tokens', 'HF_TOKEN', 'models datasets'],
+        ['Replicate', 'replicate.com/account/api-tokens', 'REPLICATE_API_TOKEN', 'models'],
+        ['Stability AI', 'platform.stability.ai/account/keys', 'STABILITY_API_KEY', 'image generation'],
+        ['ElevenLabs', 'elevenlabs.io/app/settings/api-keys', 'ELEVENLABS_API_KEY ELEVENLABS_VOICE_ID:t', 'voice tts'],
+        ['Deepgram', 'console.deepgram.com', 'DEEPGRAM_API_KEY', 'speech to text'],
+        ['AssemblyAI', 'assemblyai.com/dashboard', 'ASSEMBLYAI_API_KEY', 'speech to text'],
+        ['LangSmith', 'smith.langchain.com', 'LANGSMITH_API_KEY LANGSMITH_PROJECT:t', 'langchain tracing'],
+        ['Langfuse', 'cloud.langfuse.com', 'LANGFUSE_PUBLIC_KEY:t LANGFUSE_SECRET_KEY LANGFUSE_HOST:t', 'llm tracing'],
+      ],
+      'Analytics': [
+        ['Google Analytics', 'analytics.google.com', 'GA_MEASUREMENT_ID:t GA_API_SECRET', 'ga4'],
+        ['Google Tag Manager', 'tagmanager.google.com', 'GTM_ID:t', 'gtm'],
+        ['PostHog', 'app.posthog.com', 'POSTHOG_KEY:t POSTHOG_HOST:t POSTHOG_PERSONAL_API_KEY', 'product analytics session replay'],
+        ['Mixpanel', 'mixpanel.com', 'MIXPANEL_TOKEN:t MIXPANEL_API_SECRET', 'product analytics'],
+        ['Amplitude', 'app.amplitude.com', 'AMPLITUDE_API_KEY:t AMPLITUDE_SECRET_KEY', 'product analytics'],
+        ['Plausible', 'plausible.io/sites', 'PLAUSIBLE_DOMAIN:t PLAUSIBLE_API_KEY', 'privacy analytics'],
+        ['Umami', 'cloud.umami.is', 'UMAMI_WEBSITE_ID:t UMAMI_API_KEY', 'privacy analytics'],
+        ['Segment', 'app.segment.com', 'SEGMENT_WRITE_KEY', 'cdp twilio'],
+        ['Hotjar', 'insights.hotjar.com', 'HOTJAR_SITE_ID:t', 'heatmaps'],
+        ['Microsoft Clarity', 'clarity.microsoft.com', 'CLARITY_PROJECT_ID:t', 'heatmaps session replay'],
+        ['Meta Pixel', 'business.facebook.com/events_manager', 'META_PIXEL_ID:t META_CONVERSIONS_API_TOKEN', 'facebook ads'],
+        ['Google Search Console', 'search.google.com/search-console', 'GSC_SITE_URL:t', 'seo'],
+      ],
+      'Monitoring': [
+        ['Sentry', 'sentry.io', 'SENTRY_DSN:t SENTRY_AUTH_TOKEN SENTRY_ORG:t SENTRY_PROJECT:t', 'errors crash reporting'],
+        ['Firebase Crashlytics', 'console.firebase.google.com', 'FIREBASE_PROJECT_ID:t', 'crash reporting'],
+        ['Datadog', 'app.datadoghq.com', 'DD_API_KEY DD_APP_KEY DD_SITE:t', 'apm logs'],
+        ['New Relic', 'one.newrelic.com', 'NEW_RELIC_LICENSE_KEY NEW_RELIC_APP_NAME:t', 'apm'],
+        ['Better Stack', 'betterstack.com', 'BETTERSTACK_SOURCE_TOKEN', 'logtail uptime logs'],
+        ['Grafana Cloud', 'grafana.com', 'GRAFANA_URL:t GRAFANA_API_KEY', 'metrics dashboards'],
+        ['Honeycomb', 'ui.honeycomb.io', 'HONEYCOMB_API_KEY', 'observability tracing'],
+        ['Axiom', 'app.axiom.co', 'AXIOM_TOKEN AXIOM_DATASET:t', 'logs'],
+        ['LogRocket', 'app.logrocket.com', 'LOGROCKET_APP_ID:t', 'session replay'],
+        ['Bugsnag', 'app.bugsnag.com', 'BUGSNAG_API_KEY', 'errors'],
+        ['Rollbar', 'rollbar.com', 'ROLLBAR_ACCESS_TOKEN', 'errors'],
+        ['UptimeRobot', 'dashboard.uptimerobot.com', 'UPTIMEROBOT_API_KEY', 'uptime status'],
+        ['Checkly', 'app.checklyhq.com', 'CHECKLY_API_KEY CHECKLY_ACCOUNT_ID:t', 'synthetic monitoring'],
+      ],
+      'Storage & Media': [
+        ['Amazon S3', 'console.aws.amazon.com/s3', 'S3_BUCKET:t S3_REGION:t S3_ACCESS_KEY_ID:t S3_SECRET_ACCESS_KEY', 'aws files'],
+        ['Cloudflare R2', 'dash.cloudflare.com', 'R2_ACCOUNT_ID:t R2_ACCESS_KEY_ID:t R2_SECRET_ACCESS_KEY R2_BUCKET:t', 's3 files'],
+        ['Google Cloud Storage', 'console.cloud.google.com/storage', 'GCS_BUCKET:t GOOGLE_APPLICATION_CREDENTIALS', 'gcs files'],
+        ['Firebase Storage', 'console.firebase.google.com', 'FIREBASE_STORAGE_BUCKET:t', 'files'],
+        ['Backblaze B2', 'secure.backblaze.com', 'B2_KEY_ID:t B2_APPLICATION_KEY B2_BUCKET:t', 'files'],
+        ['Vercel Blob', 'vercel.com/dashboard/stores', 'BLOB_READ_WRITE_TOKEN', 'files'],
+        ['UploadThing', 'uploadthing.com/dashboard', 'UPLOADTHING_TOKEN', 'uploads'],
+        ['Cloudinary', 'console.cloudinary.com', 'CLOUDINARY_CLOUD_NAME:t CLOUDINARY_API_KEY:t CLOUDINARY_API_SECRET', 'images video'],
+        ['ImageKit', 'imagekit.io/dashboard', 'IMAGEKIT_PUBLIC_KEY:t IMAGEKIT_PRIVATE_KEY IMAGEKIT_URL_ENDPOINT:t', 'images cdn'],
+        ['Bunny.net', 'dash.bunny.net', 'BUNNY_API_KEY BUNNY_STORAGE_ZONE:t BUNNY_STORAGE_PASSWORD', 'cdn storage video'],
+        ['Mux', 'dashboard.mux.com', 'MUX_TOKEN_ID:t MUX_TOKEN_SECRET MUX_WEBHOOK_SECRET', 'video streaming'],
+        ['Unsplash', 'unsplash.com/oauth/applications', 'UNSPLASH_ACCESS_KEY UNSPLASH_SECRET_KEY', 'photos'],
+      ],
+      'Dev & CI': [
+        ['GitHub', 'github.com/settings/tokens', 'GITHUB_TOKEN', 'git repo actions pat'],
+        ['GitHub Actions', 'github.com', 'ACTIONS_SECRET', 'ci'],
+        ['GitLab', 'gitlab.com/-/user_settings/personal_access_tokens', 'GITLAB_TOKEN', 'git ci'],
+        ['Bitbucket', 'bitbucket.org', 'BITBUCKET_USERNAME:t BITBUCKET_APP_PASSWORD', 'git atlassian'],
+        ['npm', 'npmjs.com/settings', 'NPM_TOKEN', 'registry publish'],
+        ['Docker Hub', 'hub.docker.com/settings/security', 'DOCKERHUB_USERNAME:t DOCKERHUB_TOKEN', 'containers registry'],
+        ['CircleCI', 'app.circleci.com', 'CIRCLECI_TOKEN', 'ci'],
+        ['Codemagic', 'codemagic.io/apps', 'CM_API_TOKEN', 'mobile ci flutter'],
+        ['Doppler', 'dashboard.doppler.com', 'DOPPLER_TOKEN', 'secrets'],
+        ['Jira', 'id.atlassian.com/manage-profile/security/api-tokens', 'JIRA_BASE_URL:t JIRA_EMAIL:t JIRA_API_TOKEN', 'atlassian issues'],
+        ['Linear', 'linear.app/settings/api', 'LINEAR_API_KEY', 'issues'],
+        ['Notion', 'notion.so/my-integrations', 'NOTION_API_KEY NOTION_DATABASE_ID:t', 'docs integration'],
+        ['Figma', 'figma.com/developers', 'FIGMA_ACCESS_TOKEN', 'design'],
+        ['Cursor / IDE', '', 'LICENSE_KEY', 'editor license'],
+      ],
+      'Mobile': [
+        ['App Store Connect', 'appstoreconnect.apple.com', 'APPLE_TEAM_ID:t ASC_KEY_ID:t ASC_ISSUER_ID:t ASC_PRIVATE_KEY', 'ios apple testflight'],
+        ['Apple Developer', 'developer.apple.com/account', 'APPLE_TEAM_ID:t BUNDLE_ID:t', 'ios certificates'],
+        ['Google Play Console', 'play.google.com/console', 'ANDROID_PACKAGE_NAME:t GOOGLE_PLAY_SERVICE_ACCOUNT_JSON', 'android publish'],
+        ['Android signing', '', 'ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS:t ANDROID_KEY_PASSWORD', 'keystore upload key'],
+        ['Expo / EAS', 'expo.dev', 'EXPO_TOKEN EXPO_PROJECT_ID:t', 'react native eas build'],
+        ['Fastlane Match', '', 'MATCH_GIT_URL:t MATCH_PASSWORD', 'ios certificates'],
+        ['AdMob', 'apps.admob.com', 'ADMOB_APP_ID_ANDROID:t ADMOB_APP_ID_IOS:t', 'ads google'],
+        ['Branch', 'dashboard.branch.io', 'BRANCH_KEY:t BRANCH_SECRET', 'deep links'],
+        ['AppsFlyer', 'hq1.appsflyer.com', 'APPSFLYER_DEV_KEY APPSFLYER_APP_ID:t', 'attribution'],
+      ],
+      'Maps & Data': [
+        ['Google Maps Platform', 'console.cloud.google.com/google/maps-apis', 'GOOGLE_MAPS_API_KEY', 'places geocoding'],
+        ['Mapbox', 'account.mapbox.com/access-tokens', 'MAPBOX_ACCESS_TOKEN', 'maps'],
+        ['HERE', 'platform.here.com', 'HERE_API_KEY', 'maps'],
+        ['OpenWeather', 'home.openweathermap.org/api_keys', 'OPENWEATHER_API_KEY', 'weather'],
+        ['IPinfo', 'ipinfo.io/account/token', 'IPINFO_TOKEN', 'geolocation'],
+        ['Exchange Rates API', 'exchangeratesapi.io', 'EXCHANGE_RATES_API_KEY', 'currency fx'],
+        ['RapidAPI', 'rapidapi.com/developer', 'RAPIDAPI_KEY RAPIDAPI_HOST:t', 'api marketplace'],
+      ],
+      'Search & CMS': [
+        ['Algolia', 'dashboard.algolia.com', 'ALGOLIA_APP_ID:t ALGOLIA_SEARCH_KEY:t ALGOLIA_ADMIN_KEY', 'search'],
+        ['Meilisearch', 'cloud.meilisearch.com', 'MEILISEARCH_HOST:t MEILISEARCH_API_KEY', 'search'],
+        ['Typesense', 'cloud.typesense.org', 'TYPESENSE_HOST:t TYPESENSE_API_KEY', 'search'],
+        ['Contentful', 'app.contentful.com', 'CONTENTFUL_SPACE_ID:t CONTENTFUL_ACCESS_TOKEN CONTENTFUL_MANAGEMENT_TOKEN', 'headless cms'],
+        ['Sanity', 'sanity.io/manage', 'SANITY_PROJECT_ID:t SANITY_DATASET:t SANITY_API_TOKEN', 'headless cms'],
+        ['Strapi', '', 'STRAPI_URL:t STRAPI_API_TOKEN', 'headless cms'],
+        ['Storyblok', 'app.storyblok.com', 'STORYBLOK_ACCESS_TOKEN', 'headless cms'],
+        ['WordPress', '', 'WP_URL:t WP_USERNAME:t WP_APPLICATION_PASSWORD', 'cms blog'],
+        ['Airtable', 'airtable.com/create/tokens', 'AIRTABLE_TOKEN AIRTABLE_BASE_ID:t', 'spreadsheet database'],
+        ['Google Sheets API', 'console.cloud.google.com/apis', 'GOOGLE_SHEETS_ID:t GOOGLE_SERVICE_ACCOUNT_JSON', 'spreadsheet'],
+      ],
+      'Commerce': [
+        ['Shopify', 'admin.shopify.com', 'SHOPIFY_STORE_DOMAIN:t SHOPIFY_STOREFRONT_ACCESS_TOKEN SHOPIFY_ADMIN_ACCESS_TOKEN', 'store ecommerce'],
+        ['WooCommerce', '', 'WOOCOMMERCE_URL:t WOOCOMMERCE_CONSUMER_KEY WOOCOMMERCE_CONSUMER_SECRET', 'wordpress store'],
+        ['Medusa', '', 'MEDUSA_BACKEND_URL:t MEDUSA_PUBLISHABLE_KEY:t MEDUSA_ADMIN_TOKEN', 'ecommerce'],
+        ['Gumroad', 'app.gumroad.com/settings/advanced', 'GUMROAD_ACCESS_TOKEN', 'digital products'],
+        ['Printful', 'developers.printful.com', 'PRINTFUL_API_KEY', 'print on demand'],
+      ],
+      'Domains & DNS': [
+        ['Namecheap', 'ap.www.namecheap.com', 'NAMECHEAP_API_USER:t NAMECHEAP_API_KEY', 'domains'],
+        ['GoDaddy', 'developer.godaddy.com/keys', 'GODADDY_API_KEY:t GODADDY_API_SECRET', 'domains'],
+        ['Porkbun', 'porkbun.com/account/api', 'PORKBUN_API_KEY PORKBUN_SECRET_KEY', 'domains'],
+        ['Squarespace Domains', 'account.squarespace.com/domains', '', 'google domains'],
+        ['Amazon Route 53', 'console.aws.amazon.com/route53', 'ROUTE53_HOSTED_ZONE_ID:t', 'aws dns'],
+        ['Cloudflare DNS', 'dash.cloudflare.com', 'CLOUDFLARE_API_TOKEN CLOUDFLARE_ZONE_ID:t', 'dns'],
+      ],
+      'Feature flags': [
+        ['LaunchDarkly', 'app.launchdarkly.com', 'LAUNCHDARKLY_SDK_KEY LAUNCHDARKLY_CLIENT_ID:t', 'flags'],
+        ['Statsig', 'console.statsig.com', 'STATSIG_SERVER_SECRET STATSIG_CLIENT_KEY:t', 'experiments flags'],
+        ['ConfigCat', 'app.configcat.com', 'CONFIGCAT_SDK_KEY', 'flags'],
+        ['GrowthBook', 'app.growthbook.io', 'GROWTHBOOK_CLIENT_KEY:t GROWTHBOOK_API_HOST:t', 'ab testing flags'],
+        ['Firebase Remote Config', 'console.firebase.google.com', 'FIREBASE_PROJECT_ID:t', 'flags'],
+      ],
+      'Security': [
+        ['Google reCAPTCHA', 'google.com/recaptcha/admin', 'RECAPTCHA_SITE_KEY:t RECAPTCHA_SECRET_KEY', 'captcha bots'],
+        ['Cloudflare Turnstile', 'dash.cloudflare.com', 'TURNSTILE_SITE_KEY:t TURNSTILE_SECRET_KEY', 'captcha bots'],
+        ['hCaptcha', 'dashboard.hcaptcha.com', 'HCAPTCHA_SITE_KEY:t HCAPTCHA_SECRET', 'captcha bots'],
+        ['Arcjet', 'app.arcjet.com', 'ARCJET_KEY', 'rate limiting bots'],
+        ['Snyk', 'app.snyk.io', 'SNYK_TOKEN', 'vulnerabilities'],
+        ['JWT signing', '', 'JWT_SECRET JWT_EXPIRES_IN:t', 'tokens session'],
+      ],
+      'Automation': [
+        ['Inngest', 'app.inngest.com', 'INNGEST_EVENT_KEY INNGEST_SIGNING_KEY', 'jobs queues'],
+        ['Trigger.dev', 'cloud.trigger.dev', 'TRIGGER_SECRET_KEY', 'jobs'],
+        ['Upstash QStash', 'console.upstash.com/qstash', 'QSTASH_TOKEN QSTASH_CURRENT_SIGNING_KEY QSTASH_NEXT_SIGNING_KEY', 'queue cron'],
+        ['Zapier', 'zapier.com/app/zaps', 'ZAPIER_WEBHOOK_URL', 'automation webhook'],
+        ['Make', 'make.com', 'MAKE_WEBHOOK_URL', 'integromat automation'],
+        ['n8n', 'app.n8n.cloud', 'N8N_URL:t N8N_API_KEY', 'automation workflows'],
+        ['Cron job service', 'console.cron-job.org', 'CRON_SECRET', 'scheduler'],
+      ],
+      'Social APIs': [
+        ['X (Twitter) API', 'developer.x.com/en/portal/dashboard', 'X_API_KEY:t X_API_SECRET X_BEARER_TOKEN', 'twitter'],
+        ['YouTube Data API', 'console.cloud.google.com/apis', 'YOUTUBE_API_KEY', 'google video'],
+        ['Spotify', 'developer.spotify.com/dashboard', 'SPOTIFY_CLIENT_ID:t SPOTIFY_CLIENT_SECRET', 'music'],
+        ['Instagram Graph API', 'developers.facebook.com/apps', 'INSTAGRAM_APP_ID:t INSTAGRAM_ACCESS_TOKEN', 'meta'],
+        ['TikTok', 'developers.tiktok.com', 'TIKTOK_CLIENT_KEY:t TIKTOK_CLIENT_SECRET', 'social'],
+        ['LinkedIn', 'linkedin.com/developers/apps', 'LINKEDIN_CLIENT_ID:t LINKEDIN_CLIENT_SECRET', 'social'],
+        ['Reddit', 'reddit.com/prefs/apps', 'REDDIT_CLIENT_ID:t REDDIT_CLIENT_SECRET', 'social'],
+      ],
+      'Generic': [
+        ['Custom REST API', '', 'API_BASE_URL:t API_KEY', 'http integration'],
+        ['Webhook', '', 'WEBHOOK_URL WEBHOOK_SECRET', 'callback'],
+        ['OAuth client', '', 'CLIENT_ID:t CLIENT_SECRET REDIRECT_URI:t', 'oauth2'],
+        ['SSH server', '', 'SSH_HOST:t SSH_USER:t SSH_PRIVATE_KEY', 'vps server'],
+        ['Environment', '', 'NODE_ENV:t APP_URL:t', 'config'],
+      ],
+    };
+    const CATALOG = Object.entries(CATALOG_SRC).flatMap(([cat, rows]) => rows.map(([name, url, keys, alias = '']) => ({
+      name, cat, url: url ? 'https://' + url : '', alias,
+      keys: keys ? keys.split(' ').map((k) => { const [label, t] = k.split(':'); return { label, type: t === 't' ? 'text' : 'secret' }; }) : [],
+    })));
+    const CATEGORIES = [...Object.keys(CATALOG_SRC).filter((c) => c !== 'Generic'), 'Other'];
+    const presetByName = (n) => { n = String(n || '').trim().toLowerCase(); return n ? CATALOG.find((x) => x.name.toLowerCase() === n) : null; };
+    /* Identity providers for accounts (login URL + default credential fields). */
+    const ACCOUNT_PROVIDERS = [
+      ['Google', 'myaccount.google.com'], ['Apple ID', 'account.apple.com'], ['Microsoft', 'account.microsoft.com'],
+      ['GitHub', 'github.com/settings/profile'], ['GitLab', 'gitlab.com/-/user_settings/profile'], ['Atlassian', 'id.atlassian.com'],
+      ['Meta / Facebook', 'accountscenter.facebook.com'], ['Amazon / AWS', 'console.aws.amazon.com'], ['Email / password', ''],
+    ];
+    const providerUrl = (name) => {
+      const n = String(name || '').trim().toLowerCase();
+      const p = ACCOUNT_PROVIDERS.find(([x]) => x.toLowerCase() === n);
+      if (p) return p[1] ? 'https://' + p[1] : '';
+      const c = presetByName(name);
+      return c ? c.url : '';
+    };
+    const ACCOUNT_DEFAULT_FIELDS = [{ label: 'Password', type: 'secret' }, { label: 'Recovery codes', type: 'secret' }];
+    function searchCatalog(q, cat = 'All') {
+      q = String(q || '').trim().toLowerCase();
+      const pool = cat === 'All' ? CATALOG : CATALOG.filter((x) => x.cat === cat);
+      if (!q) return pool;
+      return pool.map((x) => {
+        const n = x.name.toLowerCase();
+        const sc = n === q ? 6 : n.startsWith(q) ? 5 : n.includes(q) ? 4 : x.alias.includes(q) ? 3 : x.cat.toLowerCase().includes(q) ? 2 : x.keys.some((k) => k.label.toLowerCase().includes(q)) ? 1 : 0;
+        return [sc, x];
+      }).filter(([s]) => s).sort((a, b) => b[0] - a[0] || a[1].name.localeCompare(b[1].name)).map(([, x]) => x);
+    }
     const LS = { vault: 'sv_vault', prev: 'sv_vault_prev', legacy: 'sv_database', sync: 'sv_sync', prefs: 'sv_prefs', device: 'sv_device' };
     const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
 
@@ -620,35 +1003,55 @@
 
     /* Remembered key: a non-extractable CryptoKey kept in IndexedDB (never the password). */
     const KeyStore = {
-      db() {
-        return new Promise((res, rej) => {
+      /* Opens the DB, runs one transaction, and always closes the connection. */
+      async run(mode, fn) {
+        const db = await new Promise((res, rej) => {
           const r = indexedDB.open('stackvault', 1);
           r.onupgradeneeded = () => r.result.createObjectStore('keys');
           r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
         });
+        try {
+          return await new Promise((res, rej) => {
+            const tx = db.transaction('keys', mode);
+            const out = fn(tx.objectStore('keys'));
+            tx.oncomplete = () => res(out && 'result' in out ? out.result : undefined);
+            tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+          });
+        } finally { db.close(); }
       },
-      async get() {
-        try { const db = await this.db(); return await new Promise((res) => { const q = db.transaction('keys').objectStore('keys').get('vault'); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); }
-        catch { return null; }
-      },
-      async set(v) {
-        const db = await this.db();
-        await new Promise((res, rej) => { const tx = db.transaction('keys', 'readwrite'); tx.objectStore('keys').put(v, 'vault'); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
-      },
-      async clear() {
-        try { const db = await this.db(); await new Promise((res) => { const tx = db.transaction('keys', 'readwrite'); tx.objectStore('keys').delete('vault'); tx.oncomplete = res; tx.onerror = res; }); } catch {}
-      },
+      async get() { try { return (await this.run('readonly', (s) => s.get('vault'))) || null; } catch { return null; } },
+      async set(v) { await this.run('readwrite', (s) => { s.put(v, 'vault'); }); },
+      async clear() { try { await this.run('readwrite', (s) => { s.delete('vault'); }); } catch {} },
     };
 
     /* ═════════════════ Data model + merge ═════════════════
-       Vault = { schema:2, resetAt, tombstones:{path:ts}, projects:[{…, tools:[{…, fields:[…]}]}] }
-       Every project/tool/field carries createdAt/updatedAt so two PCs' edits can be merged. */
-    const CHILD = ['tools', 'fields'];
+       Vault = { schema:2, resetAt, tombstones:{path:ts},
+                 accounts:[{…, fields:[…]}],
+                 projects:[{…, tools:[{…, accountId, fields:[…]}]}] }
+       Accounts live on their own; a tool links to one account by id, so one account can serve
+       many tools/projects and a project can use many accounts.
+       Every item carries createdAt/updatedAt so two PCs' edits can be merged. */
+    const hashId = (s) => {
+      let h1 = 0x811c9dc5, h2 = 0x01000193;
+      for (const c of String(s)) { const k = c.codePointAt(0); h1 = Math.imul(h1 ^ k, 16777619) >>> 0; h2 = Math.imul(h2 ^ k, 2246822519) >>> 0; }
+      return h1.toString(36) + h2.toString(36);
+    };
+    function guessProvider(email) {
+      const d = String(email).toLowerCase().split('@')[1] || '';
+      if (/^(gmail|googlemail)\.com$/.test(d)) return 'Google';
+      if (/^(outlook|hotmail|live|msn)\./.test(d)) return 'Microsoft';
+      if (/^(icloud|me|mac)\.com$/.test(d)) return 'Apple';
+      return '';
+    }
+    const normFields = (list) => (Array.isArray(list) ? list : []).map((f) => {
+      f.id = String(f.id); f.label = String(f.label ?? ''); f.value = String(f.value ?? ''); f.type = f.type === 'text' ? 'text' : 'secret';
+      return f;
+    });
     const Model = {
-      empty: () => ({ schema: 2, resetAt: 0, tombstones: {}, projects: [] }),
+      empty: () => ({ schema: 2, resetAt: 0, tombstones: {}, accounts: [], projects: [] }),
       fromLegacy(old) {
         return {
-          schema: 2, resetAt: 0, tombstones: {},
+          schema: 2, resetAt: 0, tombstones: {}, accounts: [],
           projects: (old.projects || []).map((p, pi) => ({
             id: String(p.id || uid('p')), name: String(p.name || 'Untitled'), description: String(p.description || ''), createdAt: pi + 1, updatedAt: 1,
             tools: (p.tools || []).map((t, ti) => ({
@@ -662,18 +1065,37 @@
       },
       normalize(d) {
         if (!d || typeof d !== 'object') return this.empty();
-        if (d.schema !== 2) return this.fromLegacy(d);
+        if (d.schema !== 2) d = this.fromLegacy(d);
         d.projects = Array.isArray(d.projects) ? d.projects : [];
+        d.accounts = Array.isArray(d.accounts) ? d.accounts : [];
         d.tombstones = d.tombstones && typeof d.tombstones === 'object' ? d.tombstones : {};
         d.resetAt = Number(d.resetAt) || 0;
+        for (const a of d.accounts) {
+          a.id = String(a.id); a.url = safeUrl(a.url);
+          for (const k of ['name', 'email', 'provider', 'notes']) a[k] = String(a[k] ?? '');
+          a.fields = normFields(a.fields);
+        }
+        const known = new Set(d.accounts.map((a) => a.id));
         for (const p of d.projects) {
           p.id = String(p.id); p.name = String(p.name ?? ''); p.description = String(p.description ?? '');
           p.tools = Array.isArray(p.tools) ? p.tools : [];
           for (const t of p.tools) {
             t.id = String(t.id); t.name = String(t.name ?? ''); t.consoleUrl = safeUrl(t.consoleUrl);
-            for (const k of ['category', 'tier', 'account', 'resourceId', 'notes']) t[k] = String(t[k] ?? '');
-            t.fields = Array.isArray(t.fields) ? t.fields : [];
-            for (const f of t.fields) { f.id = String(f.id); f.label = String(f.label ?? ''); f.value = String(f.value ?? ''); f.type = f.type === 'text' ? 'text' : 'secret'; }
+            for (const k of ['category', 'tier', 'resourceId', 'notes']) t[k] = String(t[k] ?? '');
+            // Migrate the old free-text "account" into a shared account record. The id is derived
+            // from the email so every PC migrates to the same account and merges cleanly.
+            const legacy = String(t.account ?? '').trim();
+            if (legacy && !t.accountId) {
+              const id = 'a_' + hashId(legacy.toLowerCase());
+              if (!known.has(id)) {
+                d.accounts.push({ id, name: '', email: legacy, provider: guessProvider(legacy), url: '', notes: '', createdAt: 1, updatedAt: 1, fields: [] });
+                known.add(id);
+              }
+              t.accountId = id;
+            }
+            delete t.account;
+            t.accountId = String(t.accountId ?? '');
+            t.fields = normFields(t.fields);
           }
         }
         return d;
@@ -681,42 +1103,48 @@
       /* Deterministic 2-way merge: newest updatedAt wins per item, deletions via tombstones,
          and a restore (resetAt) drops older items the other side never touched since. */
       merge(a, b) {
-        const ra = a.resetAt || 0, rb = b.resetAt || 0, R = Math.max(ra, rb);
+        const ra = a.resetAt || 0, rb = b.resetAt || 0, R = Math.max(ra, rb), aNew = ra >= rb, bNew = rb >= ra;
         const tomb = {};
         for (const src of [a.tombstones, b.tombstones]) for (const [k, v] of Object.entries(src || {})) if (!(tomb[k] >= v)) tomb[k] = v;
         const cutoff = now() - TOMBSTONE_TTL;
         for (const k in tomb) if (tomb[k] < cutoff || tomb[k] <= R) delete tomb[k];
-        const list = (la, lb, depth, prefix, aNew, bNew) => {
+        const list = (la, lb, kids, prefix) => {
           const ma = new Map((la || []).map((x) => [x.id, x])), mb = new Map((lb || []).map((x) => [x.id, x]));
-          const ck = CHILD[depth], out = [];
+          const ck = kids[0], rest = kids.slice(1), out = [];
           for (const id of new Set([...ma.keys(), ...mb.keys()])) {
             const x = ma.get(id), y = mb.get(id), path = prefix + id;
             let item;
             if (x && y) {
               item = { ...((y.updatedAt || 0) > (x.updatedAt || 0) ? y : x) };
-              if (ck) item[ck] = list(x[ck], y[ck], depth + 1, path + '/', aNew, bNew);
+              if (ck) item[ck] = list(x[ck], y[ck], rest, path + '/');
             } else {
               const only = x || y;
               if (!(x ? aNew : bNew) && (only.updatedAt || 0) <= R) continue;
               item = { ...only };
-              if (ck) item[ck] = list(x ? only[ck] : [], y ? only[ck] : [], depth + 1, path + '/', aNew, bNew);
+              if (ck) item[ck] = list(x ? only[ck] : [], y ? only[ck] : [], rest, path + '/');
             }
             if (tomb[path] && tomb[path] >= (item.updatedAt || 0)) continue;
             out.push(item);
           }
           return out.sort((p, q) => (p.createdAt || 0) - (q.createdAt || 0) || (p.id < q.id ? -1 : p.id > q.id ? 1 : 0));
         };
-        return { schema: 2, resetAt: R, tombstones: tomb, projects: list(a.projects, b.projects, 0, '', ra >= rb, rb >= ra) };
+        return {
+          schema: 2, resetAt: R, tombstones: tomb,
+          accounts: list(a.accounts, b.accounts, ['fields'], '@'),
+          projects: list(a.projects, b.projects, ['tools', 'fields'], ''),
+        };
       },
       /* Mark every item as just-written so a restored snapshot beats older edits on other PCs. */
       stampAll(d, ts) {
+        for (const a of d.accounts) { a.updatedAt = ts; for (const f of a.fields) f.updatedAt = ts; }
         for (const p of d.projects) { p.updatedAt = ts; for (const t of p.tools) { t.updatedAt = ts; for (const f of t.fields) f.updatedAt = ts; } }
         return d;
       },
       counts(d) {
         let tools = 0, keys = 0;
         for (const p of d.projects) { tools += p.tools.length; for (const t of p.tools) keys += t.fields.length; }
-        return { projects: d.projects.length, tools, keys };
+        for (const a of d.accounts) keys += a.fields.length;
+        return { projects: d.projects.length, tools, keys, accounts: d.accounts.length };
       },
     };
 
@@ -730,8 +1158,28 @@
     const touch = (o) => { o.updatedAt = tick(); };
     const findProject = (id) => S.data.projects.find((p) => p.id === id);
     const curProject = () => findProject(S.projectId);
+    const findAccount = (id) => (id ? S.data.accounts.find((a) => a.id === id) : null);
+    const acctTitle = (a) => (a ? a.name || a.email || 'Unnamed account' : '');
+    const acctLabel = (a) => (a ? (a.name && a.email ? `${a.name} · ${a.email}` : acctTitle(a)) + (a.provider ? ` (${a.provider})` : '') : '');
+    const sortedAccounts = () => [...S.data.accounts].sort((x, y) => acctTitle(x).localeCompare(acctTitle(y)));
     function findTool(tid) { for (const p of S.data.projects) { const t = p.tools.find((x) => x.id === tid); if (t) return { p, t }; } return {}; }
-    function findField(tid, fid) { const { p, t } = findTool(tid); return { p, t, f: t && t.fields.find((x) => x.id === fid) }; }
+    /* A "field owner" is either a tool or an account; both hold a fields[] list. */
+    function findOwner(oid) {
+      const { p, t } = findTool(oid);
+      if (t) return { kind: 'tool', p, t, path: `${p.id}/${t.id}/` };
+      const a = findAccount(oid);
+      return a ? { kind: 'account', t: a, path: `@${a.id}/` } : {};
+    }
+    function findField(oid, fid) {
+      const o = findOwner(oid);
+      const f = o.t && o.t.fields.find((x) => x.id === fid);
+      return { ...o, f, path: f ? o.path + f.id : '' };
+    }
+    function accountUsage(aid) {
+      const out = [];
+      for (const p of S.data.projects) for (const t of p.tools) if (t.accountId === aid) out.push({ p, t });
+      return out;
+    }
     const lastTouched = (t) => Math.max(t.updatedAt || 0, ...t.fields.map((f) => f.updatedAt || 0));
 
     /* Saves are serialized so the newest state always wins in localStorage. */
@@ -1160,7 +1608,12 @@
       if (Modal.isOpen()) { S.pendingRender = true; renderRail(); return; }
       render();
     }
-    function rerenderStack() { const el = $('#toolStack'), p = curProject(); if (el && p) el.innerHTML = toolStack(p); }
+    function rerenderStack() {
+      const el = $('#toolStack');
+      if (!el) return;
+      if (S.view === 'accounts') el.innerHTML = acctStack();
+      else { const p = curProject(); if (p) el.innerHTML = toolStack(p); }
+    }
 
     function renderRail() {
       $('#projectList').innerHTML = S.data.projects.map((p) => {
@@ -1197,7 +1650,7 @@
       const p = curProject();
       if (!p) return viewWelcome();
       const keys = p.tools.reduce((n, t) => n + t.fields.length, 0);
-      const accts = new Set(p.tools.map((t) => t.account).filter(Boolean)).size;
+      const accts = new Set(p.tools.map((t) => t.accountId).filter((id) => findAccount(id))).size;
       const updated = Math.max(p.updatedAt || 0, ...p.tools.map(lastTouched));
       return `<section class="page">
         <div class="page-head">
@@ -1215,7 +1668,7 @@
           </div>
         </div>
         <div class="toolbar">
-          <label class="search-field">${ic('search')}<input type="search" placeholder="Filter tools and keys…" value="${esc(S.filter)}" data-input="filter" autocomplete="off" spellcheck="false" aria-label="Filter tools and keys"></label>
+          <label class="search-field">${ic('search')}<input type="search" placeholder="Filter tools, accounts and keys…" value="${esc(S.filter)}" data-input="filter" autocomplete="off" spellcheck="false" aria-label="Filter tools and keys"></label>
           <button class="btn${S.revealAll ? ' is-on' : ''}" data-act="reveal-all" aria-pressed="${S.revealAll}">${ic(S.revealAll ? 'eye-off' : 'eye')}${S.revealAll ? 'Hide values' : 'Reveal values'}</button>
           <button class="btn btn-primary" data-act="add-tool">${ic('plus')}Add tool</button>
         </div>
@@ -1223,20 +1676,25 @@
       </section>`;
     }
     function toolStack(p) {
-      if (!p.tools.length) return emptyState('layers', 'No tools yet', 'Add the services this project uses — Firebase, Stripe, Vercel, Supabase… — and keep their accounts and keys together.', `<button class="btn btn-primary" data-act="add-tool">${ic('plus')} Add first tool</button>`);
+      if (!p.tools.length) return emptyState('layers', 'No tools yet', 'Add the services this project uses — pick from 190+ presets like Firebase, Stripe or OpenAI and their standard keys are filled in for you.', `<button class="btn btn-primary" data-act="add-tool">${ic('plus')} Add first tool</button>`);
       const q = S.filter.trim().toLowerCase();
       const html = p.tools.map((t) => {
-        const toolHit = !q || [t.name, t.category, t.account, t.resourceId, t.tier].some((v) => String(v || '').toLowerCase().includes(q));
+        const toolHit = !q || [t.name, t.category, acctLabel(findAccount(t.accountId)), t.resourceId, t.tier].some((v) => String(v || '').toLowerCase().includes(q));
         const fields = q && !toolHit ? t.fields.filter((f) => f.label.toLowerCase().includes(q)) : t.fields;
         if (q && !toolHit && !fields.length) return '';
         return toolCard(t, fields, !!q);
       }).join('');
       return html || emptyState('search', 'No matches', `Nothing in this project matches “${esc(S.filter)}”.`);
     }
+    function acctChip(t) {
+      const a = findAccount(t.accountId);
+      if (!a) return `<button class="acct-chip none" data-act="edit-tool" data-id="${esc(t.id)}" title="Link an account">${ic('plus')}Link account</button>`;
+      return `<button class="acct-chip" data-act="goto-account" data-id="${esc(a.id)}" title="${esc(acctLabel(a))}">${avatarHtml(acctTitle(a), '', 'xs')}<span>${esc(acctTitle(a))}</span></button>`;
+    }
     function toolCard(t, fields, filtering) {
       const open = filtering || !S.collapsed.has(t.id);
       const url = safeUrl(t.consoleUrl), id = esc(t.id);
-      const meta = [t.category && `<span>${esc(t.category)}</span>`, t.account && `<span class="mono" title="Account">${esc(t.account)}</span>`, t.resourceId && `<span class="mono" title="Resource ID">${esc(t.resourceId)}</span>`].filter(Boolean);
+      const meta = [acctChip(t), t.category && `<span>${esc(t.category)}</span>`, t.resourceId && `<span class="mono" title="Resource ID">${esc(t.resourceId)}</span>`].filter(Boolean);
       meta.push(`<span>${plural(t.fields.length, 'key')}</span>`);
       return `<article class="tool${open ? '' : ' collapsed'}" id="tool-${id}">
         <header class="tool-head">
@@ -1257,26 +1715,27 @@
           ${t.notes ? `<p class="tool-notes">${esc(t.notes)}</p>` : ''}
           ${fields.length ? `<div class="kv-list">${fields.map((f) => kvRow(t, f)).join('')}</div>` : `<p class="kv-empty">No keys yet — add one or paste a .env file.</p>`}
           <div class="tool-foot">
-            <button class="btn btn-ghost btn-sm" data-act="add-field" data-id="${id}">${ic('plus')}Add key</button>
-            <button class="btn btn-ghost btn-sm" data-act="bulk-env" data-id="${id}">${ic('clipboard')}Paste .env</button>
+            <button class="btn btn-ghost btn-sm" data-act="add-field" data-owner="${id}">${ic('plus')}Add key</button>
+            <button class="btn btn-ghost btn-sm" data-act="bulk-env" data-owner="${id}">${ic('clipboard')}Paste .env</button>
           </div>
         </div>` : ''}
       </article>`;
     }
-    function kvRow(t, f) {
+    /* One key/value row; `o` is the owner (a tool or an account). */
+    function kvRow(o, f) {
       const secret = f.type !== 'text';
       const shown = !secret || S.revealAll || S.revealed.has(f.id);
       const multi = f.value.includes('\n');
-      const tid = esc(t.id), fid = esc(f.id);
+      const oid = esc(o.id), fid = esc(f.id);
       return `<div class="kv" id="kv-${fid}">
-        <button class="kv-key" data-act="edit-field" data-tool="${tid}" data-id="${fid}" title="Edit key">${secret ? ic('key', 'kv-ico') : ''}<span>${esc(f.label)}</span></button>
+        <button class="kv-key" data-act="edit-field" data-owner="${oid}" data-id="${fid}" title="Edit">${secret ? ic('key', 'kv-ico') : ''}<span>${esc(f.label)}</span></button>
         <div class="kv-val">${multi
-          ? `<input type="${shown ? 'text' : 'password'}" value="${esc(shown ? f.value.split('\n')[0] + ' … (multi-line)' : f.value)}" readonly data-act="edit-field" data-tool="${tid}" data-id="${fid}" aria-label="${esc(f.label)} value (multi-line, click to edit)">`
-          : `<input type="${shown ? 'text' : 'password'}" value="${esc(f.value)}" placeholder="empty" data-change="field-value" data-tool="${tid}" data-id="${fid}" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" aria-label="${esc(f.label)} value">`}</div>
+          ? `<input type="${shown ? 'text' : 'password'}" value="${esc(shown ? f.value.split('\n')[0] + ' … (multi-line)' : f.value)}" readonly data-act="edit-field" data-owner="${oid}" data-id="${fid}" aria-label="${esc(f.label)} value (multi-line, click to edit)">`
+          : `<input type="${shown ? 'text' : 'password'}" value="${esc(f.value)}" placeholder="empty" data-change="field-value" data-owner="${oid}" data-id="${fid}" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" aria-label="${esc(f.label)} value">`}</div>
         <div class="kv-actions">
           ${secret ? `<button class="icon-btn" data-act="toggle-reveal" data-id="${fid}" title="${shown ? 'Hide' : 'Show'}" aria-label="${shown ? 'Hide' : 'Show'} ${esc(f.label)}">${ic(shown ? 'eye-off' : 'eye')}</button>` : ''}
-          <button class="icon-btn" data-act="copy-field" data-tool="${tid}" data-id="${fid}" title="Copy value" aria-label="Copy ${esc(f.label)}">${ic('copy')}</button>
-          <button class="icon-btn danger" data-act="delete-field" data-tool="${tid}" data-id="${fid}" title="Delete key" aria-label="Delete ${esc(f.label)}">${ic('trash')}</button>
+          <button class="icon-btn" data-act="copy-field" data-owner="${oid}" data-id="${fid}" title="Copy value" aria-label="Copy ${esc(f.label)}">${ic('copy')}</button>
+          <button class="icon-btn danger" data-act="delete-field" data-owner="${oid}" data-id="${fid}" title="Delete" aria-label="Delete ${esc(f.label)}">${ic('trash')}</button>
         </div>
       </div>`;
     }
@@ -1285,42 +1744,84 @@
       const rows = [];
       S.data.projects.forEach((p) => p.tools.forEach((t) => rows.push({ p, t })));
       const c = Model.counts(S.data);
-      const accounts = new Set(rows.map((r) => r.t.account).filter(Boolean)).size;
-      const stat = (label, n) => `<div class="card stat"><small>${label}</small><b>${n}</b></div>`;
+      const stat = (label, n, act) => `<button class="card stat" ${act ? `data-act="view" data-view="${act}"` : 'disabled'}><small>${label}</small><b>${n}</b></button>`;
       return `<section class="page">
         <div class="page-head"><div class="page-title"><div class="eyebrow">Overview</div><h1>Your stack</h1><p class="lede">Every service, account and key across all of your projects.</p></div></div>
-        <div class="stats">${stat('Projects', c.projects)}${stat('Tools', c.tools)}${stat('Keys', c.keys)}${stat('Accounts', accounts)}</div>
+        <div class="stats">${stat('Projects', c.projects)}${stat('Tools', c.tools)}${stat('Keys', c.keys)}${stat('Accounts', c.accounts, 'accounts')}</div>
         ${rows.length ? `<div class="card table-wrap"><table class="table">
           <thead><tr><th>Project</th><th>Tool</th><th>Tier</th><th>Account</th><th class="num">Keys</th><th>Updated</th></tr></thead>
-          <tbody>${rows.map(({ p, t }) => `<tr data-act="goto-tool" data-id="${esc(t.id)}" tabindex="0">
+          <tbody>${rows.map(({ p, t }) => { const a = findAccount(t.accountId); return `<tr data-act="goto-tool" data-id="${esc(t.id)}" tabindex="0">
             <td><span class="cell-proj"><span class="dot" style="--hue:${hue(p.name)}"></span>${esc(p.name)}</span></td>
             <td><b>${esc(t.name)}</b></td>
             <td><span class="tier ${tierClass(t.tier)}">${esc(t.tier || 'Prod')}</span></td>
-            <td class="mono muted">${esc(t.account || '—')}</td>
+            <td class="muted">${a ? esc(acctTitle(a)) : '—'}</td>
             <td class="num">${t.fields.length}</td>
-            <td class="muted">${timeAgo(lastTouched(t))}</td></tr>`).join('')}</tbody>
+            <td class="muted">${timeAgo(lastTouched(t))}</td></tr>`; }).join('')}</tbody>
         </table></div>` : emptyState('grid', 'Nothing here yet', 'Tools you add to projects show up in this cross-project table.', `<button class="btn btn-primary" data-act="new-project">${ic('plus')} New project</button>`)}
       </section>`;
     }
 
     function viewAccounts() {
-      const map = new Map();
-      S.data.projects.forEach((p) => p.tools.forEach((t) => {
-        const a = t.account.trim() || 'Unassigned';
-        if (!map.has(a)) map.set(a, []);
-        map.get(a).push({ p, t });
-      }));
-      const groups = [...map.entries()].sort((x, y) => (x[0] === 'Unassigned') - (y[0] === 'Unassigned') || y[1].length - x[1].length);
+      const unlinked = [];
+      S.data.projects.forEach((p) => p.tools.forEach((t) => { if (!findAccount(t.accountId)) unlinked.push({ p, t }); }));
       return `<section class="page">
-        <div class="page-head"><div class="page-title"><div class="eyebrow">Directory</div><h1>Accounts</h1><p class="lede">Which login owns which service — handy when billing, 2FA or ownership changes.</p></div></div>
-        ${groups.length ? `<div class="acct-grid">${groups.map(([a, items]) => `<div class="card acct">
-          <div class="acct-head">${avatarHtml(a, '', 'lg')}<div><h3>${esc(a)}</h3><small>${plural(items.length, 'tool')} · ${plural(new Set(items.map((x) => x.p.id)).size, 'project')}</small></div>
-            ${a !== 'Unassigned' ? `<button class="icon-btn" data-act="copy-account" data-value="${esc(a)}" title="Copy" aria-label="Copy ${esc(a)}">${ic('copy')}</button>` : ''}</div>
-          <div class="chips">${items.map(({ p, t }) => `<button class="chip" data-act="goto-tool" data-id="${esc(t.id)}"><span class="dot" style="--hue:${hue(p.name)}"></span>${esc(p.name)}<span class="sep">/</span><b>${esc(t.name)}</b></button>`).join('')}</div>
-        </div>`).join('')}</div>` : emptyState('users', 'No accounts yet', 'Set the account / login email on a tool and it will be grouped here.')}
+        <div class="page-head">
+          <div class="page-title"><div class="eyebrow">Directory</div><h1>Accounts</h1><p class="lede">The logins you use across projects — with their passwords and recovery codes. Link any tool to an account; one account can serve many projects.</p></div>
+          <div class="head-actions"><button class="btn btn-primary" data-act="new-account">${ic('plus')}New account</button></div>
+        </div>
+        ${S.data.accounts.length ? `<div class="toolbar">
+          <label class="search-field">${ic('search')}<input type="search" placeholder="Filter accounts…" value="${esc(S.filter)}" data-input="filter" autocomplete="off" spellcheck="false" aria-label="Filter accounts"></label>
+          <button class="btn${S.revealAll ? ' is-on' : ''}" data-act="reveal-all" aria-pressed="${S.revealAll}">${ic(S.revealAll ? 'eye-off' : 'eye')}${S.revealAll ? 'Hide values' : 'Reveal values'}</button>
+        </div>` : ''}
+        <div id="toolStack" class="tool-stack">${acctStack()}</div>
+        ${unlinked.length && S.data.accounts.length ? `<div class="card unlinked">
+          <div class="card-head">${ic('alert')}<div><h2>Tools without an account</h2><p>Link these so you always know which login owns them.</p></div></div>
+          <div class="card-body chips">${unlinked.map(({ p, t }) => `<button class="chip" data-act="edit-tool" data-id="${esc(t.id)}"><span class="dot" style="--hue:${hue(p.name)}"></span>${esc(p.name)}<span class="sep">/</span><b>${esc(t.name)}</b></button>`).join('')}</div>
+        </div>` : ''}
       </section>`;
     }
-
+    function acctStack() {
+      if (!S.data.accounts.length) return emptyState('users', 'No accounts yet', 'Add the Google, GitHub, Apple… logins you use. Then link tools to them from any project.', `<button class="btn btn-primary" data-act="new-account">${ic('plus')} Add first account</button>`);
+      const q = S.filter.trim().toLowerCase();
+      const html = sortedAccounts().map((a) => {
+        const hit = !q || [a.name, a.email, a.provider, a.notes].some((v) => v.toLowerCase().includes(q))
+          || accountUsage(a.id).some(({ p, t }) => (p.name + ' ' + t.name).toLowerCase().includes(q));
+        const fields = q && !hit ? a.fields.filter((f) => f.label.toLowerCase().includes(q)) : a.fields;
+        if (q && !hit && !fields.length) return '';
+        return acctCard(a, fields, !!q);
+      }).join('');
+      return html || emptyState('search', 'No matches', `No account matches “${esc(S.filter)}”.`);
+    }
+    function acctCard(a, fields, filtering) {
+      const open = filtering || !S.collapsed.has(a.id);
+      const id = esc(a.id), url = safeUrl(a.url), used = accountUsage(a.id);
+      const projects = new Set(used.map((u) => u.p.id)).size;
+      const meta = [a.name && a.email && `<span class="mono">${esc(a.email)}</span>`, `<span>${used.length ? `${plural(used.length, 'tool')} · ${plural(projects, 'project')}` : 'Not linked yet'}</span>`].filter(Boolean);
+      return `<article class="tool acct-card${open ? '' : ' collapsed'}" id="acct-${id}">
+        <header class="tool-head">
+          <button class="icon-btn tool-toggle" data-act="toggle-tool" data-id="${id}" aria-expanded="${open}" aria-label="${open ? 'Collapse' : 'Expand'} ${esc(acctTitle(a))}">${ic('chevron-down')}</button>
+          ${avatarHtml(acctTitle(a), '', 'lg')}
+          <div class="tool-title">
+            <h3>${esc(acctTitle(a))} ${a.provider ? `<span class="tier">${esc(a.provider)}</span>` : ''}</h3>
+            <div class="tool-meta">${meta.join('')}</div>
+          </div>
+          <div class="tool-actions">
+            ${url ? `<a class="icon-btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="Open account page" aria-label="Open ${esc(acctTitle(a))} account page">${ic('external')}</a>` : ''}
+            ${a.email ? `<button class="icon-btn" data-act="copy-account" data-value="${esc(a.email)}" title="Copy login" aria-label="Copy ${esc(a.email)}">${ic('copy')}</button>` : ''}
+            <button class="icon-btn" data-act="edit-account" data-id="${id}" title="Edit account" aria-label="Edit ${esc(acctTitle(a))}">${ic('pencil')}</button>
+            <button class="icon-btn danger" data-act="delete-account" data-id="${id}" title="Delete account" aria-label="Delete ${esc(acctTitle(a))}">${ic('trash')}</button>
+          </div>
+        </header>
+        ${open ? `<div class="tool-body">
+          ${a.notes ? `<p class="tool-notes">${esc(a.notes)}</p>` : ''}
+          <div class="usedby"><span>Used by</span>${used.length ? `<div class="chips">${used.map(({ p, t }) => `<button class="chip" data-act="goto-tool" data-id="${esc(t.id)}"><span class="dot" style="--hue:${hue(p.name)}"></span>${esc(p.name)}<span class="sep">/</span><b>${esc(t.name)}</b></button>`).join('')}</div>` : `<small class="muted">No tools yet — pick this account when adding or editing a tool.</small>`}</div>
+          ${fields.length ? `<div class="kv-list">${fields.map((f) => kvRow(a, f)).join('')}</div>` : `<p class="kv-empty">No credentials saved.</p>`}
+          <div class="tool-foot">
+            <button class="btn btn-ghost btn-sm" data-act="add-field" data-owner="${id}">${ic('plus')}Add credential</button>
+          </div>
+        </div>` : ''}
+      </article>`;
+    }
     function syncDetail() {
       const p = Prefs.get(), m = Sync.meta();
       if (!p.driveEnabled) {
@@ -1457,7 +1958,7 @@
       if (remember) await KeyStore.set({ key, salt: kdf.salt, iter: kdf.iter }).catch(() => {});
       else await KeyStore.clear();
       const legacy = lsGet(LS.legacy);
-      if (legacy && Array.isArray(legacy.projects)) { S.data = Model.merge(S.data, Model.fromLegacy(legacy)); save = true; }
+      if (legacy && Array.isArray(legacy.projects)) { S.data = Model.merge(S.data, Model.normalize(legacy)); save = true; }
       if (save) await persist(true);
       if (legacy) { ['sv_database', 'sv_master_key', 'sv_theme'].forEach((k) => localStorage.removeItem(k)); toast('Old unencrypted vault migrated and removed'); }
       const last = Prefs.get().lastProject;
@@ -1605,74 +2106,177 @@
         },
       });
     }
-    function defaultAccount() {
+    function defaultAccountId() {
+      if (!S.data.accounts.length) return '__new';
       const p = curProject(), freq = {};
-      if (p) p.tools.forEach((t) => { if (t.account) freq[t.account] = (freq[t.account] || 0) + 1; });
-      return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] || Prefs.get().driveEmail || '';
+      if (p) p.tools.forEach((t) => { if (findAccount(t.accountId)) freq[t.accountId] = (freq[t.accountId] || 0) + 1; });
+      return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] || '';
+    }
+    const providerOptions = () => [...new Set([...ACCOUNT_PROVIDERS.map(([n]) => n), ...CATALOG.map((x) => x.name)])].map((n) => `<option value="${esc(n)}">`).join('');
+    /* Create (or reuse, if the same login + provider already exists) a shared account. */
+    function createAccount({ name = '', email = '', provider = '', url, notes = '', withDefaults = true }) {
+      const ex = S.data.accounts.find((a) => email && a.email.toLowerCase() === email.toLowerCase() && a.provider.toLowerCase() === provider.toLowerCase());
+      if (ex) return ex;
+      const ts = tick();
+      const a = {
+        id: uid('a'), name, email, provider, url: url ?? providerUrl(provider), notes, createdAt: ts, updatedAt: ts,
+        fields: withDefaults ? ACCOUNT_DEFAULT_FIELDS.map((f) => ({ id: uid('f'), ...f, value: '', createdAt: tick(), updatedAt: ts })) : [],
+      };
+      S.data.accounts.push(a);
+      return a;
+    }
+
+    /* ── Tool modal: catalog picker (new tools) → details form with account link + default keys ── */
+    const presetBtn = (x) => `<button type="button" class="preset" data-act="pick-preset" data-name="${esc(x.name)}"><span class="tool-avatar sm" style="--hue:${hue(x.name)}">${esc(initial(x.name))}</span><span><b>${esc(x.name)}</b><small>${esc(x.cat)} · ${plural(x.keys.length, 'key')}</small></span></button>`;
+    function presetListHtml(q, cat) {
+      const res = searchCatalog(q, cat);
+      const custom = `<button type="button" class="preset custom" data-act="pick-preset" data-name="">${ic('plus')}<span><b>${q ? `Custom: “${esc(q)}”` : 'Custom tool'}</b><small>Start from a blank tool</small></span></button>`;
+      if (!res.length) return `<p class="muted pad">No preset matches “${esc(q)}”.</p><div class="preset-grid">${custom}</div>`;
+      if (q) return `<div class="preset-grid">${res.slice(0, 80).map(presetBtn).join('')}${custom}</div>`;
+      const groups = {};
+      res.forEach((x) => (groups[x.cat] = groups[x.cat] || []).push(x));
+      return Object.entries(groups).map(([c, xs]) => `<div class="preset-group"><h4>${esc(c)}</h4><div class="preset-grid">${xs.map(presetBtn).join('')}</div></div>`).join('')
+        + `<div class="preset-group"><h4>Something else</h4><div class="preset-grid">${custom}</div></div>`;
+    }
+    function keysBoxHtml(keys, checked, title) {
+      if (!keys.length) return '';
+      return `<span>${esc(title)}</span><div class="key-checks">${keys.map((k) => `<label class="key-check"><input type="checkbox" name="pk" value="${esc(k.label)}" data-type="${k.type}" ${checked ? 'checked' : ''}>${k.type === 'secret' ? ic('key') : ''}<span class="mono">${esc(k.label)}</span></label>`).join('')}</div><small class="muted">Values start empty — paste them in after saving.</small>`;
+    }
+    function accountSelectHtml(selected) {
+      const isNew = selected === '__new';
+      return `<label class="field span-2"><span>Account <em>— the login that owns this service</em></span><select name="accountId" data-change="acct-select">
+          <option value="">— No account —</option>
+          ${sortedAccounts().map((a) => `<option value="${esc(a.id)}" ${a.id === selected ? 'selected' : ''}>${esc(acctLabel(a))}</option>`).join('')}
+          <option value="__new" ${isNew ? 'selected' : ''}>+ New account…</option>
+        </select></label>
+        <div class="new-acct span-2" ${isNew ? '' : 'hidden'}>
+          <label class="field"><span>Login email / username</span><input name="newEmail" value="${esc(isNew ? Prefs.get().driveEmail || '' : '')}" placeholder="you@example.com" autocomplete="off"></label>
+          <label class="field"><span>Provider <em>optional</em></span><input name="newProvider" list="dlProviders" placeholder="Google, GitHub, Apple ID…" autocomplete="off"></label>
+        </div>`;
     }
     function toolModal(t) {
-      const accounts = [...new Set([Prefs.get().driveEmail, ...S.data.projects.flatMap((p) => p.tools.map((x) => x.account))].filter(Boolean))];
       const tiers = t && t.tier && !TIERS.includes(t.tier) ? [...TIERS, t.tier] : TIERS;
+      const preset = t ? presetByName(t.name) : null;
+      const missing = preset ? preset.keys.filter((k) => !t.fields.some((f) => f.label === k.label)) : [];
+      const picker = t ? '' : `<div class="picker" id="pickStep">
+          <label class="search-field">${ic('search')}<input type="search" data-input="preset-search" placeholder="Search ${CATALOG.length}+ services — Stripe, Supabase, OpenAI, Twilio…" autocomplete="off" spellcheck="false" aria-label="Search services" autofocus></label>
+          <div class="cat-chips" role="tablist">${['All', ...Object.keys(CATALOG_SRC)].map((c) => `<button type="button" class="cat-chip${c === 'All' ? ' active' : ''}" data-act="preset-cat" data-cat="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+          <div class="preset-list" id="presetList" data-cat="All">${presetListHtml('', 'All')}</div>
+        </div>`;
       Modal.open({
-        title: t ? `Edit ${t.name}` : 'Add tool', submit: t ? 'Save' : 'Add tool',
-        body: `<div class="form-grid">
-            <label class="field span-2"><span>Name</span><input name="name" value="${esc(t ? t.name : '')}" placeholder="e.g. Firebase, Stripe, Vercel" maxlength="60" autofocus></label>
-            <label class="field"><span>Tier</span><select name="tier">${tiers.map((x) => `<option ${(t ? t.tier || 'Prod' : 'Prod') === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
-            <label class="field"><span>Category</span><input name="category" list="dlCats" value="${esc(t ? t.category : '')}" placeholder="Backend"></label>
-            <label class="field span-2"><span>Account / login email</span><input name="account" list="dlAccts" value="${esc(t ? t.account : defaultAccount())}" placeholder="you@example.com" autocomplete="off"></label>
-            <label class="field"><span>Project / resource ID</span><input name="resourceId" class="mono" value="${esc(t ? t.resourceId : '')}" placeholder="my-app-prod" spellcheck="false"></label>
-            <label class="field"><span>Console URL</span><input name="consoleUrl" value="${esc(t ? t.consoleUrl : '')}" placeholder="https://console…" spellcheck="false"></label>
-            <label class="field span-2"><span>Notes <em>optional</em></span><textarea name="notes" rows="2" placeholder="Billing owner, quotas, rotation reminders…">${esc(t ? t.notes : '')}</textarea></label>
+        title: t ? `Edit ${t.name}` : 'Add tool', submit: t ? 'Save' : 'Add tool', size: t ? '' : 'lg',
+        body: `${picker}
+          <div id="formStep" class="form-step" ${t ? '' : 'hidden'}>
+            ${t ? '' : `<div class="picked" id="pickedBar"></div>`}
+            <div class="form-grid">
+              <label class="field span-2"><span>Name</span><input name="name" value="${esc(t ? t.name : '')}" placeholder="e.g. Firebase, Stripe, Vercel" maxlength="60" ${t ? 'autofocus' : ''}></label>
+              ${accountSelectHtml(t ? t.accountId : defaultAccountId())}
+              <label class="field"><span>Tier</span><select name="tier">${tiers.map((x) => `<option ${(t ? t.tier || 'Prod' : 'Prod') === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+              <label class="field"><span>Category</span><input name="category" list="dlCats" value="${esc(t ? t.category : '')}" placeholder="Backend"></label>
+              <label class="field"><span>Project / resource ID</span><input name="resourceId" class="mono" value="${esc(t ? t.resourceId : '')}" placeholder="my-app-prod" spellcheck="false"></label>
+              <label class="field"><span>Console URL</span><input name="consoleUrl" value="${esc(t ? t.consoleUrl : '')}" placeholder="https://console…" spellcheck="false"></label>
+              <label class="field span-2"><span>Notes <em>optional</em></span><textarea name="notes" rows="2" placeholder="Billing owner, quotas, rotation reminders…">${esc(t ? t.notes : '')}</textarea></label>
+              <div class="field span-2" id="presetKeysBox">${t ? keysBoxHtml(missing, false, `Add missing ${preset ? preset.name : ''} keys`) : ''}</div>
+            </div>
           </div>
           <datalist id="dlCats">${CATEGORIES.map((c) => `<option value="${esc(c)}">`).join('')}</datalist>
-          <datalist id="dlAccts">${accounts.map((a) => `<option value="${esc(a)}">`).join('')}</datalist>`,
-        onSubmit: (fd) => {
+          <datalist id="dlProviders">${providerOptions()}</datalist>`,
+        onSubmit: (fd, form) => {
+          if (!t && $('#formStep').hidden) throw new Error('Pick a service from the list, or choose “Custom tool”.');
           const name = fd.name.trim();
           if (!name) throw new Error('Tool name is required');
           const url = fd.consoleUrl.trim() ? safeUrl(fd.consoleUrl) : '';
           if (fd.consoleUrl.trim() && !url) throw new Error('Console URL must be an http(s) web address');
-          const vals = { name, tier: fd.tier, category: fd.category.trim(), account: fd.account.trim(), resourceId: fd.resourceId.trim(), consoleUrl: url, notes: fd.notes.trim() };
-          let flash = null;
-          if (t) { Object.assign(t, vals); touch(t); }
-          else {
-            const ts = tick();
-            const nt = { id: uid('t'), ...vals, createdAt: ts, updatedAt: ts, fields: [] };
-            curProject().tools.push(nt);
-            flash = nt.id;
+          let accountId = fd.accountId || '';
+          if (accountId === '__new') {
+            const email = (fd.newEmail || '').trim();
+            if (!email) throw new Error('Enter the login email or username for the new account');
+            accountId = createAccount({ email, provider: (fd.newProvider || '').trim() || guessProvider(email) }).id;
           }
+          const picks = [...form.querySelectorAll('input[name=pk]:checked')].map((c) => ({ label: c.value, type: c.dataset.type === 'text' ? 'text' : 'secret' }));
+          const vals = { name, tier: fd.tier, category: fd.category.trim(), accountId, resourceId: fd.resourceId.trim(), consoleUrl: url, notes: fd.notes.trim() };
+          const target = t || { id: uid('t'), createdAt: tick(), fields: [] };
+          Object.assign(target, vals); touch(target);
+          for (const k of picks) if (!target.fields.some((f) => f.label === k.label)) { const ts = tick(); target.fields.push({ id: uid('f'), ...k, value: '', createdAt: ts, updatedAt: ts }); }
+          if (!t) curProject().tools.push(target);
           persist(); render();
-          if (flash) requestAnimationFrame(() => flashEl('tool-' + flash));
+          if (!t) requestAnimationFrame(() => flashEl('tool-' + target.id));
         },
       });
     }
-    function fieldModal(tid, fid) {
-      const { t, f } = fid ? findField(tid, fid) : findTool(tid);
-      if (!t) return;
-      const type = f ? f.type : 'secret';
+    function applyPreset(x, customName) {
+      const form = $('#modalForm'), el = form.elements;
+      $('#pickStep').hidden = true; $('#formStep').hidden = false;
+      el.name.value = x ? x.name : customName;
+      el.category.value = x ? (x.cat === 'Generic' ? 'Other' : x.cat) : '';
+      el.consoleUrl.value = x ? x.url : '';
+      $('#pickedBar').innerHTML = `<span class="tool-avatar sm" style="--hue:${hue(x ? x.name : customName || '?')}">${esc(initial(x ? x.name : customName || '+'))}</span>
+        <div><b>${esc(x ? x.name : 'Custom tool')}</b><small>${x ? `${esc(x.cat)} · ${plural(x.keys.length, 'default key')}` : 'Fill in the details below'}</small></div>
+        <button type="button" class="btn btn-ghost btn-sm" data-act="preset-back">${ic('search')}Change</button>`;
+      $('#presetKeysBox').innerHTML = x ? keysBoxHtml(x.keys, true, 'Keys to add') : '';
+      requestAnimationFrame(() => (x ? el.accountId : el.name).focus());
+    }
+
+    function accountModal(a) {
       Modal.open({
-        title: f ? `Edit ${f.label}` : `Add key to ${t.name}`, submit: f ? 'Save' : 'Add key',
-        body: `<label class="field"><span>Key name</span><input name="label" class="mono" value="${esc(f ? f.label : '')}" placeholder="API_KEY" spellcheck="false" autocomplete="off" autofocus></label>
+        title: a ? `Edit ${acctTitle(a)}` : 'New account', submit: a ? 'Save' : 'Add account',
+        body: `<div class="form-grid">
+            <label class="field"><span>Provider</span><input name="provider" list="dlProviders" value="${esc(a ? a.provider : '')}" placeholder="Google, GitHub, Apple ID…" autocomplete="off" data-change="provider-pick" autofocus></label>
+            <label class="field"><span>Label <em>optional</em></span><input name="name" value="${esc(a ? a.name : '')}" placeholder="Personal, Work, Client X…" maxlength="60"></label>
+            <label class="field span-2"><span>Login email / username</span><input name="email" value="${esc(a ? a.email : '')}" placeholder="you@example.com" autocomplete="off" spellcheck="false"></label>
+            <label class="field span-2"><span>Account page URL <em>optional</em></span><input name="url" value="${esc(a ? a.url : '')}" placeholder="https://myaccount.google.com" spellcheck="false"></label>
+            <label class="field span-2"><span>Notes <em>optional</em></span><textarea name="notes" rows="2" placeholder="2FA device, recovery email, billing card…">${esc(a ? a.notes : '')}</textarea></label>
+            ${a ? '' : `<label class="check span-2"><input type="checkbox" name="defaults" checked><span>Add empty <b>Password</b> and <b>Recovery codes</b> fields</span></label>`}
+          </div>
+          <datalist id="dlProviders">${providerOptions()}</datalist>`,
+        onSubmit: (fd) => {
+          const email = fd.email.trim(), name = fd.name.trim(), provider = fd.provider.trim();
+          if (!email && !name) throw new Error('Enter a login email / username or a label');
+          const url = fd.url.trim() ? safeUrl(fd.url) : '';
+          if (fd.url.trim() && !url) throw new Error('Account page URL must be an http(s) web address');
+          const dup = S.data.accounts.find((x) => x !== a && email && x.email.toLowerCase() === email.toLowerCase() && x.provider.toLowerCase() === provider.toLowerCase());
+          if (dup) throw new Error(`${email}${provider ? ` (${provider})` : ''} already exists`);
+          let target = a;
+          if (a) { Object.assign(a, { name, email, provider, url, notes: fd.notes.trim() }); touch(a); }
+          else target = createAccount({ name, email, provider, url, notes: fd.notes.trim(), withDefaults: !!fd.defaults });
+          persist(); render();
+          if (S.view === 'accounts') requestAnimationFrame(() => flashEl('acct-' + target.id));
+          else toast(`Account ${acctTitle(target)} saved`);
+          return target;
+        },
+      });
+    }
+
+    function fieldModal(oid, fid) {
+      const o = fid ? findField(oid, fid) : findOwner(oid);
+      const owner = o.t, f = o.f;
+      if (!owner) return;
+      const isAcct = o.kind === 'account', type = f ? f.type : 'secret';
+      const ownerName = isAcct ? acctTitle(owner) : owner.name;
+      Modal.open({
+        title: f ? `Edit ${f.label}` : `Add ${isAcct ? 'credential' : 'key'} to ${ownerName}`, submit: f ? 'Save' : isAcct ? 'Add credential' : 'Add key',
+        body: `<label class="field"><span>${isAcct ? 'Name' : 'Key name'}</span><input name="label" class="${isAcct ? '' : 'mono'}" value="${esc(f ? f.label : '')}" placeholder="${isAcct ? 'Password, Recovery codes, 2FA secret…' : 'API_KEY'}" spellcheck="false" autocomplete="off" autofocus></label>
           <div class="field"><span>Type</span><div class="seg">
             <label><input type="radio" name="type" value="secret" ${type === 'secret' ? 'checked' : ''}><span>${ic('key')}Secret</span></label>
             <label><input type="radio" name="type" value="text" ${type === 'text' ? 'checked' : ''}><span>Plain text</span></label>
           </div></div>
           <label class="field"><span>Value</span><textarea name="value" class="mono" rows="3" spellcheck="false" autocomplete="off" placeholder="Paste the value">${esc(f ? f.value : '')}</textarea></label>`,
         onSubmit: (fd) => {
-          const label = fd.label.trim().replace(/\s+/g, '_');
-          if (!label) throw new Error('Key name is required');
-          if (t.fields.some((x) => x.label === label && x !== f)) throw new Error(`${label} already exists in ${t.name}`);
+          const label = isAcct ? fd.label.trim() : fd.label.trim().replace(/\s+/g, '_');
+          if (!label) throw new Error('A name is required');
+          if (owner.fields.some((x) => x.label === label && x !== f)) throw new Error(`${label} already exists in ${ownerName}`);
           const value = fd.value.replace(/\r\n/g, '\n');
           if (f) { if (f.label !== label || f.type !== fd.type || f.value !== value) { Object.assign(f, { label, type: fd.type, value }); touch(f); } }
-          else { const ts = tick(); t.fields.push({ id: uid('f'), label, type: fd.type || guessType(label), value, createdAt: ts, updatedAt: ts }); }
+          else { const ts = tick(); owner.fields.push({ id: uid('f'), label, type: fd.type || guessType(label), value, createdAt: ts, updatedAt: ts }); }
           persist(); render();
         },
       });
     }
-    function bulkModal(tid) {
-      const { t } = findTool(tid);
+    function bulkModal(oid) {
+      const { t } = findOwner(oid);
       if (!t) return;
       Modal.open({
-        title: `Paste .env into ${t.name}`, submit: 'Import keys',
+        title: `Paste .env into ${t.name || acctTitle(t)}`, submit: 'Import keys',
         body: `<p class="modal-text">Paste <code>KEY=value</code> lines. Comments and <code>export</code> are ignored; keys that already exist are updated.</p>
           <label class="field"><textarea name="env" rows="9" class="mono" spellcheck="false" placeholder="DATABASE_URL=postgres://…&#10;STRIPE_SECRET_KEY=sk_live_…" autofocus></textarea></label>`,
         onSubmit: (fd) => {
@@ -1713,7 +2317,7 @@
     }
 
     /* ═════════════════ Navigation ═════════════════ */
-    function setView(v) { S.view = v; toggleRail(false); render(); $('#content').scrollTop = 0; }
+    function setView(v) { if (S.view !== v) S.filter = ''; S.view = v; toggleRail(false); render(); $('#content').scrollTop = 0; }
     function openProject(id) {
       S.view = 'project'; S.projectId = id; S.filter = '';
       Prefs.set({ lastProject: id });
@@ -1732,6 +2336,12 @@
       Prefs.set({ lastProject: p.id });
       toggleRail(false); render();
       requestAnimationFrame(() => flashEl(fid ? 'kv-' + fid : 'tool-' + tid));
+    }
+    function gotoAccount(aid, fid) {
+      if (!findAccount(aid)) return;
+      S.view = 'accounts'; S.filter = ''; S.collapsed.delete(aid);
+      toggleRail(false); render();
+      requestAnimationFrame(() => flashEl(fid ? 'kv-' + fid : 'acct-' + aid));
     }
 
     /* ═════════════════ Command palette ═════════════════ */
@@ -1752,6 +2362,7 @@
         act('New project', 'plus', () => projectModal());
         if (cur) act(`Add tool to ${cur.name}`, 'plus', () => toolModal());
         if (cur) act(`Copy ${cur.name} as .env`, 'copy', () => copyText(envText(cur.name, cur.tools), '.env'));
+        act('New account', 'users', () => accountModal());
         act('Overview', 'grid', () => setView('overview'));
         act('Accounts', 'users', () => setView('accounts'));
         act('Backup & sync', 'cloud', () => setView('backup'));
@@ -1761,9 +2372,15 @@
         for (const p of S.data.projects) {
           it.push({ kind: 'Project', label: p.name, sub: p.description, icon: `<span class="dot" style="--hue:${hue(p.name)}"></span>`, run: () => openProject(p.id) });
           for (const t of p.tools) {
-            it.push({ kind: 'Tool', label: t.name, sub: `${p.name}${t.account ? ' · ' + t.account : ''}`, icon: esc(initial(t.name)), run: () => gotoTool(t.id) });
+            const a = findAccount(t.accountId);
+            it.push({ kind: 'Tool', label: t.name, sub: `${p.name}${a ? ' · ' + acctTitle(a) : ''}`, icon: esc(initial(t.name)), run: () => gotoTool(t.id) });
             for (const f of t.fields) it.push({ kind: 'Key', label: f.label, sub: `${p.name} / ${t.name}`, icon: ic('key'), run: () => gotoTool(t.id, f.id), copy: f.value });
           }
+        }
+        for (const a of sortedAccounts()) {
+          const used = accountUsage(a.id).length;
+          it.push({ kind: 'Account', label: acctTitle(a), sub: [a.name && a.email, a.provider, used ? plural(used, 'tool') : ''].filter(Boolean).join(' · '), icon: ic('users'), run: () => gotoAccount(a.id) });
+          for (const f of a.fields) it.push({ kind: 'Key', label: f.label, sub: `Account / ${acctTitle(a)}`, icon: ic('key'), run: () => gotoAccount(a.id, f.id), copy: f.value });
         }
         return it;
       },
@@ -1829,17 +2446,17 @@
       'toggle-tool'(el) { const id = el.dataset.id; S.collapsed.has(id) ? S.collapsed.delete(id) : S.collapsed.add(id); rerenderStack(); },
       'reveal-all'() { S.revealAll = !S.revealAll; S.revealed.clear(); render(); },
       'toggle-reveal'(el) { const id = el.dataset.id; S.revealed.has(id) ? S.revealed.delete(id) : S.revealed.add(id); rerenderStack(); },
-      'copy-field'(el) { const { f } = findField(el.dataset.tool, el.dataset.id); if (f) copyText(f.value, f.label); },
+      'copy-field'(el) { const { f } = findField(el.dataset.owner, el.dataset.id); if (f) copyText(f.value, f.label); },
       'delete-field'(el) {
-        const { p, t, f } = findField(el.dataset.tool, el.dataset.id); if (!f) return;
-        const idx = t.fields.indexOf(f), path = `${p.id}/${t.id}/${f.id}`;
+        const { t, f, path } = findField(el.dataset.owner, el.dataset.id); if (!f) return;
+        const idx = t.fields.indexOf(f);
         t.fields.splice(idx, 1);
         S.data.tombstones[path] = tick();
         persist(); rerenderStack();
         toast(`Deleted ${f.label}`, 'info', {
           action: 'Undo',
           onAction: () => {
-            const cur = findTool(t.id).t; if (!cur) return;
+            const cur = findOwner(t.id).t; if (!cur) return;
             delete S.data.tombstones[path];
             f.updatedAt = tick();
             cur.fields.splice(Math.min(idx, cur.fields.length), 0, f);
@@ -1847,9 +2464,35 @@
           },
         });
       },
-      'add-field'(el) { fieldModal(el.dataset.id); },
-      'edit-field'(el) { fieldModal(el.dataset.tool, el.dataset.id); },
-      'bulk-env'(el) { bulkModal(el.dataset.id); },
+      'add-field'(el) { fieldModal(el.dataset.owner); },
+      'edit-field'(el) { fieldModal(el.dataset.owner, el.dataset.id); },
+      'bulk-env'(el) { bulkModal(el.dataset.owner); },
+      'new-account'() { accountModal(); },
+      'edit-account'(el) { const a = findAccount(el.dataset.id); if (a) accountModal(a); },
+      'goto-account'(el) { gotoAccount(el.dataset.id); },
+      async 'delete-account'(el) {
+        const a = findAccount(el.dataset.id); if (!a) return;
+        const used = accountUsage(a.id);
+        if (!(await confirmBox(`Delete ${acctTitle(a)}?`, `${a.fields.length ? `Its <b>${plural(a.fields.length, 'saved credential')}</b> will be removed from every synced PC. ` : ''}${used.length ? `<b>${plural(used.length, 'tool')}</b> will be left without an account.` : 'No tools use it.'}`, { submit: 'Delete account', danger: true }))) return;
+        S.data.accounts = S.data.accounts.filter((x) => x !== a);
+        S.data.tombstones['@' + a.id] = tick();
+        for (const { t } of used) { t.accountId = ''; touch(t); }
+        persist(); render(); toast(`Deleted ${acctTitle(a)}`, 'info');
+      },
+      'pick-preset'(el) {
+        const q = ($('#modalForm [data-input=preset-search]') || {}).value || '';
+        applyPreset(presetByName(el.dataset.name), q.trim());
+      },
+      'preset-back'() {
+        $('#formStep').hidden = true; $('#pickStep').hidden = false;
+        const i = $('#modalForm [data-input=preset-search]'); if (i) { i.focus(); i.select(); }
+      },
+      'preset-cat'(el) {
+        document.querySelectorAll('#modalForm .cat-chip').forEach((c) => c.classList.toggle('active', c === el));
+        const list = $('#presetList'); list.dataset.cat = el.dataset.cat;
+        list.innerHTML = presetListHtml($('#modalForm [data-input=preset-search]').value, el.dataset.cat);
+        list.scrollTop = 0;
+      },
       'copy-tool-env'(el) { const { t } = findTool(el.dataset.id); if (t) copyText(envText(t.name, [t]), `${t.name} .env`); },
       'copy-project-env'() { const p = curProject(); if (p) copyText(envText(p.name, p.tools), `${p.name} .env`); },
       'download-project-env'() { const p = curProject(); if (p) downloadFile(`${slug(p.name)}.env`, envText(p.name, p.tools), 'text/plain'); },
@@ -1916,7 +2559,7 @@
     };
     const Changes = {
       'field-value'(el) {
-        const { f } = findField(el.dataset.tool, el.dataset.id);
+        const { f } = findField(el.dataset.owner, el.dataset.id);
         if (!f || f.value === el.value) return;
         f.value = el.value; touch(f); persist();
         const row = el.closest('.kv');
@@ -1928,6 +2571,16 @@
         render();
       },
       autolock(el) { Prefs.set({ autoLockMin: Number(el.value) }); toast(Number(el.value) ? `Auto-lock after ${el.selectedOptions[0].text}` : 'Auto-lock off'); },
+      'acct-select'(el) {
+        const box = el.form && el.form.querySelector('.new-acct');
+        if (!box) return;
+        box.hidden = el.value !== '__new';
+        if (!box.hidden) { const e = el.form.elements.newEmail; if (!e.value) e.value = Prefs.get().driveEmail || ''; e.focus(); e.select(); }
+      },
+      'provider-pick'(el) {
+        const url = el.form && el.form.elements.url;
+        if (url && !url.value.trim()) url.value = providerUrl(el.value);
+      },
     };
 
     /* ═════════════════ Wiring ═════════════════ */
@@ -1949,6 +2602,7 @@
       });
       document.addEventListener('input', (e) => {
         if (e.target.dataset.input === 'filter') { S.filter = e.target.value; rerenderStack(); }
+        if (e.target.dataset.input === 'preset-search') { const l = $('#presetList'); if (l) { l.innerHTML = presetListHtml(e.target.value, l.dataset.cat || 'All'); l.scrollTop = 0; } }
         if (e.target.id === 'paletteInput') Palette.filter(e.target.value);
       });
       document.addEventListener('submit', async (e) => {
@@ -1957,9 +2611,11 @@
         const kind = form.dataset.form;
         if (!kind) return;
         e.preventDefault();
+        if (form.dataset.busy) return; // one unlock/create at a time
+        form.dataset.busy = '1';
         const fd = Object.fromEntries(new FormData(form));
         const err = form.querySelector('.form-error'), btn = form.querySelector('[type=submit]'), label = btn.innerHTML;
-        const fail = (m) => { err.textContent = m; err.hidden = false; btn.disabled = false; btn.innerHTML = label; };
+        const fail = (m) => { err.textContent = m; err.hidden = false; btn.disabled = false; btn.innerHTML = label; delete form.dataset.busy; };
         err.hidden = true;
         if (kind === 'unlock') {
           // Reconnect Google inside this click so the token pop-up isn't blocked.
@@ -1992,6 +2648,11 @@
           if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const n = Palette.shown.length; if (n) { Palette.idx = (Palette.idx + (e.key === 'ArrowDown' ? 1 : -1) + n) % n; Palette.paint(); } }
           else if (e.key === 'Enter') { e.preventDefault(); Palette.run(Palette.idx, e.shiftKey); }
           else if (e.key === 'Escape') Palette.close();
+          return;
+        }
+        if (e.key === 'Enter' && e.target.dataset && e.target.dataset.input === 'preset-search') {
+          e.preventDefault();
+          const first = $('#presetList .preset'); if (first) first.click();
           return;
         }
         if (e.key === 'Escape') {
