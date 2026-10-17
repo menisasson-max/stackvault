@@ -1,528 +1,2072 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en" data-theme="system">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StackVault - Token Tracker</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'><path d='M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm8 13H5v-8h14v8z'/></svg>">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src https://fonts.gstatic.com; img-src 'self' data: https://*.googleusercontent.com; connect-src 'self' https://www.googleapis.com https://accounts.google.com; frame-src https://accounts.google.com; object-src 'none'; base-uri 'none'">
+  <title>StackVault</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23b8862f'/%3E%3Ccircle cx='16' cy='16' r='6.5' fill='none' stroke='%23fff' stroke-width='2.5'/%3E%3Cpath d='M16 5.5v3M16 23.5v3M5.5 16h3M23.5 16h3' stroke='%23fff' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap">
+  <script>try{document.documentElement.dataset.theme=(JSON.parse(localStorage.getItem('sv_prefs')||'{}').theme)||'system'}catch(e){}</script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
-    };
-  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    :root { color-scheme: light dark; }
-    body { @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased transition-colors duration-200; }
-    
-    /* Buttons */
-    .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-slate-900; }
-    .btn-primary { @apply bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm focus:ring-indigo-500; }
-    .btn-secondary { @apply bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm focus:ring-slate-500; }
-    .btn-ghost { @apply text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100; }
-    
-    /* Inputs */
-    .input-field { @apply w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-slate-400 dark:placeholder-slate-500 transition-shadow; }
-    .code-input { @apply font-mono text-sm tracking-tight; }
-    
-    /* Cards & Layout */
-    .card { @apply bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6; }
-    .tab-btn { @apply px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap; }
-    .tab-active { @apply bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400; }
-    .tab-inactive { @apply text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200; }
+    /* ───────────────── Tokens ───────────────── */
+    :root {
+      --font: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --mono: 'Geist Mono', ui-monospace, 'Cascadia Code', 'SF Mono', Consolas, monospace;
+      --r-sm: 7px; --r: 10px; --r-lg: 14px;
+
+      --bg: #f5f3ee; --bg-rail: #eeebe4; --surface: #ffffff; --surface-2: #faf9f6; --sunken: #f1eee8;
+      --hover: rgba(40, 34, 20, .055);
+      --border: #e6e2d9; --border-strong: #d5cfc2;
+      --text: #1d1b17; --text-2: #5b574d; --text-3: #8b8679;
+      --accent: #9a6514; --accent-strong: #7d500c; --accent-soft: #f6ead2; --accent-ring: rgba(178, 121, 30, .28);
+      --primary: #1d1b17; --primary-hover: #34312a; --on-primary: #fbfaf6;
+      --danger: #b4232f; --danger-soft: #fbe9ea; --on-danger: #ffffff;
+      --ok: #2c7a4b; --ok-soft: #e3f2e9;
+      --warn: #a15c07; --warn-soft: #fcefd9;
+      --info: #2b5c9c; --info-soft: #e5edf8;
+      --av-s: 48%; --av-bg: 90%; --av-fg: 30%; --dot-l: 50%;
+      --shadow-sm: 0 1px 2px rgba(40, 34, 20, .06);
+      --shadow: 0 1px 2px rgba(40, 34, 20, .05), 0 8px 24px -10px rgba(40, 34, 20, .14);
+      --shadow-lg: 0 30px 70px -24px rgba(40, 34, 20, .38), 0 2px 6px rgba(40, 34, 20, .06);
+      --overlay: rgba(29, 27, 23, .36);
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg: #0e0e10; --bg-rail: #121214; --surface: #17171a; --surface-2: #1b1b1f; --sunken: #111113;
+        --hover: rgba(255, 255, 255, .05);
+        --border: #26262b; --border-strong: #35353c;
+        --text: #ecebe6; --text-2: #a8a69e; --text-3: #73716a;
+        --accent: #e2b158; --accent-strong: #f0c77a; --accent-soft: rgba(226, 177, 88, .12); --accent-ring: rgba(226, 177, 88, .32);
+        --primary: #e2b158; --primary-hover: #ecc277; --on-primary: #1b1405;
+        --danger: #f07a6f; --danger-soft: rgba(240, 122, 111, .12); --on-danger: #1d0806;
+        --ok: #62c78e; --ok-soft: rgba(98, 199, 142, .12);
+        --warn: #efb45c; --warn-soft: rgba(239, 180, 92, .12);
+        --info: #85b3f0; --info-soft: rgba(133, 179, 240, .12);
+        --av-s: 28%; --av-bg: 21%; --av-fg: 76%; --dot-l: 62%;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+        --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -12px rgba(0, 0, 0, .6);
+        --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, .75), 0 0 0 1px rgba(255, 255, 255, .03);
+        --overlay: rgba(0, 0, 0, .6);
+        color-scheme: dark;
+      }
+    }
+    :root[data-theme="dark"] {
+      --bg: #0e0e10; --bg-rail: #121214; --surface: #17171a; --surface-2: #1b1b1f; --sunken: #111113;
+      --hover: rgba(255, 255, 255, .05);
+      --border: #26262b; --border-strong: #35353c;
+      --text: #ecebe6; --text-2: #a8a69e; --text-3: #73716a;
+      --accent: #e2b158; --accent-strong: #f0c77a; --accent-soft: rgba(226, 177, 88, .12); --accent-ring: rgba(226, 177, 88, .32);
+      --primary: #e2b158; --primary-hover: #ecc277; --on-primary: #1b1405;
+      --danger: #f07a6f; --danger-soft: rgba(240, 122, 111, .12); --on-danger: #1d0806;
+      --ok: #62c78e; --ok-soft: rgba(98, 199, 142, .12);
+      --warn: #efb45c; --warn-soft: rgba(239, 180, 92, .12);
+      --info: #85b3f0; --info-soft: rgba(133, 179, 240, .12);
+      --av-s: 28%; --av-bg: 21%; --av-fg: 76%; --dot-l: 62%;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 10px 30px -12px rgba(0, 0, 0, .6);
+      --shadow-lg: 0 30px 80px -20px rgba(0, 0, 0, .75), 0 0 0 1px rgba(255, 255, 255, .03);
+      --overlay: rgba(0, 0, 0, .6);
+      color-scheme: dark;
+    }
+
+    /* ───────────────── Base ───────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text); font: 14px/1.5 var(--font); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+    body.modal-open { overflow: hidden; }
+    [hidden] { display: none !important; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    h1, h2, h3 { margin: 0; letter-spacing: -.015em; }
+    p { margin: 0; }
+    code { font-family: var(--mono); font-size: .9em; padding: 1px 5px; border-radius: 5px; background: var(--sunken); }
+    em { font-style: normal; color: var(--text-3); font-weight: 400; }
+    ::selection { background: var(--accent-ring); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .mono { font-family: var(--mono); font-size: .93em; }
+    .muted { color: var(--text-3); }
+    .error-text { color: var(--danger); }
+    .i { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    kbd { font: 500 11px/1 var(--mono); padding: 3px 5px; border-radius: 5px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-3); }
+    .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: hsl(var(--hue, 40) 62% var(--dot-l)); }
+
+    /* ───────────────── Buttons ───────────────── */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 34px; padding: 0 13px; border-radius: var(--r-sm); border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font-size: 13.5px; font-weight: 500; line-height: 1; cursor: pointer; white-space: nowrap; text-decoration: none; transition: background .12s, border-color .12s, color .12s, box-shadow .12s; }
+    .btn:hover { background: var(--surface-2); border-color: var(--text-3); }
+    .btn:disabled { opacity: .55; cursor: default; pointer-events: none; }
+    .btn-primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+    .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+    .btn-danger { background: var(--danger); border-color: var(--danger); color: var(--on-danger); }
+    .btn-danger:hover { background: var(--danger); filter: brightness(1.08); border-color: var(--danger); }
+    .btn-danger-ghost { color: var(--danger); }
+    .btn-danger-ghost:hover { background: var(--danger-soft); border-color: var(--danger); }
+    .btn-ghost { background: transparent; border-color: transparent; color: var(--text-2); }
+    .btn-ghost:hover { background: var(--hover); border-color: transparent; color: var(--text); }
+    .btn-sm { height: 28px; padding: 0 9px; font-size: 12.5px; }
+    .btn-lg { height: 42px; font-size: 14px; }
+    .btn-block { width: 100%; }
+    .btn-icon { width: 34px; padding: 0; }
+    .btn.is-on { background: var(--accent-soft); border-color: var(--accent); color: var(--text); }
+    .icon-btn { display: inline-grid; place-items: center; width: 32px; height: 32px; flex: none; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text-3); cursor: pointer; text-decoration: none; transition: background .12s, color .12s; }
+    .icon-btn:hover { background: var(--hover); color: var(--text); }
+    .icon-btn.danger:hover, .btn-icon.danger:hover { color: var(--danger); background: var(--danger-soft); }
+    .link-btn { border: 0; background: none; padding: 0; color: var(--accent); font-weight: 500; cursor: pointer; text-align: left; }
+    .link-btn:hover { text-decoration: underline; }
+
+    /* ───────────────── Shell ───────────────── */
+    .shell { display: grid; grid-template-columns: 264px minmax(0, 1fr); height: 100vh; height: 100dvh; }
+    .rail { display: flex; flex-direction: column; gap: 2px; min-height: 0; padding: 14px 10px 10px; background: var(--bg-rail); border-right: 1px solid var(--border); }
+    .rail-head { display: flex; align-items: center; justify-content: space-between; padding: 0 2px 12px 6px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 15px; letter-spacing: -.01em; }
+    .brand-mark { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(150deg, var(--accent), var(--accent-strong)); color: var(--on-primary); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), var(--shadow-sm); }
+    .brand-mark .i { width: 18px; height: 18px; stroke-width: 2; }
+    .search-trigger { display: flex; align-items: center; gap: 8px; height: 34px; margin: 0 0 10px; padding: 0 8px 0 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-3); font-size: 13px; cursor: pointer; transition: border-color .12s, color .12s; }
+    .search-trigger:hover { border-color: var(--border-strong); color: var(--text-2); }
+    .search-trigger kbd { margin-left: auto; }
+    .nav-item, .proj-item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text-2); font-size: 13.5px; font-weight: 500; text-align: left; cursor: pointer; transition: background .12s, color .12s; }
+    .nav-item:hover, .proj-item:hover { background: var(--hover); color: var(--text); }
+    .nav-item.active, .proj-item.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm), inset 0 0 0 1px var(--border); }
+    .nav-item .i { color: var(--text-3); }
+    .nav-item.active .i { color: var(--accent); }
+    .proj-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .count { font: 500 11px var(--mono); color: var(--text-3); }
+    .rail-section { display: flex; align-items: center; justify-content: space-between; padding: 16px 4px 4px 10px; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+    .rail-section .icon-btn { width: 26px; height: 26px; }
+    .project-list { flex: 1; min-height: 60px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; margin: 0 -4px; padding: 0 4px; }
+    .rail-empty { padding: 6px 10px; color: var(--text-3); font-size: 13px; }
+    .rail-foot { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); }
+    .sync-chip { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); text-align: left; cursor: pointer; transition: border-color .12s; }
+    .sync-chip:hover { border-color: var(--border-strong); }
+    .sync-chip > span { display: flex; flex-direction: column; min-width: 0; }
+    .sync-chip b { font-size: 12.5px; font-weight: 600; }
+    .sync-chip small { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sync-chip .i { color: var(--text-3); }
+    .sync-chip.ok .i { color: var(--ok); }
+    .sync-chip.warn .i { color: var(--warn); }
+    .sync-chip.err .i { color: var(--danger); }
+    .sync-chip.busy .i { color: var(--accent); }
+    .me { display: flex; align-items: center; gap: 10px; padding: 0 0 0 4px; }
+    .me-text { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+    .me-text b { font-size: 12.5px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .me-text small { font-size: 11.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .avatar { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: 50%; overflow: hidden; background: hsl(var(--hue, 40) var(--av-s) var(--av-bg)); color: hsl(var(--hue, 40) var(--av-s) var(--av-fg)); font-weight: 650; font-size: 12px; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar.lg { width: 38px; height: 38px; font-size: 15px; }
+
+    .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+    .topbar { display: flex; align-items: center; gap: 8px; height: 52px; flex: none; padding: 0 24px 0 32px; border-bottom: 1px solid var(--border); }
+    .crumbs { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 13px; color: var(--text-3); }
+    .crumbs .here { color: var(--text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .crumbs .i { width: 14px; height: 14px; }
+    .topbar-right { margin-left: auto; display: flex; gap: 4px; }
+    .menu-btn { display: none; }
+    .content { flex: 1; min-height: 0; overflow-y: auto; padding: 36px 32px 96px; }
+    .page { max-width: 960px; margin: 0 auto; }
+    .page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; }
+    .page-title { min-width: 0; flex: 1 1 360px; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+    .page h1 { font-size: 30px; font-weight: 650; line-height: 1.15; letter-spacing: -.028em; overflow-wrap: anywhere; }
+    .lede { margin-top: 6px; max-width: 62ch; color: var(--text-2); }
+    .page-title .link-btn { margin-top: 6px; font-size: 13.5px; }
+    .meta-row { display: flex; flex-wrap: wrap; gap: 4px 0; margin-top: 12px; font-size: 12.5px; color: var(--text-3); }
+    .meta-row span:not(:last-child)::after { content: "·"; margin: 0 9px; }
+    .head-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .search-field { flex: 1 1 220px; display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-3); transition: border-color .12s, box-shadow .12s; }
+    .search-field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+    .search-field input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--text); }
+    .search-field input::-webkit-search-cancel-button { filter: grayscale(1); }
+
+    /* ───────────────── Tool cards ───────────────── */
+    .tool-stack { display: flex; flex-direction: column; gap: 12px; }
+    .tool { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); overflow: hidden; transition: border-color .2s; }
+    .tool:hover { border-color: var(--border-strong); }
+    .tool.flash { animation: flash 1.8s ease; }
+    @keyframes flash { 0%, 45% { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); } }
+    .tool-head { display: flex; align-items: center; gap: 10px; padding: 12px 10px 12px 8px; }
+    .tool-toggle .i { transition: transform .18s; }
+    .tool.collapsed .tool-toggle .i { transform: rotate(-90deg); }
+    .tool-avatar { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border-radius: 10px; background: hsl(var(--hue) var(--av-s) var(--av-bg)); color: hsl(var(--hue) var(--av-s) var(--av-fg)); font-weight: 650; font-size: 15px; }
+    .tool-title { flex: 1; min-width: 0; }
+    .tool-title h3 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 15px; font-weight: 600; }
+    .tool-meta { display: flex; flex-wrap: wrap; gap: 0 12px; margin-top: 1px; font-size: 12px; color: var(--text-3); }
+    .tool-meta span { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tool-actions { display: flex; gap: 0; }
+    .tool-body { border-top: 1px solid var(--border); }
+    .tool-notes { padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); font-size: 13px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .kv { display: grid; grid-template-columns: minmax(140px, 32%) minmax(0, 1fr) auto; grid-template-areas: "key val act"; align-items: center; gap: 10px; padding: 7px 10px 7px 16px; transition: background .12s; }
+    .kv + .kv { border-top: 1px solid var(--border); }
+    .kv:hover { background: var(--surface-2); }
+    .kv.flash { animation: kvflash 1.8s ease; }
+    @keyframes kvflash { 0%, 45% { background: var(--accent-soft); } }
+    .kv-key { grid-area: key; display: flex; align-items: center; gap: 7px; min-width: 0; margin-left: -6px; padding: 5px 6px; border: 0; border-radius: 6px; background: none; font: 500 12.5px/1.35 var(--mono); color: var(--text); text-align: left; cursor: pointer; }
+    .kv-key:hover { background: var(--hover); }
+    .kv-key span { overflow-wrap: anywhere; }
+    .kv-ico { width: 13px; height: 13px; color: var(--accent); }
+    .kv-val { grid-area: val; min-width: 0; }
+    .kv-val input { width: 100%; height: 32px; padding: 0 10px; border: 1px solid transparent; border-radius: 7px; background: var(--sunken); color: var(--text); font: 12.5px var(--mono); outline: none; transition: border-color .12s, box-shadow .12s, background .12s; }
+    .kv-val input:hover { border-color: var(--border); }
+    .kv-val input:focus { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-ring); }
+    .kv-val input[readonly] { cursor: pointer; color: var(--text-2); }
+    .kv-val input::placeholder { color: var(--text-3); font-style: italic; }
+    .kv.saved .kv-val input { border-color: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+    .kv-actions { grid-area: act; display: flex; }
+    .kv-actions .icon-btn { width: 30px; height: 30px; }
+    .kv-empty { padding: 16px; color: var(--text-3); font-size: 13px; }
+    .tool-foot { display: flex; gap: 4px; padding: 6px 8px; border-top: 1px solid var(--border); background: var(--surface-2); }
+
+    .tier { display: inline-flex; align-items: center; height: 19px; padding: 0 7px; border-radius: 999px; background: var(--sunken); color: var(--text-2); font: 600 10.5px/1 var(--font); letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; }
+    .tier-prod { background: var(--danger-soft); color: var(--danger); }
+    .tier-staging { background: var(--warn-soft); color: var(--warn); }
+    .tier-dev { background: var(--info-soft); color: var(--info); }
+    .tier-test { background: var(--ok-soft); color: var(--ok); }
+
+    /* ───────────────── Cards, tables, lists ───────────────── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); }
+    .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat { padding: 16px 18px; }
+    .stat small { font-size: 12px; font-weight: 500; color: var(--text-3); }
+    .stat b { display: block; margin-top: 2px; font-size: 28px; font-weight: 650; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .table-wrap { overflow-x: auto; }
+    .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .table th { padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); color: var(--text-3); font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; text-align: left; white-space: nowrap; }
+    .table th:first-child { border-top-left-radius: var(--r-lg); }
+    .table th:last-child { border-top-right-radius: var(--r-lg); }
+    .table td { padding: 11px 16px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .table tbody tr { cursor: pointer; transition: background .12s; }
+    .table tbody tr:hover { background: var(--surface-2); }
+    .table tbody tr:last-child td { border-bottom: 0; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .cell-proj { display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .acct-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+    .acct { padding: 16px; }
+    .acct-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .acct-head > div { flex: 1; min-width: 0; }
+    .acct-head h3 { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+    .acct-head small { color: var(--text-3); font-size: 12px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-2); color: var(--text-2); font-size: 12.5px; cursor: pointer; transition: border-color .12s, color .12s; }
+    .chip:hover { border-color: var(--accent); color: var(--text); }
+    .chip b { color: var(--text); font-weight: 600; }
+    .chip .sep { color: var(--text-3); }
+
+    .empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 56px 24px; border: 1px dashed var(--border-strong); border-radius: var(--r-lg); color: var(--text-2); text-align: center; }
+    .empty > .i { width: 26px; height: 26px; margin-bottom: 6px; color: var(--text-3); }
+    .empty h3 { font-size: 16px; color: var(--text); }
+    .empty p { max-width: 46ch; font-size: 13.5px; }
+    .empty .btn { margin-top: 12px; }
+    .welcome { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 56px 32px; text-align: center; }
+    .welcome h1 { font-size: 26px; }
+    .welcome .lede { margin-top: 0; }
+    .welcome-mark { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 4px; border-radius: 16px; background: linear-gradient(150deg, var(--accent), var(--accent-strong)); color: var(--on-primary); box-shadow: var(--shadow); }
+    .welcome-mark .i { width: 28px; height: 28px; stroke-width: 1.8; }
+    .welcome-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 10px; }
+
+    /* settings */
+    .settings-grid { display: grid; gap: 16px; }
+    .card-head { display: flex; gap: 14px; padding: 18px 20px; border-bottom: 1px solid var(--border); }
+    .card-head > .i { width: 20px; height: 20px; margin-top: 1px; color: var(--accent); }
+    .card-head h2 { font-size: 15px; font-weight: 600; }
+    .card-head p { margin-top: 2px; color: var(--text-2); font-size: 13px; }
+    .card-body { padding: 18px 20px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 20px; }
+    .row + .row { border-top: 1px solid var(--border); }
+    .row > div { min-width: 0; }
+    .row b { display: block; font-size: 13.5px; font-weight: 550; }
+    .row small { color: var(--text-3); font-size: 12.5px; }
+    .acct-row { display: flex; align-items: center; gap: 12px; }
+    .acct-row > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .acct-row b { font-weight: 600; }
+    .acct-row small { color: var(--text-3); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--sunken); color: var(--text-2); font-size: 12px; font-weight: 550; white-space: nowrap; }
+    .pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .pill.ok { background: var(--ok-soft); color: var(--ok); }
+    .pill.warn { background: var(--warn-soft); color: var(--warn); }
+    .pill.err { background: var(--danger-soft); color: var(--danger); }
+    .pill.busy { background: var(--accent-soft); color: var(--accent); }
+    .facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 20px; margin: 16px 0 18px; font-size: 13px; }
+    .facts dt { color: var(--text-3); }
+    .facts dd { margin: 0; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .steps { margin: 0 0 18px; padding-left: 20px; color: var(--text-2); font-size: 13.5px; display: grid; gap: 4px; }
+    .snap-list { list-style: none; margin: 0; padding: 0; }
+    .snap-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; }
+    .snap-list li + li { border-top: 1px solid var(--border); }
+    .snap-list b { display: block; font-size: 13.5px; font-weight: 550; }
+    .snap-list small { color: var(--text-3); font-size: 12.5px; }
+    .switch { position: relative; display: inline-block; width: 38px; height: 22px; flex: none; cursor: pointer; }
+    .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+    .switch span { position: absolute; inset: 0; border-radius: 999px; background: var(--border-strong); transition: background .15s; pointer-events: none; }
+    .switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s; }
+    .switch input:checked + span { background: var(--accent); }
+    .switch input:checked + span::after { transform: translateX(16px); }
+    .switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .select { height: 34px; padding: 0 30px 0 10px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b8679' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 9px center / 14px; color: var(--text); -webkit-appearance: none; appearance: none; cursor: pointer; }
+    .select:disabled { opacity: .5; cursor: default; }
+
+    /* ───────────────── Forms ───────────────── */
+    .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .field > span { font-size: 12.5px; font-weight: 550; color: var(--text-2); }
+    .field input, .field textarea, .field select { width: 100%; padding: 9px 12px; border: 1px solid var(--border-strong); border-radius: 8px; background: var(--surface); color: var(--text); outline: none; transition: border-color .12s, box-shadow .12s; }
+    .field select { height: 40px; }
+    .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+    .field input::placeholder, .field textarea::placeholder { color: var(--text-3); }
+    .field textarea { min-height: 72px; resize: vertical; line-height: 1.45; }
+    .field .mono, .field textarea.mono { font-family: var(--mono); font-size: 13px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .span-2 { grid-column: 1 / -1; }
+    .check { display: flex; align-items: center; gap: 9px; color: var(--text-2); font-size: 13px; cursor: pointer; }
+    .check input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+    .form-error { padding: 9px 12px; border-radius: 8px; background: var(--danger-soft); color: var(--danger); font-size: 13px; }
+    .hint { display: flex; gap: 8px; color: var(--text-3); font-size: 12.5px; }
+    .hint .i { margin-top: 2px; color: var(--warn); }
+    .seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 9px; background: var(--sunken); align-self: flex-start; }
+    .seg label { position: relative; }
+    .seg input { position: absolute; opacity: 0; pointer-events: none; }
+    .seg span { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 7px; color: var(--text-2); font-size: 13px; font-weight: 500; cursor: pointer; }
+    .seg input:checked + span { background: var(--surface); color: var(--text); box-shadow: var(--shadow-sm); }
+    .seg input:focus-visible + span { outline: 2px solid var(--accent); }
+    .choice { display: grid; gap: 8px; }
+    .choice label { display: flex; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+    .choice label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+    .choice input { margin: 3px 0 0; accent-color: var(--accent); }
+    .choice b { display: block; font-weight: 600; }
+    .choice small { color: var(--text-2); font-size: 12.5px; }
+
+    /* ───────────────── Modal / palette / toasts ───────────────── */
+    .modal { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: var(--overlay); backdrop-filter: blur(3px); animation: fade .14s ease; }
+    .modal-card { display: flex; flex-direction: column; width: min(540px, 100%); max-height: calc(100dvh - 32px); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-lg); animation: pop .18s cubic-bezier(.2, .9, .3, 1.15); }
+    .modal-card.sm { width: min(430px, 100%); }
+    .modal-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 14px 0 20px; }
+    .modal-head h2 { font-size: 16px; font-weight: 600; overflow-wrap: anywhere; }
+    .modal-body { padding: 16px 20px 20px; overflow-y: auto; }
+    #modalForm { display: flex; flex-direction: column; gap: 14px; }
+    .modal-text { color: var(--text-2); font-size: 13.5px; }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+    @keyframes fade { from { opacity: 0; } }
+    @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.985); } }
+
+    .palette { position: fixed; inset: 0; z-index: 70; display: flex; justify-content: center; align-items: flex-start; padding: 12vh 16px 16px; background: var(--overlay); backdrop-filter: blur(3px); animation: fade .12s ease; }
+    .palette-card { display: flex; flex-direction: column; width: min(620px, 100%); max-height: 70vh; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow-lg); animation: pop .16s ease; }
+    .palette-input { display: flex; align-items: center; gap: 10px; height: 54px; padding: 0 16px; border-bottom: 1px solid var(--border); color: var(--text-3); }
+    .palette-input .i { width: 18px; height: 18px; }
+    .palette-input input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 15px; }
+    .palette-list { overflow-y: auto; padding: 6px; }
+    .pal-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border: 0; border-radius: 8px; background: transparent; color: var(--text); text-align: left; cursor: pointer; }
+    .pal-item.active { background: var(--accent-soft); }
+    .pal-ico { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border-radius: 7px; background: var(--sunken); color: var(--text-2); }
+    .pal-item.active .pal-ico { color: var(--accent); background: var(--surface); }
+    .pal-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .pal-text b { font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pal-text small { color: var(--text-3); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pal-kind { color: var(--text-3); font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; }
+    .pal-empty { padding: 28px; text-align: center; color: var(--text-3); }
+    .palette-foot { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 9px 14px; border-top: 1px solid var(--border); background: var(--surface-2); color: var(--text-3); font-size: 11.5px; }
+    .palette-foot kbd { margin-right: 2px; }
+
+    .toasts { position: fixed; bottom: 20px; left: 50%; z-index: 80; display: flex; flex-direction: column; align-items: center; gap: 8px; transform: translateX(-50%); pointer-events: none; }
+    .toast { display: flex; align-items: center; gap: 10px; max-width: min(480px, calc(100vw - 32px)); padding: 10px 14px; border: 1px solid var(--border-strong); border-radius: 10px; background: var(--surface); color: var(--text); font-size: 13px; box-shadow: var(--shadow-lg); opacity: 0; transform: translateY(8px); transition: opacity .18s, transform .18s; pointer-events: auto; }
+    .toast.in { opacity: 1; transform: none; }
+    .toast-ok .i { color: var(--ok); }
+    .toast-error .i { color: var(--danger); }
+    .toast-info .i { color: var(--accent); }
+    .toast-btn { margin-left: 6px; padding: 0; border: 0; background: none; color: var(--accent); font-weight: 600; cursor: pointer; }
+
+    /* ───────────────── Gate (setup / unlock) ───────────────── */
+    .gate { position: fixed; inset: 0; z-index: 50; display: flex; justify-content: center; overflow-y: auto; padding: 48px 16px; background: radial-gradient(900px 520px at 50% -12%, var(--accent-soft), transparent 70%), var(--bg); }
+    .gate-card { display: flex; flex-direction: column; gap: 18px; width: min(430px, 100%); margin: auto 0; }
+    .gate-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .gate h1 { font-size: 27px; font-weight: 650; letter-spacing: -.028em; }
+    .gate-sub { margin-top: -8px; color: var(--text-2); }
+    .gate-form { display: flex; flex-direction: column; gap: 14px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); }
+    .gate-options { display: flex; flex-direction: column; gap: 8px; }
+    .option { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); text-align: left; cursor: pointer; transition: border-color .12s, box-shadow .12s; }
+    .option:hover { border-color: var(--accent); box-shadow: var(--shadow-sm); }
+    .option > .i:first-child { width: 20px; height: 20px; color: var(--accent); }
+    .option > .i:last-child { color: var(--text-3); }
+    .option span { flex: 1; display: flex; flex-direction: column; }
+    .option b { font-size: 14px; font-weight: 600; }
+    .option small { color: var(--text-3); font-size: 12.5px; }
+    .divider { display: flex; align-items: center; gap: 12px; color: var(--text-3); font-size: 12px; }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    .notice { display: flex; gap: 10px; padding: 12px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 13px; }
+    .notice .i { margin-top: 2px; color: var(--accent); }
+    .gate-msg { padding: 12px 14px; border-radius: 10px; background: var(--info-soft); font-size: 13px; }
+    .gate-msg.err { background: var(--danger-soft); color: var(--danger); }
+    .gate-alt { align-self: center; font-size: 13px; }
+    .gate-foot { display: flex; justify-content: center; gap: 6px; color: var(--text-3); font-size: 12px; }
+
+    /* ───────────────── Responsive ───────────────── */
+    .scrim { display: none; }
+    @media (max-width: 880px) {
+      .shell { grid-template-columns: minmax(0, 1fr); }
+      .rail { position: fixed; top: 0; bottom: 0; left: 0; z-index: 55; width: min(296px, 86vw); transform: translateX(-102%); transition: transform .22s ease; box-shadow: var(--shadow-lg); }
+      .shell.rail-open .rail { transform: none; }
+      .shell.rail-open .scrim { display: block; position: fixed; inset: 0; z-index: 54; background: var(--overlay); }
+      .menu-btn { display: inline-grid; }
+      .topbar { padding: 0 8px; }
+      .content { padding: 24px 16px 72px; }
+      .page h1 { font-size: 24px; }
+    }
+    @media (max-width: 640px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .kv { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "key act" "val val"; gap: 4px 8px; padding: 10px 8px 10px 14px; }
+      .tool-avatar { display: none; }
+      .tool-meta span { max-width: 170px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .head-actions .btn-text { display: none; }
+      .row { flex-wrap: wrap; }
+      .acct-grid { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
   </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden">
+<body>
+  <!-- Icon sprite (Lucide-style, 24px grid) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-vault" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="3.5"/><path d="M12 5.5v2M12 16.5v2M5.5 12h2M16.5 12h2"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M9.9 9.9a3 3 0 1 0 4.2 4.2"/><path d="M10.7 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a13 13 0 0 1-1.7 2.7"/><path d="M6.6 6.6A13.5 13.5 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="m2 2 20 20"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9Z"/></symbol>
+    <symbol id="i-cloud-check" viewBox="0 0 24 24"><path d="M17.5 19H9a7 7 0 1 1 6.7-9h1.8a4.5 4.5 0 1 1 0 9Z"/><path d="m9.5 14 2 2 3.5-3.5"/></symbol>
+    <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M5.8 5.8A7 7 0 0 0 9 19h8.5a4.5 4.5 0 0 0 1.3-.2"/><path d="M21.5 16.5a4.5 4.5 0 0 0-4-6.5h-1.8A7 7 0 0 0 10 5.1"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1Z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></symbol>
+  </svg>
 
-  <!-- TOP HEADER -->
-  <header class="flex items-center justify-between px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 z-20">
-    <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-emerald-400 flex items-center justify-center text-white shadow-md">
-        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm8 13H5v-8h14v8z"/></svg>
+  <!-- Setup / unlock screen -->
+  <div id="gate" class="gate" hidden><div id="gateCard" class="gate-card"></div></div>
+
+  <!-- App shell -->
+  <div id="shell" class="shell" hidden>
+    <aside class="rail" id="rail" aria-label="Sidebar">
+      <div class="rail-head">
+        <div class="brand"><span class="brand-mark"><svg class="i"><use href="#i-vault"/></svg></span>StackVault</div>
+        <button class="icon-btn" id="themeBtn" data-act="theme" aria-label="Change theme"></button>
       </div>
-      <div>
-        <h1 class="font-bold text-lg text-slate-900 dark:text-white leading-tight">StackVault</h1>
-        <p class="text-[11px] font-medium text-slate-500 uppercase tracking-widest">Token Tracker</p>
-      </div>
-    </div>
-
-    <div class="flex flex-1 max-w-md mx-8 relative hidden md:block">
-      <input type="text" id="globalSearch" placeholder="Search projects or tools..." class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-900 border-none rounded-full text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-200">
-      <svg class="w-4 h-4 absolute left-3.5 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-    </div>
-
-    <div class="flex items-center gap-3">
-      <div id="gSignInBtn" class="h-10 hidden sm:block"></div>
-      <button onclick="window.app.toggleTheme()" class="btn btn-ghost px-2.5" title="Toggle Theme">
-        <span id="themeIcon" class="text-lg">🌙</span>
-      </button>
-      <button onclick="window.app.openBackupModal()" class="btn btn-secondary px-3" title="Backups">
-        <span class="text-lg">💾</span>
-      </button>
-      <button onclick="window.app.openProjectModal()" class="btn btn-primary">
-        + New Project
-      </button>
-    </div>
-  </header>
-
-  <!-- NAVIGATION TABS -->
-  <div class="flex items-center px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-x-auto">
-    <div class="flex items-center gap-2">
-      <button onclick="window.app.switchView('matrix')" id="tab-matrix" class="tab-btn tab-inactive flex items-center gap-2">
-        <span>📊</span> Matrix
-      </button>
-      <button onclick="window.app.switchView('accounts')" id="tab-accounts" class="tab-btn tab-inactive flex items-center gap-2">
-        <span>👤</span> Accounts
-      </button>
-      <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-2"></div>
-      <div id="projectTabsList" class="flex items-center gap-2"></div>
-    </div>
-  </div>
-
-  <!-- MAIN WORKSPACE -->
-  <div class="flex flex-1 overflow-hidden relative">
-    <!-- Sidebar -->
-    <aside id="toolSidebar" class="w-72 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col z-10">
-      <div class="p-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-800">
-        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tools</h2>
-        <button onclick="window.app.openAddToolModal()" class="text-indigo-600 dark:text-indigo-400 hover:underline text-sm font-medium">+ Add</button>
-      </div>
-      <div id="sidebarToolList" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
-      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-        <button onclick="window.app.exportProjectDotEnv()" class="w-full btn btn-secondary justify-center text-sm">
-          📋 Copy All .env
-        </button>
+      <button class="search-trigger" data-act="palette"><svg class="i"><use href="#i-search"/></svg><span>Search</span><kbd class="mod-k">Ctrl K</kbd></button>
+      <nav>
+        <button class="nav-item" data-act="view" data-view="overview"><svg class="i"><use href="#i-grid"/></svg>Overview</button>
+        <button class="nav-item" data-act="view" data-view="accounts"><svg class="i"><use href="#i-users"/></svg>Accounts</button>
+        <button class="nav-item" data-act="view" data-view="backup"><svg class="i"><use href="#i-cloud"/></svg>Backup &amp; sync</button>
+      </nav>
+      <div class="rail-section"><span>Projects</span><button class="icon-btn" data-act="new-project" aria-label="New project" title="New project"><svg class="i"><use href="#i-plus"/></svg></button></div>
+      <div class="project-list" id="projectList"></div>
+      <div class="rail-foot">
+        <button class="sync-chip" id="syncChip" data-act="sync-chip"></button>
+        <div class="me" id="meBox"></div>
       </div>
     </aside>
-
-    <!-- Content Pane -->
-    <main class="flex-1 overflow-y-auto p-8 bg-slate-100 dark:bg-slate-950/50" id="mainWorkspacePane">
-      <!-- Dynamic Content Renders Here -->
+    <div class="scrim" data-act="close-rail"></div>
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" data-act="open-rail" aria-label="Open sidebar"><svg class="i"><use href="#i-menu"/></svg></button>
+        <div class="crumbs" id="crumbs"></div>
+        <div class="topbar-right">
+          <button class="icon-btn" data-act="palette" aria-label="Search" title="Search"><svg class="i"><use href="#i-search"/></svg></button>
+        </div>
+      </header>
+      <div class="content" id="content"></div>
     </main>
   </div>
 
-  <!-- MODALS -->
-  <div id="modalOverlay" class="fixed inset-0 bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
-      <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900">
-        <h3 id="modalTitle" class="font-bold text-lg text-slate-900 dark:text-white">Title</h3>
-        <button onclick="window.app.closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <div id="modalBody" class="p-6 overflow-y-auto"></div>
+  <!-- Modal -->
+  <div id="modal" class="modal" hidden>
+    <div id="modalCard" class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head"><h2 id="modalTitle"></h2><button class="icon-btn" data-act="modal-close" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+      <div class="modal-body" id="modalBody"></div>
     </div>
   </div>
 
+  <!-- Command palette -->
+  <div id="palette" class="palette" hidden>
+    <div class="palette-card" role="dialog" aria-modal="true" aria-label="Search">
+      <label class="palette-input"><svg class="i"><use href="#i-search"/></svg><input id="paletteInput" placeholder="Search projects, tools, keys…" autocomplete="off" spellcheck="false"><kbd>Esc</kbd></label>
+      <div id="paletteList" class="palette-list" role="listbox"></div>
+      <div class="palette-foot"><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>↵</kbd> open</span><span><kbd>Shift</kbd><kbd>↵</kbd> copy key value</span></div>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <input type="file" id="fileInput" accept=".json,application/json" hidden>
+
   <script>
-    window.app = {
-      // Your Hardcoded Client ID
-      CLIENT_ID: "960610723494-m518prusem5tfqkg9n3rh5s9guo5u018.apps.googleusercontent.com",
-      
-      state: {
-        theme: localStorage.getItem('sv_theme') || 'dark',
-        masterKey: localStorage.getItem('sv_master_key') || 'default-key',
-        activeView: 'project',
-        activeProjectId: null,
-        activeToolId: null,
-        data: null
-      },
+  (() => {
+    'use strict';
 
-      defaultInitialData: {
-        projects: [
-          {
-            id: 'proj_snappy',
-            name: 'Snappy App',
-            description: 'Mobile tennis stringing app',
-            tools: [
-              {
-                id: 'tool_firebase', name: 'Firebase', category: 'Backend', tier: 'Prod',
-                account: 'menisasson@gmail.com', resourceId: 'snappy-prod', consoleUrl: 'https://console.firebase.google.com',
-                fields: [{ id: 'f1', label: 'FIREBASE_API_KEY', type: 'secret', value: 'AIzaSyDemoFakeKey' }]
-              }
-            ]
+    /* ═════════════════ Config ═════════════════ */
+    const CLIENT_ID = '960610723494-m518prusem5tfqkg9n3rh5s9guo5u018.apps.googleusercontent.com';
+    const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
+    const VAULT_FILE = 'stackvault.vault.json';
+    const SNAP_PREFIX = 'stackvault-snapshot-';
+    const SNAP_KEEP = 30;
+    const KDF_ITER = 600000;
+    const TOMBSTONE_TTL = 180 * 864e5;
+    const POLL_MS = 60e3;
+    const TIERS = ['Prod', 'Staging', 'Dev', 'Test'];
+    const CATEGORIES = ['Backend', 'Database', 'Auth', 'Hosting', 'Storage', 'Payments', 'Email', 'AI', 'Analytics', 'Monitoring', 'CI/CD', 'Other'];
+    const LS = { vault: 'sv_vault', prev: 'sv_vault_prev', legacy: 'sv_database', sync: 'sv_sync', prefs: 'sv_prefs', device: 'sv_device' };
+    const MOD = /Mac|iPhone|iPad/.test(navigator.platform) ? '⌘' : 'Ctrl';
+
+    /* ═════════════════ Utilities ═════════════════ */
+    const $ = (s, r = document) => r.querySelector(s);
+    const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const ic = (n, c = '') => `<svg class="i ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+    const now = () => Date.now();
+    let lastTick = 0;
+    const tick = () => (lastTick = Math.max(now(), lastTick + 1));
+    const uid = (p) => p + '_' + Array.from(crypto.getRandomValues(new Uint32Array(2)), (n) => n.toString(36)).join('');
+    const enc = new TextEncoder(), dec = new TextDecoder();
+    const toB64 = (buf) => { const b = new Uint8Array(buf); let s = ''; for (let i = 0; i < b.length; i += 0x8000) s += String.fromCharCode.apply(null, b.subarray(i, i + 0x8000)); return btoa(s); };
+    const fromB64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+    const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+    const hue = (s = '') => { let h = 7; for (const c of String(s)) h = (h * 31 + c.codePointAt(0)) >>> 0; return h % 360; };
+    const initial = (s) => (String(s || '?').trim()[0] || '?').toUpperCase();
+    const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'project';
+    const today = () => new Date().toISOString().slice(0, 10);
+    const stampName = () => new Date().toISOString().slice(0, 16).replace(':', '-');
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    const fmtDate = (ts) => new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    const fmtSize = (n) => { n = Number(n) || 0; return n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : (n / 1048576).toFixed(1) + ' MB'; };
+    const tierClass = (t) => 'tier-' + (String(t || 'Prod').toLowerCase().replace(/[^a-z]/g, '') || 'prod');
+    function timeAgo(ts) {
+      if (!ts || ts < 1e12) return '—';
+      const s = Math.round((now() - ts) / 1000);
+      if (s < 45) return 'just now';
+      const m = Math.round(s / 60); if (m < 60) return m + 'm ago';
+      const h = Math.round(m / 60); if (h < 24) return h + 'h ago';
+      const d = Math.round(h / 24); if (d < 30) return d + 'd ago';
+      return new Date(ts).toLocaleDateString();
+    }
+    function safeUrl(u) {
+      u = String(u || '').trim(); if (!u) return '';
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) u = 'https://' + u;
+      try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ''; } catch { return ''; }
+    }
+    function canon(v) {
+      if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+      if (v && typeof v === 'object') return '{' + Object.keys(v).filter((k) => v[k] !== undefined).sort().map((k) => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}';
+      return JSON.stringify(v ?? null);
+    }
+    const lsGet = (k, fb = null) => { try { const v = localStorage.getItem(k); return v == null ? fb : JSON.parse(v); } catch { return fb; } };
+    const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { console.error(e); return false; } };
+    const DEVICE = lsGet(LS.device) || (() => { const d = uid('dev'); lsSet(LS.device, d); return d; })();
+    function deviceName() {
+      const ua = navigator.userAgent;
+      const os = /Windows/.test(ua) ? 'Windows' : /iPhone|iPad/.test(ua) ? 'iOS' : /Mac OS X/.test(ua) ? 'macOS' : /Android/.test(ua) ? 'Android' : /Linux/.test(ua) ? 'Linux' : 'unknown OS';
+      const br = /Edg\//.test(ua) ? 'Edge' : /Firefox\//.test(ua) ? 'Firefox' : /Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+      return `${br} on ${os}`;
+    }
+
+    const Prefs = {
+      get() { return { theme: 'system', autoLockMin: 15, remember: false, ...lsGet(LS.prefs, {}) }; },
+      set(p) { lsSet(LS.prefs, { ...this.get(), ...p }); },
+    };
+
+    /* ═════════════════ Crypto (AES-256-GCM, PBKDF2) ═════════════════ */
+    const Crypto = {
+      async derive(password, salt, iter = KDF_ITER) {
+        const base = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+        return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+      },
+      async seal(key, kdf, obj) {
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
+        return { app: 'stackvault', v: 2, kdf: { name: 'PBKDF2-SHA256', iter: kdf.iter, salt: kdf.salt }, iv: toB64(iv), ct: toB64(ct), at: now(), dev: DEVICE, devName: deviceName() };
+      },
+      async open(key, env) {
+        const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromB64(env.iv) }, key, fromB64(env.ct));
+        return JSON.parse(dec.decode(pt));
+      },
+      isEnvelope: (x) => !!(x && x.app === 'stackvault' && x.ct && x.iv && x.kdf && x.kdf.salt),
+      newKdf: () => ({ salt: toB64(crypto.getRandomValues(new Uint8Array(16))), iter: KDF_ITER }),
+    };
+
+    /* Remembered key: a non-extractable CryptoKey kept in IndexedDB (never the password). */
+    const KeyStore = {
+      db() {
+        return new Promise((res, rej) => {
+          const r = indexedDB.open('stackvault', 1);
+          r.onupgradeneeded = () => r.result.createObjectStore('keys');
+          r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+        });
+      },
+      async get() {
+        try { const db = await this.db(); return await new Promise((res) => { const q = db.transaction('keys').objectStore('keys').get('vault'); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); }
+        catch { return null; }
+      },
+      async set(v) {
+        const db = await this.db();
+        await new Promise((res, rej) => { const tx = db.transaction('keys', 'readwrite'); tx.objectStore('keys').put(v, 'vault'); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+      },
+      async clear() {
+        try { const db = await this.db(); await new Promise((res) => { const tx = db.transaction('keys', 'readwrite'); tx.objectStore('keys').delete('vault'); tx.oncomplete = res; tx.onerror = res; }); } catch {}
+      },
+    };
+
+    /* ═════════════════ Data model + merge ═════════════════
+       Vault = { schema:2, resetAt, tombstones:{path:ts}, projects:[{…, tools:[{…, fields:[…]}]}] }
+       Every project/tool/field carries createdAt/updatedAt so two PCs' edits can be merged. */
+    const CHILD = ['tools', 'fields'];
+    const Model = {
+      empty: () => ({ schema: 2, resetAt: 0, tombstones: {}, projects: [] }),
+      fromLegacy(old) {
+        return {
+          schema: 2, resetAt: 0, tombstones: {},
+          projects: (old.projects || []).map((p, pi) => ({
+            id: String(p.id || uid('p')), name: String(p.name || 'Untitled'), description: String(p.description || ''), createdAt: pi + 1, updatedAt: 1,
+            tools: (p.tools || []).map((t, ti) => ({
+              id: String(t.id || uid('t')), name: String(t.name || 'Tool'), category: String(t.category || ''), tier: String(t.tier || 'Prod'),
+              account: String(t.account || ''), resourceId: String(t.resourceId || ''), consoleUrl: safeUrl(t.consoleUrl), notes: String(t.notes || ''),
+              createdAt: ti + 1, updatedAt: 1,
+              fields: (t.fields || []).map((f, fi) => ({ id: String(f.id || uid('f')), label: String(f.label || 'KEY'), type: f.type === 'text' ? 'text' : 'secret', value: String(f.value ?? ''), createdAt: fi + 1, updatedAt: 1 })),
+            })),
+          })),
+        };
+      },
+      normalize(d) {
+        if (!d || typeof d !== 'object') return this.empty();
+        if (d.schema !== 2) return this.fromLegacy(d);
+        d.projects = Array.isArray(d.projects) ? d.projects : [];
+        d.tombstones = d.tombstones && typeof d.tombstones === 'object' ? d.tombstones : {};
+        d.resetAt = Number(d.resetAt) || 0;
+        for (const p of d.projects) {
+          p.id = String(p.id); p.name = String(p.name ?? ''); p.description = String(p.description ?? '');
+          p.tools = Array.isArray(p.tools) ? p.tools : [];
+          for (const t of p.tools) {
+            t.id = String(t.id); t.name = String(t.name ?? ''); t.consoleUrl = safeUrl(t.consoleUrl);
+            for (const k of ['category', 'tier', 'account', 'resourceId', 'notes']) t[k] = String(t[k] ?? '');
+            t.fields = Array.isArray(t.fields) ? t.fields : [];
+            for (const f of t.fields) { f.id = String(f.id); f.label = String(f.label ?? ''); f.value = String(f.value ?? ''); f.type = f.type === 'text' ? 'text' : 'secret'; }
           }
-        ]
-      },
-
-      init() {
-        this.applyTheme();
-        this.loadLocalData();
-        if (!this.state.activeProjectId && this.state.data.projects.length > 0) {
-          this.state.activeProjectId = this.state.data.projects[0].id;
         }
-        this.renderAll();
-        this.initGoogleIdentityBtn();
+        return d;
       },
-
-      loadLocalData() {
-        const stored = localStorage.getItem('sv_database');
-        this.state.data = stored ? JSON.parse(stored) : this.defaultInitialData;
-        if (!stored) this.saveLocalData();
+      /* Deterministic 2-way merge: newest updatedAt wins per item, deletions via tombstones,
+         and a restore (resetAt) drops older items the other side never touched since. */
+      merge(a, b) {
+        const ra = a.resetAt || 0, rb = b.resetAt || 0, R = Math.max(ra, rb);
+        const tomb = {};
+        for (const src of [a.tombstones, b.tombstones]) for (const [k, v] of Object.entries(src || {})) if (!(tomb[k] >= v)) tomb[k] = v;
+        const cutoff = now() - TOMBSTONE_TTL;
+        for (const k in tomb) if (tomb[k] < cutoff || tomb[k] <= R) delete tomb[k];
+        const list = (la, lb, depth, prefix, aNew, bNew) => {
+          const ma = new Map((la || []).map((x) => [x.id, x])), mb = new Map((lb || []).map((x) => [x.id, x]));
+          const ck = CHILD[depth], out = [];
+          for (const id of new Set([...ma.keys(), ...mb.keys()])) {
+            const x = ma.get(id), y = mb.get(id), path = prefix + id;
+            let item;
+            if (x && y) {
+              item = { ...((y.updatedAt || 0) > (x.updatedAt || 0) ? y : x) };
+              if (ck) item[ck] = list(x[ck], y[ck], depth + 1, path + '/', aNew, bNew);
+            } else {
+              const only = x || y;
+              if (!(x ? aNew : bNew) && (only.updatedAt || 0) <= R) continue;
+              item = { ...only };
+              if (ck) item[ck] = list(x ? only[ck] : [], y ? only[ck] : [], depth + 1, path + '/', aNew, bNew);
+            }
+            if (tomb[path] && tomb[path] >= (item.updatedAt || 0)) continue;
+            out.push(item);
+          }
+          return out.sort((p, q) => (p.createdAt || 0) - (q.createdAt || 0) || (p.id < q.id ? -1 : p.id > q.id ? 1 : 0));
+        };
+        return { schema: 2, resetAt: R, tombstones: tomb, projects: list(a.projects, b.projects, 0, '', ra >= rb, rb >= ra) };
       },
-
-      saveLocalData() {
-        localStorage.setItem('sv_database', JSON.stringify(this.state.data));
+      /* Mark every item as just-written so a restored snapshot beats older edits on other PCs. */
+      stampAll(d, ts) {
+        for (const p of d.projects) { p.updatedAt = ts; for (const t of p.tools) { t.updatedAt = ts; for (const f of t.fields) f.updatedAt = ts; } }
+        return d;
       },
-
-      applyTheme() {
-        document.documentElement.className = this.state.theme;
-        localStorage.setItem('sv_theme', this.state.theme);
-        const icon = document.getElementById('themeIcon');
-        if (icon) icon.innerText = this.state.theme === 'dark' ? '☀️' : '🌙';
+      counts(d) {
+        let tools = 0, keys = 0;
+        for (const p of d.projects) { tools += p.tools.length; for (const t of p.tools) keys += t.fields.length; }
+        return { projects: d.projects.length, tools, keys };
       },
+    };
 
-      toggleTheme() {
-        this.state.theme = this.state.theme === 'dark' ? 'light' : 'dark';
-        this.applyTheme();
+    /* ═════════════════ Session state ═════════════════ */
+    const S = {
+      data: null, key: null, kdf: null, prevKeys: [], locked: true,
+      view: 'project', projectId: null, filter: '',
+      collapsed: new Set(), revealed: new Set(), revealAll: false,
+      pendingImport: null, pendingRender: false, snaps: null,
+    };
+    const touch = (o) => { o.updatedAt = tick(); };
+    const findProject = (id) => S.data.projects.find((p) => p.id === id);
+    const curProject = () => findProject(S.projectId);
+    function findTool(tid) { for (const p of S.data.projects) { const t = p.tools.find((x) => x.id === tid); if (t) return { p, t }; } return {}; }
+    function findField(tid, fid) { const { p, t } = findTool(tid); return { p, t, f: t && t.fields.find((x) => x.id === fid) }; }
+    const lastTouched = (t) => Math.max(t.updatedAt || 0, ...t.fields.map((f) => f.updatedAt || 0));
+
+    /* Saves are serialized so the newest state always wins in localStorage. */
+    let saveChain = Promise.resolve();
+    function persist(markDirty = true) {
+      saveChain = saveChain.then(async () => {
+        if (S.locked || !S.key) return;
+        const env = await Crypto.seal(S.key, S.kdf, S.data);
+        if (!lsSet(LS.vault, env)) toast('Could not save to browser storage', 'error');
+      }).catch((e) => console.error('save failed', e));
+      if (markDirty) Sync.markDirty();
+      return saveChain;
+    }
+    const flushSaves = () => saveChain;
+    function backupPrev() { const env = lsGet(LS.vault); if (Crypto.isEnvelope(env)) lsSet(LS.prev, { env, at: now() }); }
+
+    /* ═════════════════ Google auth (GIS token client) ═════════════════ */
+    const Auth = {
+      token: null, exp: 0, client: null, pending: null,
+      load() { try { const t = JSON.parse(sessionStorage.getItem('sv_tok') || 'null'); if (t && t.exp > now() + 60e3) { this.token = t.token; this.exp = t.exp; } } catch {} },
+      valid() { return !!this.token && this.exp > now() + 60e3; },
+      ready() { return !!(window.google && google.accounts && google.accounts.oauth2); },
+      init() {
+        if (this.client) return true;
+        if (!this.ready()) return false;
+        this.client = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID, scope: DRIVE_SCOPE,
+          callback: (r) => this.done(r),
+          error_callback: (e) => this.fail(e),
+        });
+        return true;
       },
-
-      initGoogleIdentityBtn() {
-        if (!window.google) return setTimeout(() => this.initGoogleIdentityBtn(), 150);
-        google.accounts.id.initialize({ client_id: this.CLIENT_ID, callback: () => {} });
-        google.accounts.id.renderButton(document.getElementById("gSignInBtn"), { theme: this.state.theme === 'dark' ? "filled_black" : "outline", size: "large", shape: "rectangular" });
+      done(r) {
+        const p = this.pending; this.pending = null;
+        if (r.error) return p && p.reject(new Error(r.error_description || r.error));
+        if (!google.accounts.oauth2.hasGrantedAllScopes(r, DRIVE_SCOPE)) return p && p.reject(new Error('Google Drive access was not granted'));
+        this.token = r.access_token; this.exp = now() + (Number(r.expires_in) || 3600) * 1000;
+        try { sessionStorage.setItem('sv_tok', JSON.stringify({ token: this.token, exp: this.exp })); } catch {}
+        p && p.resolve(this.token);
       },
-
-      renderAll() {
-        this.renderTabs();
-        if (this.state.activeView === 'matrix') this.renderMatrixView();
-        else if (this.state.activeView === 'accounts') this.renderAccountsView();
-        else this.renderProjectView();
+      fail(e) {
+        const p = this.pending; this.pending = null;
+        const msg = e && e.type === 'popup_closed' ? 'Google sign-in was closed' : e && e.type === 'popup_failed_to_open' ? 'Pop-up blocked — allow pop-ups for this site' : (e && e.message) || 'Google sign-in failed';
+        p && p.reject(new Error(msg));
       },
-
-      renderTabs() {
-        document.getElementById('tab-matrix').className = `tab-btn ${this.state.activeView === 'matrix' ? 'tab-active' : 'tab-inactive'} flex items-center gap-2`;
-        document.getElementById('tab-accounts').className = `tab-btn ${this.state.activeView === 'accounts' ? 'tab-active' : 'tab-inactive'} flex items-center gap-2`;
-
-        document.getElementById('projectTabsList').innerHTML = this.state.data.projects.map(p => `
-          <button onclick="window.app.selectProject('${p.id}')" class="tab-btn ${this.state.activeView === 'project' && this.state.activeProjectId === p.id ? 'tab-active' : 'tab-inactive'} flex items-center gap-2">
-            ${p.name}
-            <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${this.state.activeView === 'project' && this.state.activeProjectId === p.id ? 'bg-indigo-200 dark:bg-indigo-500/30' : 'bg-slate-200 dark:bg-slate-800'}">${p.tools.length}</span>
-          </button>
-        `).join('');
+      /* Must be called synchronously inside a click/submit handler (opens a pop-up). */
+      request() {
+        if (!this.init()) return Promise.reject(new Error('Google sign-in is still loading — try again in a moment'));
+        if (this.pending) this.pending.reject(Object.assign(new Error('superseded'), { cancelled: true }));
+        return new Promise((resolve, reject) => {
+          this.pending = { resolve, reject };
+          const hint = Prefs.get().driveEmail;
+          this.client.requestAccessToken(hint ? { prompt: '', login_hint: hint } : { prompt: '' });
+        });
       },
-
-      switchView(view) {
-        this.state.activeView = view;
-        this.renderAll();
+      clear(revoke = false) {
+        if (revoke && this.token && this.ready()) try { google.accounts.oauth2.revoke(this.token, () => {}); } catch {}
+        this.token = null; this.exp = 0;
+        try { sessionStorage.removeItem('sv_tok'); } catch {}
       },
+    };
 
-      selectProject(projId) {
-        this.state.activeView = 'project';
-        this.state.activeProjectId = projId;
-        const p = this.state.data.projects.find(x => x.id === projId);
-        this.state.activeToolId = p && p.tools.length > 0 ? p.tools[0].id : null;
-        this.renderAll();
+    /* ═════════════════ Google Drive (appDataFolder) ═════════════════ */
+    const Drive = {
+      api: 'https://www.googleapis.com/drive/v3',
+      up: 'https://www.googleapis.com/upload/drive/v3',
+      async req(url, opts = {}) {
+        if (!Auth.valid()) throw Object.assign(new Error('Google Drive not connected'), { auth: true });
+        const r = await fetch(url, { ...opts, headers: { Authorization: 'Bearer ' + Auth.token, ...(opts.headers || {}) } });
+        if (r.status === 401) { Auth.clear(); throw Object.assign(new Error('Google session expired'), { auth: true }); }
+        if (r.status === 404) throw Object.assign(new Error('File not found in Drive'), { notFound: true });
+        if (!r.ok) { let m = r.statusText; try { m = (await r.json()).error.message; } catch {} throw new Error('Drive: ' + m); }
+        return r;
       },
+      async about() { return (await this.req(`${this.api}/about?fields=user(displayName,emailAddress,photoLink)`)).json(); },
+      async list(q) {
+        const p = new URLSearchParams({ spaces: 'appDataFolder', q: `${q} and trashed=false`, fields: 'files(id,name,version,modifiedTime,size)', orderBy: 'modifiedTime desc', pageSize: '100' });
+        return (await (await this.req(`${this.api}/files?${p}`)).json()).files || [];
+      },
+      async meta(id) { return (await this.req(`${this.api}/files/${encodeURIComponent(id)}?fields=id,version,modifiedTime`)).json(); },
+      async download(id) { return (await this.req(`${this.api}/files/${encodeURIComponent(id)}?alt=media`)).json(); },
+      async create(name, obj) {
+        const b = 'sv' + Math.random().toString(36).slice(2);
+        const body = `--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({ name, parents: ['appDataFolder'], mimeType: 'application/json' })}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(obj)}\r\n--${b}--`;
+        return (await this.req(`${this.up}/files?uploadType=multipart&fields=id,version,modifiedTime`, { method: 'POST', headers: { 'Content-Type': `multipart/related; boundary=${b}` }, body })).json();
+      },
+      async update(id, obj, keepalive = false) {
+        return (await this.req(`${this.up}/files/${encodeURIComponent(id)}?uploadType=media&fields=id,version,modifiedTime`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(obj), keepalive })).json();
+      },
+      async remove(id) { await this.req(`${this.api}/files/${encodeURIComponent(id)}`, { method: 'DELETE' }); },
+    };
 
-      renderProjectView() {
-        document.getElementById('toolSidebar').classList.remove('hidden');
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        if (!project) return;
+    /* Decrypt any envelope: tries the current key and keys used earlier this session, else asks.
+       adopt=true switches this vault to that password (used when another PC changed it). */
+    async function decryptEnv(env, { adopt = false, interactive = true, title = 'Enter master password', text = '', remember = false } = {}) {
+      if (!Crypto.isEnvelope(env)) {
+        if (env && Array.isArray(env.projects)) return { data: Model.normalize(env), key: S.key, kdf: S.kdf, plain: true };
+        throw new Error('That is not a StackVault vault file');
+      }
+      const known = [S.key && { key: S.key, kdf: S.kdf }, ...S.prevKeys].filter(Boolean);
+      for (const k of known) {
+        if (k.kdf.salt !== env.kdf.salt || k.kdf.iter !== env.kdf.iter) continue;
+        try { return { data: Model.normalize(await Crypto.open(k.key, env)), key: k.key, kdf: k.kdf }; } catch {}
+      }
+      if (!interactive || Modal.isOpen()) throw Object.assign(new Error('Vault password needed to continue syncing'), { needsPassword: true });
+      const res = await promptPassword({
+        title, text, remember,
+        validate: async (pw) => {
+          const kdf = { salt: env.kdf.salt, iter: env.kdf.iter };
+          const key = await Crypto.derive(pw, fromB64(kdf.salt), kdf.iter);
+          try { return { key, kdf, data: Model.normalize(await Crypto.open(key, env)) }; }
+          catch { throw new Error('Wrong password for this vault'); }
+        },
+      });
+      if (!res) throw Object.assign(new Error('Cancelled'), { cancelled: true });
+      if (adopt && S.key) {
+        S.prevKeys.push({ key: S.key, kdf: S.kdf });
+        S.key = res.key; S.kdf = res.kdf;
+        if (Prefs.get().remember) await KeyStore.set({ key: res.key, salt: res.kdf.salt, iter: res.kdf.iter }).catch(() => {});
+      } else if (S.key) S.prevKeys.push({ key: res.key, kdf: res.kdf });
+      return res;
+    }
 
-        const sidebar = document.getElementById('sidebarToolList');
-        sidebar.innerHTML = project.tools.map(t => `
-          <button onclick="window.app.selectTool('${t.id}')" class="w-full text-left p-3 rounded-lg border transition-all ${t.id === this.state.activeToolId ? 'bg-white dark:bg-slate-900 border-indigo-500 dark:border-indigo-500 shadow-sm' : 'border-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900'}">
-            <div class="flex justify-between items-center mb-1">
-              <span class="font-semibold text-slate-900 dark:text-slate-100">${t.name}</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">${t.tier || 'Prod'}</span>
-            </div>
-            <div class="text-xs text-slate-500 truncate">${t.account || 'No account'}</div>
-          </button>
-        `).join('') || `<p class="text-sm text-slate-500 p-2">No tools added.</p>`;
+    /* ═════════════════ Sync engine ═════════════════ */
+    const Sync = {
+      state: 'off', msg: '', needsPassword: false,
+      running: null, again: false, interactive: false, timer: null,
+      meta() { return lsGet(LS.sync, {}); },
+      setMeta(p) { lsSet(LS.sync, { ...this.meta(), ...p }); },
+      enabled() { return !!Prefs.get().driveEnabled; },
+      set(state, msg = '') { this.state = state; this.msg = msg; this.paint(); },
+      markDirty() {
+        const m = this.meta();
+        this.setMeta({ dirty: true, seq: (m.seq || 0) + 1 });
+        clearTimeout(this.timer);
+        if (this.enabled()) this.timer = setTimeout(() => this.run('change'), 1500);
+        this.paint();
+      },
+      run(reason, { interactive = false } = {}) {
+        if (!this.enabled() || S.locked) return Promise.resolve();
+        if (interactive) this.interactive = true;
+        if (this.running) { this.again = true; return this.running; }
+        this.running = this._run(reason).finally(() => {
+          this.running = null;
+          if (this.again) { this.again = false; this.run('again'); }
+        });
+        return this.running;
+      },
+      async _run(reason) {
+        const interactive = this.interactive; this.interactive = false;
+        if (!navigator.onLine) return this.set('offline');
+        if (!Auth.valid()) return this.set('auth');
+        this.set('syncing');
+        try {
+          let m = this.meta(), file = null;
+          if (m.fileId) {
+            try { file = await Drive.meta(m.fileId); }
+            catch (e) { if (!e.notFound) throw e; this.setMeta({ fileId: null, version: null }); }
+          }
+          if (!file) {
+            file = (await Drive.list(`name='${VAULT_FILE}'`))[0] || null;
+            if (file) this.setMeta({ fileId: file.id, version: null });
+          }
+          if (!file) {
+            await flushSaves();
+            const seq = this.meta().seq;
+            const created = await Drive.create(VAULT_FILE, lsGet(LS.vault));
+            this.setMeta({ fileId: created.id, version: String(created.version), lastSync: now(), ...(this.meta().seq === seq ? { dirty: false } : {}) });
+            this.needsPassword = false;
+            return this.set('idle');
+          }
+          m = this.meta();
+          let remoteEnv = null, push = !!m.dirty;
+          if (String(file.version) !== String(m.version)) {
+            remoteEnv = await Drive.download(file.id);
+            const keyBefore = S.kdf.salt;
+            const r = await decryptEnv(remoteEnv, {
+              adopt: true, interactive,
+              title: 'Unlock your Drive vault',
+              text: `The vault in ${esc(Prefs.get().driveEmail || 'Google Drive')} uses a different master password (it was probably changed on another PC). Enter it to merge — this PC will switch to that password.`,
+            });
+            const merged = Model.merge(S.data, r.data);
+            if (canon(merged) !== canon(S.data) || S.kdf.salt !== keyBefore) {
+              S.data = merged;
+              await persist(false);
+              softRender();
+            }
+            push = push || canon(merged) !== canon(r.data) || r.kdf.salt !== S.kdf.salt;
+            this.setMeta({ version: String(file.version) });
+          }
+          if (push) {
+            await this.dailySnapshot(file, remoteEnv);
+            await flushSaves();
+            const seq = this.meta().seq;
+            const res = await Drive.update(file.id, lsGet(LS.vault));
+            this.setMeta({ version: String(res.version), ...(this.meta().seq === seq ? { dirty: false } : {}) });
+          }
+          this.setMeta({ lastSync: now() });
+          this.needsPassword = false;
+          this.set('idle');
+        } catch (e) {
+          console.warn('[sync]', reason, e);
+          if (e.auth) this.set('auth');
+          else if (e.needsPassword || e.cancelled) { this.needsPassword = true; this.set('error', 'Drive vault uses a different password'); }
+          else this.set(navigator.onLine ? 'error' : 'offline', e.message);
+        }
+      },
+      /* First upload of each day keeps the previous Drive copy as a restore point. */
+      async dailySnapshot(file, remoteEnv) {
+        const day = today();
+        if (this.meta().snapDay === day) return;
+        try {
+          const name = `${SNAP_PREFIX}${day}.json`;
+          if (!(await Drive.list(`name='${name}'`)).length) {
+            await Drive.create(name, remoteEnv || (await Drive.download(file.id)));
+            S.snaps = null;
+          }
+          this.setMeta({ snapDay: day });
+          const snaps = await Drive.list(`name contains '${SNAP_PREFIX}'`);
+          for (const s of snaps.slice(SNAP_KEEP)) await Drive.remove(s.id).catch(() => {});
+        } catch (e) { console.warn('snapshot failed', e); }
+      },
+      async forcePush() {
+        const m = this.meta();
+        try {
+          if (m.fileId) {
+            const remote = await Drive.download(m.fileId).catch(() => null);
+            if (remote) await Drive.create(`${SNAP_PREFIX}${stampName()}-before-overwrite.json`, remote);
+            await flushSaves();
+            const res = await Drive.update(m.fileId, lsGet(LS.vault));
+            this.setMeta({ version: String(res.version), dirty: false, lastSync: now() });
+          }
+          this.needsPassword = false; S.snaps = null;
+          this.set('idle'); toast('Drive copy replaced with this vault');
+          render();
+        } catch (e) { toast(e.message, 'error'); }
+      },
+      /* Best-effort upload when the tab closes with unsynced edits. */
+      flush() {
+        const m = this.meta(), env = lsGet(LS.vault);
+        if (!this.enabled() || S.locked || !m.dirty || !m.fileId || !Auth.valid() || !env) return;
+        const body = JSON.stringify(env);
+        if (body.length > 60000) return;
+        Drive.update(m.fileId, env, true).catch(() => {});
+      },
+      label() {
+        const p = Prefs.get(), m = this.meta();
+        if (!p.driveEnabled) return { cls: '', icon: 'cloud-off', title: 'Local only', sub: 'Connect Google Drive' };
+        switch (this.state) {
+          case 'syncing': return { cls: 'busy', icon: 'refresh', spin: true, title: 'Syncing…', sub: p.driveEmail || '' };
+          case 'auth': return { cls: 'warn', icon: 'cloud-off', title: 'Sync paused', sub: 'Click to reconnect Google' };
+          case 'offline': return { cls: 'warn', icon: 'cloud-off', title: 'Offline', sub: m.dirty ? 'Changes saved on this PC' : 'Will sync when online' };
+          case 'error': return { cls: 'err', icon: 'alert', title: this.needsPassword ? 'Password needed' : 'Sync problem', sub: this.needsPassword ? 'Click to unlock Drive vault' : (this.msg || 'Click to retry') };
+          default: return { cls: 'ok', icon: 'cloud-check', title: m.dirty ? 'Changes pending' : 'Synced', sub: m.lastSync ? `${timeAgo(m.lastSync)} · ${p.driveEmail || ''}` : (p.driveEmail || '') };
+        }
+      },
+      paint() {
+        const el = $('#syncChip');
+        if (el && !S.locked) {
+          const l = this.label();
+          el.className = 'sync-chip ' + l.cls;
+          el.innerHTML = `${ic(l.icon, l.spin ? 'spin' : '')}<span><b>${esc(l.title)}</b><small>${esc(l.sub)}</small></span>`;
+          el.title = l.sub;
+        }
+        const d = $('#syncDetail');
+        if (d && S.view === 'backup') d.innerHTML = syncDetail();
+      },
+    };
 
-        const pane = document.getElementById('mainWorkspacePane');
-        const tool = project.tools.find(t => t.id === this.state.activeToolId);
-        if (!tool) {
-          pane.innerHTML = `<div class="text-center mt-20"><h3 class="text-xl font-bold mb-4">No Tools Yet</h3><button onclick="window.app.openAddToolModal()" class="btn btn-primary">+ Add First Tool</button></div>`;
+    /* ═════════════════ UI primitives ═════════════════ */
+    function toast(msg, type = 'ok', opt = {}) {
+      const el = document.createElement('div');
+      el.className = `toast toast-${type}`;
+      el.setAttribute('role', type === 'error' ? 'alert' : 'status');
+      el.innerHTML = `${ic(type === 'error' ? 'alert' : type === 'info' ? 'info' : 'check')}<span>${esc(msg)}</span>${opt.action ? `<button class="toast-btn">${esc(opt.action)}</button>` : ''}`;
+      const dismiss = () => { el.classList.remove('in'); setTimeout(() => el.remove(), 200); };
+      if (opt.action) el.querySelector('.toast-btn').addEventListener('click', () => { dismiss(); opt.onAction && opt.onAction(); });
+      $('#toasts').append(el);
+      requestAnimationFrame(() => el.classList.add('in'));
+      setTimeout(dismiss, opt.ms || (opt.action ? 7000 : type === 'error' ? 4500 : 2400));
+    }
+
+    const Modal = {
+      resolve: null, onSubmit: null, lastFocus: null,
+      isOpen() { return !$('#modal').hidden; },
+      open({ title, body, submit = 'Save', cancel = 'Cancel', danger = false, size = '', onSubmit }) {
+        if (this.resolve) { const r = this.resolve; this.resolve = null; r(null); }
+        this.lastFocus = document.activeElement;
+        $('#modalTitle').textContent = title;
+        $('#modalCard').className = 'modal-card ' + size;
+        $('#modalBody').innerHTML = `<form id="modalForm" novalidate autocomplete="off">${body}<div class="form-error" hidden></div><div class="modal-foot">${cancel ? `<button type="button" class="btn" data-act="modal-close">${esc(cancel)}</button>` : ''}${submit ? `<button type="submit" class="btn ${danger ? 'btn-danger' : 'btn-primary'}">${esc(submit)}</button>` : ''}</div></form>`;
+        this.onSubmit = onSubmit || (() => true);
+        $('#modal').hidden = false;
+        document.body.classList.add('modal-open');
+        requestAnimationFrame(() => {
+          const f = $('#modalBody').querySelector('[autofocus]') || $('#modalBody').querySelector('input:not([type=hidden]):not([type=radio]):not([type=checkbox]), textarea, select') || $('#modalBody').querySelector('[type=submit]');
+          f && f.focus();
+        });
+        return new Promise((r) => { this.resolve = r; });
+      },
+      close(result = null) {
+        if ($('#modal').hidden) return;
+        $('#modal').hidden = true;
+        document.body.classList.remove('modal-open');
+        $('#modalBody').innerHTML = '';
+        const r = this.resolve; this.resolve = null; this.onSubmit = null;
+        r && r(result);
+        if (this.lastFocus && document.contains(this.lastFocus)) this.lastFocus.focus();
+      },
+      async submit(e) {
+        e.preventDefault();
+        const form = e.target, err = form.querySelector('.form-error'), btn = form.querySelector('[type=submit]');
+        err.hidden = true; if (btn) btn.disabled = true;
+        try {
+          const res = await this.onSubmit(Object.fromEntries(new FormData(form)), form);
+          if (res !== false) this.close(res === undefined ? true : res);
+        } catch (x) {
+          err.textContent = x.message || String(x); err.hidden = false;
+          if (btn) btn.disabled = false;
+          const f = form.querySelector('input[type=password]') || form.querySelector('input:not([type=hidden]):not([type=radio]):not([type=checkbox]), textarea');
+          if (f) { f.focus(); f.select && f.select(); }
+        } finally { if (btn && document.contains(btn)) btn.disabled = false; }
+      },
+    };
+    const confirmBox = (title, html, { submit = 'Confirm', danger = false } = {}) =>
+      Modal.open({ title, size: 'sm', submit, danger, body: `<p class="modal-text">${html}</p>`, onSubmit: () => true });
+    function promptPassword({ title, text, submit = 'Unlock', remember = false, validate }) {
+      return Modal.open({
+        title, size: 'sm', submit,
+        body: `${text ? `<p class="modal-text">${text}</p>` : ''}<label class="field"><span>Master password</span><input type="password" name="password" autocomplete="current-password" autofocus></label>${remember ? `<label class="check"><input type="checkbox" name="remember" ${Prefs.get().remember ? 'checked' : ''}><span>Keep unlocked on this device</span></label>` : ''}`,
+        onSubmit: async (fd) => {
+          if (!fd.password) throw new Error('Enter the password');
+          const r = await validate(fd.password);
+          return { ...r, remember: !!fd.remember };
+        },
+      });
+    }
+    async function copyText(text, label = 'Value') {
+      try { await navigator.clipboard.writeText(String(text ?? '')); toast(`${label} copied`); }
+      catch {
+        const ta = Object.assign(document.createElement('textarea'), { value: String(text ?? '') });
+        ta.style.cssText = 'position:fixed;opacity:0'; document.body.append(ta); ta.select();
+        try { document.execCommand('copy'); toast(`${label} copied`); } catch { toast('Copy failed', 'error'); }
+        ta.remove();
+      }
+    }
+    function downloadFile(name, content, type = 'application/json') {
+      const url = URL.createObjectURL(new Blob([content], { type }));
+      const a = Object.assign(document.createElement('a'), { href: url, download: name });
+      document.body.append(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+    const emptyState = (icon, title, text, actions = '') =>
+      `<div class="empty">${ic(icon)}<h3>${esc(title)}</h3><p>${text}</p>${actions}</div>`;
+    const avatarHtml = (name, photo, cls = '') =>
+      `<span class="avatar ${cls}" style="--hue:${hue(name)}">${photo ? `<img src="${esc(photo)}" alt="" referrerpolicy="no-referrer">` : esc(initial(name))}</span>`;
+
+    /* ═════════════════ .env helpers ═════════════════ */
+    function envQuote(v) {
+      v = String(v ?? '');
+      if (v === '' || /^[^\s#"'`\\$]*$/.test(v)) return v;
+      return `"${v.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`;
+    }
+    function envText(title, tools) {
+      const out = [`# ${title}`, `# Exported from StackVault on ${today()}`];
+      for (const t of tools) {
+        if (!t.fields.length) continue;
+        out.push('', `# ── ${t.name}${t.tier ? ` (${t.tier})` : ''}`);
+        for (const f of t.fields) out.push(`${f.label}=${envQuote(f.value)}`);
+      }
+      return out.join('\n') + '\n';
+    }
+    function parseEnv(text) {
+      const out = [];
+      for (const raw of String(text).split(/\r?\n/)) {
+        let line = raw.trim();
+        if (!line || line.startsWith('#')) continue;
+        line = line.replace(/^export\s+/, '');
+        const i = line.indexOf('=');
+        if (i < 1) continue;
+        const key = line.slice(0, i).trim();
+        let val = line.slice(i + 1).trim();
+        if (!/^[A-Za-z_][A-Za-z0-9_.-]*$/.test(key)) continue;
+        let end = -1;
+        if (val[0] === '"') { for (let j = 1; j < val.length; j++) { if (val[j] === '\\') j++; else if (val[j] === '"') { end = j; break; } } }
+        else if (val[0] === "'") end = val.indexOf("'", 1);
+        if (end > 0 && val[0] === '"') val = val.slice(1, end).replace(/\\(n|"|\\)/g, (_, c) => (c === 'n' ? '\n' : c));
+        else if (end > 0) val = val.slice(1, end);
+        else val = val.replace(/\s+#.*$/, '');
+        out.push({ key, val });
+      }
+      return out;
+    }
+    function guessType(key) {
+      if (/(SECRET|TOKEN|PASS|PWD|PRIVATE|CREDENTIAL|AUTH|SIGNING|SALT|DSN|KEY)/i.test(key)) return 'secret';
+      if (/^(NEXT_PUBLIC_|VITE_|PUBLIC_|EXPO_PUBLIC_|REACT_APP_)/i.test(key)) return 'text';
+      if (/(URL|URI|HOST|PORT|REGION|ZONE|NAME|ENV|MODE|DOMAIN|BUCKET|_ID|VERSION|LOCALE|PATH|DEBUG|LEVEL)$/i.test(key)) return 'text';
+      return 'secret';
+    }
+
+    /* ═════════════════ Rendering ═════════════════ */
+    function applyTheme() {
+      const t = Prefs.get().theme;
+      document.documentElement.dataset.theme = t;
+      const b = $('#themeBtn');
+      if (b) { b.innerHTML = ic(t === 'light' ? 'sun' : t === 'dark' ? 'moon' : 'monitor'); b.title = `Theme: ${t[0].toUpperCase() + t.slice(1)}`; }
+    }
+    function toggleRail(open) { $('#shell').classList.toggle('rail-open', !!open); }
+
+    function render() {
+      if (S.locked) return;
+      S.pendingRender = false;
+      renderRail();
+      const c = $('#content'), top = c.scrollTop;
+      const views = { project: viewProject, overview: viewOverview, accounts: viewAccounts, backup: viewBackup };
+      c.innerHTML = (views[S.view] || viewProject)();
+      c.scrollTop = top;
+      renderCrumbs();
+      Sync.paint();
+      if (S.view === 'backup') loadSnapshots();
+    }
+    /* Background updates (sync / other tab) wait until you finish typing. */
+    function softRender() {
+      const a = document.activeElement;
+      if (a && $('#content').contains(a) && a.matches('input, textarea, select')) { S.pendingRender = true; return; }
+      if (Modal.isOpen()) { S.pendingRender = true; renderRail(); return; }
+      render();
+    }
+    function rerenderStack() { const el = $('#toolStack'), p = curProject(); if (el && p) el.innerHTML = toolStack(p); }
+
+    function renderRail() {
+      $('#projectList').innerHTML = S.data.projects.map((p) => {
+        const active = S.view === 'project' && p.id === S.projectId;
+        return `<button class="proj-item${active ? ' active' : ''}" data-act="open-project" data-id="${esc(p.id)}"${active ? ' aria-current="page"' : ''}><span class="dot" style="--hue:${hue(p.name)}"></span><span class="proj-name">${esc(p.name)}</span><span class="count">${p.tools.length}</span></button>`;
+      }).join('') || `<p class="rail-empty">No projects yet</p>`;
+      document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('active', b.dataset.view === S.view));
+      const p = Prefs.get();
+      $('#meBox').innerHTML = `${p.driveEnabled ? avatarHtml(p.driveName || p.driveEmail || '?', p.drivePhoto) : `<span class="avatar" style="--hue:40">${ic('vault')}</span>`}
+        <div class="me-text"><b>${esc(p.driveEnabled ? (p.driveName || p.driveEmail) : 'Local vault')}</b><small>${esc(p.driveEnabled ? p.driveEmail : 'This browser only')}</small></div>
+        <button class="icon-btn" data-act="lock" title="Lock vault" aria-label="Lock vault">${ic('lock')}</button>`;
+    }
+    function renderCrumbs() {
+      const map = { overview: ['Overview'], accounts: ['Accounts'], backup: ['Backup & sync'] };
+      const parts = map[S.view] || ['Projects', (curProject() || {}).name || 'Welcome'];
+      $('#crumbs').innerHTML = parts.map((c, i) => `<span class="${i === parts.length - 1 ? 'here' : ''}">${esc(c)}</span>`).join(ic('chevron-right'));
+    }
+
+    function viewWelcome() {
+      const p = Prefs.get();
+      return `<section class="page"><div class="card welcome">
+        <span class="welcome-mark">${ic('vault')}</span>
+        <h1>Your vault is ready</h1>
+        <p class="lede">Create a project for each app you build, then add the services it uses and their keys. Everything is encrypted with your master password${p.driveEnabled ? ' and synced through your Google Drive' : ''}.</p>
+        <div class="welcome-actions">
+          <button class="btn btn-primary" data-act="new-project">${ic('plus')} New project</button>
+          ${p.driveEnabled ? '' : `<button class="btn" data-act="connect-drive">${ic('cloud')} Connect Google Drive</button>`}
+          <button class="btn" data-act="import-file">${ic('upload')} Import backup</button>
+        </div>
+      </div></section>`;
+    }
+
+    function viewProject() {
+      const p = curProject();
+      if (!p) return viewWelcome();
+      const keys = p.tools.reduce((n, t) => n + t.fields.length, 0);
+      const accts = new Set(p.tools.map((t) => t.account).filter(Boolean)).size;
+      const updated = Math.max(p.updatedAt || 0, ...p.tools.map(lastTouched));
+      return `<section class="page">
+        <div class="page-head">
+          <div class="page-title">
+            <div class="eyebrow"><span class="dot" style="--hue:${hue(p.name)}"></span>Project</div>
+            <h1>${esc(p.name)}</h1>
+            ${p.description ? `<p class="lede">${esc(p.description)}</p>` : `<button class="link-btn" data-act="edit-project">+ Add a description</button>`}
+            <div class="meta-row"><span>${plural(p.tools.length, 'tool')}</span><span>${plural(keys, 'key')}</span><span>${plural(accts, 'account')}</span>${updated > 1e12 ? `<span>Updated ${timeAgo(updated)}</span>` : ''}</div>
+          </div>
+          <div class="head-actions">
+            <button class="btn" data-act="copy-project-env" title="Copy all keys as .env">${ic('copy')}<span class="btn-text">Copy .env</span></button>
+            <button class="btn btn-icon" data-act="download-project-env" title="Download .env" aria-label="Download .env">${ic('download')}</button>
+            <button class="btn btn-icon" data-act="edit-project" title="Edit project" aria-label="Edit project">${ic('pencil')}</button>
+            <button class="btn btn-icon danger" data-act="delete-project" title="Delete project" aria-label="Delete project">${ic('trash')}</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="search-field">${ic('search')}<input type="search" placeholder="Filter tools and keys…" value="${esc(S.filter)}" data-input="filter" autocomplete="off" spellcheck="false" aria-label="Filter tools and keys"></label>
+          <button class="btn${S.revealAll ? ' is-on' : ''}" data-act="reveal-all" aria-pressed="${S.revealAll}">${ic(S.revealAll ? 'eye-off' : 'eye')}${S.revealAll ? 'Hide values' : 'Reveal values'}</button>
+          <button class="btn btn-primary" data-act="add-tool">${ic('plus')}Add tool</button>
+        </div>
+        <div id="toolStack" class="tool-stack">${toolStack(p)}</div>
+      </section>`;
+    }
+    function toolStack(p) {
+      if (!p.tools.length) return emptyState('layers', 'No tools yet', 'Add the services this project uses — Firebase, Stripe, Vercel, Supabase… — and keep their accounts and keys together.', `<button class="btn btn-primary" data-act="add-tool">${ic('plus')} Add first tool</button>`);
+      const q = S.filter.trim().toLowerCase();
+      const html = p.tools.map((t) => {
+        const toolHit = !q || [t.name, t.category, t.account, t.resourceId, t.tier].some((v) => String(v || '').toLowerCase().includes(q));
+        const fields = q && !toolHit ? t.fields.filter((f) => f.label.toLowerCase().includes(q)) : t.fields;
+        if (q && !toolHit && !fields.length) return '';
+        return toolCard(t, fields, !!q);
+      }).join('');
+      return html || emptyState('search', 'No matches', `Nothing in this project matches “${esc(S.filter)}”.`);
+    }
+    function toolCard(t, fields, filtering) {
+      const open = filtering || !S.collapsed.has(t.id);
+      const url = safeUrl(t.consoleUrl), id = esc(t.id);
+      const meta = [t.category && `<span>${esc(t.category)}</span>`, t.account && `<span class="mono" title="Account">${esc(t.account)}</span>`, t.resourceId && `<span class="mono" title="Resource ID">${esc(t.resourceId)}</span>`].filter(Boolean);
+      meta.push(`<span>${plural(t.fields.length, 'key')}</span>`);
+      return `<article class="tool${open ? '' : ' collapsed'}" id="tool-${id}">
+        <header class="tool-head">
+          <button class="icon-btn tool-toggle" data-act="toggle-tool" data-id="${id}" aria-expanded="${open}" aria-label="${open ? 'Collapse' : 'Expand'} ${esc(t.name)}">${ic('chevron-down')}</button>
+          <span class="tool-avatar" style="--hue:${hue(t.name)}">${esc(initial(t.name))}</span>
+          <div class="tool-title">
+            <h3>${esc(t.name)} <span class="tier ${tierClass(t.tier)}">${esc(t.tier || 'Prod')}</span></h3>
+            <div class="tool-meta">${meta.join('')}</div>
+          </div>
+          <div class="tool-actions">
+            ${url ? `<a class="icon-btn" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="Open console" aria-label="Open ${esc(t.name)} console">${ic('external')}</a>` : ''}
+            <button class="icon-btn" data-act="copy-tool-env" data-id="${id}" title="Copy as .env" aria-label="Copy ${esc(t.name)} as .env">${ic('copy')}</button>
+            <button class="icon-btn" data-act="edit-tool" data-id="${id}" title="Edit tool" aria-label="Edit ${esc(t.name)}">${ic('pencil')}</button>
+            <button class="icon-btn danger" data-act="delete-tool" data-id="${id}" title="Delete tool" aria-label="Delete ${esc(t.name)}">${ic('trash')}</button>
+          </div>
+        </header>
+        ${open ? `<div class="tool-body">
+          ${t.notes ? `<p class="tool-notes">${esc(t.notes)}</p>` : ''}
+          ${fields.length ? `<div class="kv-list">${fields.map((f) => kvRow(t, f)).join('')}</div>` : `<p class="kv-empty">No keys yet — add one or paste a .env file.</p>`}
+          <div class="tool-foot">
+            <button class="btn btn-ghost btn-sm" data-act="add-field" data-id="${id}">${ic('plus')}Add key</button>
+            <button class="btn btn-ghost btn-sm" data-act="bulk-env" data-id="${id}">${ic('clipboard')}Paste .env</button>
+          </div>
+        </div>` : ''}
+      </article>`;
+    }
+    function kvRow(t, f) {
+      const secret = f.type !== 'text';
+      const shown = !secret || S.revealAll || S.revealed.has(f.id);
+      const multi = f.value.includes('\n');
+      const tid = esc(t.id), fid = esc(f.id);
+      return `<div class="kv" id="kv-${fid}">
+        <button class="kv-key" data-act="edit-field" data-tool="${tid}" data-id="${fid}" title="Edit key">${secret ? ic('key', 'kv-ico') : ''}<span>${esc(f.label)}</span></button>
+        <div class="kv-val">${multi
+          ? `<input type="${shown ? 'text' : 'password'}" value="${esc(shown ? f.value.split('\n')[0] + ' … (multi-line)' : f.value)}" readonly data-act="edit-field" data-tool="${tid}" data-id="${fid}" aria-label="${esc(f.label)} value (multi-line, click to edit)">`
+          : `<input type="${shown ? 'text' : 'password'}" value="${esc(f.value)}" placeholder="empty" data-change="field-value" data-tool="${tid}" data-id="${fid}" autocomplete="off" spellcheck="false" data-1p-ignore data-lpignore="true" aria-label="${esc(f.label)} value">`}</div>
+        <div class="kv-actions">
+          ${secret ? `<button class="icon-btn" data-act="toggle-reveal" data-id="${fid}" title="${shown ? 'Hide' : 'Show'}" aria-label="${shown ? 'Hide' : 'Show'} ${esc(f.label)}">${ic(shown ? 'eye-off' : 'eye')}</button>` : ''}
+          <button class="icon-btn" data-act="copy-field" data-tool="${tid}" data-id="${fid}" title="Copy value" aria-label="Copy ${esc(f.label)}">${ic('copy')}</button>
+          <button class="icon-btn danger" data-act="delete-field" data-tool="${tid}" data-id="${fid}" title="Delete key" aria-label="Delete ${esc(f.label)}">${ic('trash')}</button>
+        </div>
+      </div>`;
+    }
+
+    function viewOverview() {
+      const rows = [];
+      S.data.projects.forEach((p) => p.tools.forEach((t) => rows.push({ p, t })));
+      const c = Model.counts(S.data);
+      const accounts = new Set(rows.map((r) => r.t.account).filter(Boolean)).size;
+      const stat = (label, n) => `<div class="card stat"><small>${label}</small><b>${n}</b></div>`;
+      return `<section class="page">
+        <div class="page-head"><div class="page-title"><div class="eyebrow">Overview</div><h1>Your stack</h1><p class="lede">Every service, account and key across all of your projects.</p></div></div>
+        <div class="stats">${stat('Projects', c.projects)}${stat('Tools', c.tools)}${stat('Keys', c.keys)}${stat('Accounts', accounts)}</div>
+        ${rows.length ? `<div class="card table-wrap"><table class="table">
+          <thead><tr><th>Project</th><th>Tool</th><th>Tier</th><th>Account</th><th class="num">Keys</th><th>Updated</th></tr></thead>
+          <tbody>${rows.map(({ p, t }) => `<tr data-act="goto-tool" data-id="${esc(t.id)}" tabindex="0">
+            <td><span class="cell-proj"><span class="dot" style="--hue:${hue(p.name)}"></span>${esc(p.name)}</span></td>
+            <td><b>${esc(t.name)}</b></td>
+            <td><span class="tier ${tierClass(t.tier)}">${esc(t.tier || 'Prod')}</span></td>
+            <td class="mono muted">${esc(t.account || '—')}</td>
+            <td class="num">${t.fields.length}</td>
+            <td class="muted">${timeAgo(lastTouched(t))}</td></tr>`).join('')}</tbody>
+        </table></div>` : emptyState('grid', 'Nothing here yet', 'Tools you add to projects show up in this cross-project table.', `<button class="btn btn-primary" data-act="new-project">${ic('plus')} New project</button>`)}
+      </section>`;
+    }
+
+    function viewAccounts() {
+      const map = new Map();
+      S.data.projects.forEach((p) => p.tools.forEach((t) => {
+        const a = t.account.trim() || 'Unassigned';
+        if (!map.has(a)) map.set(a, []);
+        map.get(a).push({ p, t });
+      }));
+      const groups = [...map.entries()].sort((x, y) => (x[0] === 'Unassigned') - (y[0] === 'Unassigned') || y[1].length - x[1].length);
+      return `<section class="page">
+        <div class="page-head"><div class="page-title"><div class="eyebrow">Directory</div><h1>Accounts</h1><p class="lede">Which login owns which service — handy when billing, 2FA or ownership changes.</p></div></div>
+        ${groups.length ? `<div class="acct-grid">${groups.map(([a, items]) => `<div class="card acct">
+          <div class="acct-head">${avatarHtml(a, '', 'lg')}<div><h3>${esc(a)}</h3><small>${plural(items.length, 'tool')} · ${plural(new Set(items.map((x) => x.p.id)).size, 'project')}</small></div>
+            ${a !== 'Unassigned' ? `<button class="icon-btn" data-act="copy-account" data-value="${esc(a)}" title="Copy" aria-label="Copy ${esc(a)}">${ic('copy')}</button>` : ''}</div>
+          <div class="chips">${items.map(({ p, t }) => `<button class="chip" data-act="goto-tool" data-id="${esc(t.id)}"><span class="dot" style="--hue:${hue(p.name)}"></span>${esc(p.name)}<span class="sep">/</span><b>${esc(t.name)}</b></button>`).join('')}</div>
+        </div>`).join('')}</div>` : emptyState('users', 'No accounts yet', 'Set the account / login email on a tool and it will be grouped here.')}
+      </section>`;
+    }
+
+    function syncDetail() {
+      const p = Prefs.get(), m = Sync.meta();
+      if (!p.driveEnabled) {
+        return `<ol class="steps"><li>Connect the same Google account on each PC.</li><li>Unlock with the same master password.</li><li>Changes sync automatically in both directions, even after working offline.</li></ol>
+          <button class="btn btn-primary" data-act="connect-drive">${ic('cloud')} Connect Google Drive</button>`;
+      }
+      const l = Sync.label();
+      return `<div class="acct-row">${avatarHtml(p.driveName || p.driveEmail || '?', p.drivePhoto, 'lg')}<div><b>${esc(p.driveName || p.driveEmail)}</b><small>${esc(p.driveEmail)}</small></div><span class="pill ${l.cls}">${esc(l.title)}</span></div>
+        <dl class="facts">
+          <dt>Last synced</dt><dd>${m.lastSync ? `${timeAgo(m.lastSync)} <span class="muted">(${fmtDate(m.lastSync)})</span>` : 'Never'}</dd>
+          <dt>This PC</dt><dd>${m.dirty ? 'Changes waiting to upload' : 'Up to date'}</dd>
+          ${Sync.state === 'error' && Sync.msg ? `<dt>Problem</dt><dd class="error-text">${esc(Sync.msg)}</dd>` : ''}
+          ${Sync.state === 'auth' ? `<dt>Status</dt><dd>Google sessions last about an hour — reconnect to resume.</dd>` : ''}
+        </dl>
+        <div class="btn-row">
+          <button class="btn btn-primary" data-act="sync-now">${ic('refresh')} ${Auth.valid() ? 'Sync now' : 'Reconnect & sync'}</button>
+          <button class="btn" data-act="snapshot-now">${ic('history')} Create restore point</button>
+          ${Sync.needsPassword ? `<button class="btn btn-danger-ghost" data-act="force-push">Replace Drive copy with this vault</button>` : ''}
+          <button class="btn btn-ghost" data-act="disconnect-drive">Disconnect</button>
+        </div>`;
+    }
+    function viewBackup() {
+      const p = Prefs.get(), prev = lsGet(LS.prev);
+      return `<section class="page">
+        <div class="page-head"><div class="page-title"><div class="eyebrow">Settings</div><h1>Backup &amp; sync</h1><p class="lede">Pick up on any PC: your vault syncs, encrypted, through your own Google Drive — with daily restore points.</p></div></div>
+        <div class="settings-grid">
+          <div class="card">
+            <div class="card-head">${ic('cloud')}<div><h2>Google Drive sync</h2><p>Stored encrypted in a hidden app folder in your Drive that only StackVault can access.</p></div></div>
+            <div class="card-body" id="syncDetail">${syncDetail()}</div>
+          </div>
+          <div class="card">
+            <div class="card-head">${ic('history')}<div><h2>Restore points</h2><p>The first upload each day keeps the previous Drive copy. The latest ${SNAP_KEEP} are kept.</p></div></div>
+            <div class="card-body" id="snapList">${p.driveEnabled ? '<p class="muted">Loading…</p>' : '<p class="muted">Connect Google Drive to get automatic restore points.</p>'}</div>
+          </div>
+          <div class="card">
+            <div class="card-head">${ic('download')}<div><h2>Backup files</h2><p>Encrypted exports can only be opened with the master password they were made with.</p></div></div>
+            <div class="row"><div><b>Export encrypted backup</b><small>Safe to keep on a USB stick or in email</small></div><button class="btn" data-act="export-encrypted">${ic('download')} Export</button></div>
+            <div class="row"><div><b>Import backup</b><small>Merge into or replace this vault (encrypted or old v1 .json)</small></div><button class="btn" data-act="import-file">${ic('upload')} Import</button></div>
+            <div class="row"><div><b>Export unencrypted JSON</b><small>Plain text — every key readable by anyone with the file</small></div><button class="btn btn-danger-ghost" data-act="export-plain">Export</button></div>
+            ${prev ? `<div class="row"><div><b>Undo last restore / import</b><small>Vault as it was ${timeAgo(prev.at)}</small></div><button class="btn" data-act="undo-restore">${ic('history')} Undo</button></div>` : ''}
+          </div>
+          <div class="card">
+            <div class="card-head">${ic('shield')}<div><h2>Security</h2><p>AES-256-GCM encryption; key derived from your master password with PBKDF2-SHA256 (${KDF_ITER.toLocaleString()} rounds).</p></div></div>
+            <div class="row"><div><b>Keep unlocked on this device</b><small>Skip the password when opening StackVault in this browser</small></div><label class="switch"><input type="checkbox" data-change="remember" ${p.remember ? 'checked' : ''} aria-label="Keep unlocked on this device"><span></span></label></div>
+            <div class="row"><div><b>Auto-lock</b><small>${p.remember ? 'Not used while “keep unlocked” is on' : 'Lock after this long without activity'}</small></div><select class="select" data-change="autolock" ${p.remember ? 'disabled' : ''} aria-label="Auto-lock">${[0, 5, 15, 30, 60, 240].map((m) => `<option value="${m}" ${Number(p.autoLockMin) === m ? 'selected' : ''}>${m ? (m >= 60 ? m / 60 + ' h' : m + ' min') : 'Never'}</option>`).join('')}</select></div>
+            <div class="row"><div><b>Master password</b><small>Re-encrypts the vault; other PCs will ask for the new one once</small></div><button class="btn" data-act="change-password">Change</button></div>
+            <div class="row"><div><b>Lock now</b><small>${p.remember ? 'Also stops keeping this device unlocked' : 'Your password is needed to reopen'}</small></div><button class="btn" data-act="lock">${ic('lock')} Lock</button></div>
+          </div>
+        </div>
+      </section>`;
+    }
+    function snapLabel(name) {
+      const n = name.replace(SNAP_PREFIX, '').replace(/\.json$/, '');
+      if (n.endsWith('-before-restore')) return 'Before a restore';
+      if (n.endsWith('-before-overwrite')) return 'Before overwrite';
+      if (n.endsWith('-manual')) return 'Manual';
+      return 'Daily';
+    }
+    async function loadSnapshots(force = false) {
+      const el = $('#snapList');
+      if (!el || !Prefs.get().driveEnabled) return;
+      if (!Auth.valid()) { el.innerHTML = `<p class="muted">Reconnect Google Drive to see restore points.</p>`; return; }
+      if (!force && S.snaps && now() - S.snaps.at < 30e3) { el.innerHTML = snapHtml(S.snaps.list); return; }
+      try {
+        const list = await Drive.list(`name contains '${SNAP_PREFIX}'`);
+        S.snaps = { at: now(), list };
+        const cur = $('#snapList'); if (cur) cur.innerHTML = snapHtml(list);
+      } catch (e) { const cur = $('#snapList'); if (cur) cur.innerHTML = `<p class="error-text">${esc(e.message)}</p>`; }
+    }
+    function snapHtml(list) {
+      if (!list.length) return `<p class="muted">No restore points yet — one is created the first time you change something each day.</p>`;
+      return `<ul class="snap-list">${list.map((s) => {
+        const when = fmtDate(Date.parse(s.modifiedTime));
+        return `<li><div><b>${esc(when)}</b><small>${esc(snapLabel(s.name))} · ${fmtSize(s.size)}</small></div><button class="btn btn-sm" data-act="restore-snap" data-id="${esc(s.id)}" data-when="${esc(when)}">Restore</button></li>`;
+      }).join('')}</ul>`;
+    }
+
+    /* ═════════════════ Gate: setup & unlock ═════════════════ */
+    function showGate(mode) {
+      S.locked = true;
+      Palette.close(); Modal.close();
+      $('#content').innerHTML = '';
+      $('#shell').hidden = true; $('#gate').hidden = false;
+      toggleRail(false);
+      const p = Prefs.get(), legacy = lsGet(LS.legacy), pending = S.pendingImport, hasVault = Crypto.isEnvelope(lsGet(LS.vault));
+      const theme = p.theme;
+      let html = `<div class="gate-top"><div class="brand"><span class="brand-mark">${ic('vault')}</span>StackVault</div><button class="icon-btn" data-act="theme" title="Theme: ${theme}" aria-label="Change theme">${ic(theme === 'light' ? 'sun' : theme === 'dark' ? 'moon' : 'monitor')}</button></div>`;
+      if (mode === 'unlock') {
+        html += `<h1>Welcome back</h1>
+          <p class="gate-sub">Enter your master password to unlock this vault.${p.driveEnabled ? ` Sync with <b>${esc(p.driveEmail)}</b> resumes automatically.` : ''}</p>
+          <div id="gateMsg" class="gate-msg" hidden></div>
+          <form data-form="unlock" class="gate-form" autocomplete="on">
+            <input type="text" name="username" value="StackVault" autocomplete="username" hidden>
+            <label class="field"><span>Master password</span><input type="password" name="password" autocomplete="current-password" autofocus></label>
+            <label class="check"><input type="checkbox" name="remember" ${p.remember ? 'checked' : ''}><span>Keep unlocked on this device</span></label>
+            <div class="form-error" hidden></div>
+            <button class="btn btn-primary btn-lg btn-block" type="submit">${ic('lock')} Unlock</button>
+          </form>
+          <button class="link-btn gate-alt" data-act="gate-setup">Restore or start a different vault…</button>`;
+      } else {
+        const notice = pending
+          ? `Backup loaded with ${plural(pending.projects.length, 'project')}. Choose a master password to encrypt it.`
+          : legacy ? `Found an unencrypted vault from the previous version (${plural((legacy.projects || []).length, 'project')}). Set a master password to encrypt it — the plain-text copy is deleted afterwards.` : '';
+        html += `<h1>${hasVault ? 'Restore a vault' : 'Set up your vault'}</h1>
+          <p class="gate-sub">Keys are encrypted in your browser with a master password before they are saved or synced — not even Google can read them.</p>
+          ${notice ? `<div class="notice">${ic('shield')}<span>${esc(notice)}</span></div>` : ''}
+          <div id="gateMsg" class="gate-msg" hidden></div>
+          <div class="gate-options">
+            <button class="option" data-act="gate-drive">${ic('cloud')}<span><b>Restore from Google Drive</b><small>Already using StackVault on another PC</small></span>${ic('chevron-right')}</button>
+            <button class="option" data-act="import-file" data-mode="gate">${ic('upload')}<span><b>Import a backup file</b><small>Encrypted or old .json export</small></span>${ic('chevron-right')}</button>
+          </div>
+          <div class="divider">${hasVault ? 'or replace it with a new vault' : 'or create a new vault'}</div>
+          <form data-form="create" class="gate-form">
+            <input type="text" name="username" value="StackVault" autocomplete="username" hidden>
+            <label class="field"><span>Master password</span><input type="password" name="password" autocomplete="new-password" ${hasVault ? '' : 'autofocus'}></label>
+            <label class="field"><span>Confirm password</span><input type="password" name="confirm" autocomplete="new-password"></label>
+            <label class="check"><input type="checkbox" name="remember"><span>Keep unlocked on this device</span></label>
+            <p class="hint">${ic('alert')}<span>At least 8 characters. A forgotten master password cannot be recovered.${hasVault ? ' The locked vault in this browser is kept as an undo copy.' : ''}</span></p>
+            <div class="form-error" hidden></div>
+            <button class="btn btn-primary btn-lg btn-block" type="submit">${pending || legacy ? 'Encrypt & open vault' : 'Create vault'}</button>
+          </form>
+          ${hasVault ? `<button class="link-btn gate-alt" data-act="gate-unlock">← Back to unlock</button>` : ''}`;
+      }
+      html += `<div class="gate-foot">${ic('shield')}<span>Encrypted locally · AES-256-GCM</span></div>`;
+      $('#gateCard').innerHTML = html;
+      requestAnimationFrame(() => { const f = $('#gateCard [autofocus]'); f && f.focus(); });
+    }
+    function gateMsg(text, err = false) { const el = $('#gateMsg'); if (!el) return toast(text, err ? 'error' : 'info'); el.textContent = text; el.className = 'gate-msg' + (err ? ' err' : ''); el.hidden = false; }
+
+    async function enterVault(key, kdf, data, remember, { save = false } = {}) {
+      S.key = key; S.kdf = kdf; S.data = Model.normalize(data); S.prevKeys = []; S.locked = false;
+      S.revealed.clear(); S.revealAll = false; S.filter = ''; S.snaps = null;
+      Prefs.set({ remember: !!remember });
+      if (remember) await KeyStore.set({ key, salt: kdf.salt, iter: kdf.iter }).catch(() => {});
+      else await KeyStore.clear();
+      const legacy = lsGet(LS.legacy);
+      if (legacy && Array.isArray(legacy.projects)) { S.data = Model.merge(S.data, Model.fromLegacy(legacy)); save = true; }
+      if (save) await persist(true);
+      if (legacy) { ['sv_database', 'sv_master_key', 'sv_theme'].forEach((k) => localStorage.removeItem(k)); toast('Old unencrypted vault migrated and removed'); }
+      const last = Prefs.get().lastProject;
+      S.projectId = findProject(last) ? last : (S.data.projects[0] && S.data.projects[0].id) || null;
+      S.view = 'project';
+      $('#gate').hidden = true; $('#gateCard').innerHTML = ''; $('#shell').hidden = false;
+      lastActive = now();
+      Sync.state = Prefs.get().driveEnabled ? 'idle' : 'off';
+      render();
+      Sync.run('unlock');
+    }
+    async function unlockWithPassword(pw, remember) {
+      const env = lsGet(LS.vault);
+      if (!pw) throw new Error('Enter your master password');
+      const kdf = { salt: env.kdf.salt, iter: env.kdf.iter };
+      const key = await Crypto.derive(pw, fromB64(kdf.salt), kdf.iter);
+      let data;
+      try { data = await Crypto.open(key, env); } catch { throw new Error('Wrong master password'); }
+      await enterVault(key, kdf, data, remember);
+    }
+    async function lock() {
+      if (S.locked) return;
+      if (Sync.meta().dirty && Auth.valid()) await Promise.race([Sync.run('lock'), sleep(4000)]).catch(() => {});
+      await flushSaves();
+      await KeyStore.clear();
+      S.key = null; S.kdf = null; S.data = null; S.prevKeys = []; S.revealed.clear();
+      showGate('unlock');
+    }
+
+    async function gateRestoreDrive() {
+      try {
+        const tokenP = Auth.request(); // inside the click: may open Google's pop-up
+        await tokenP;
+        gateMsg('Looking for your vault in Google Drive…');
+        const { user } = await Drive.about();
+        rememberDriveUser(user);
+        const file = (await Drive.list(`name='${VAULT_FILE}'`))[0];
+        if (!file) { gateMsg(`No StackVault vault found in ${user.emailAddress}'s Drive. Create a new vault below — it will sync there automatically.`); return; }
+        const env = await Drive.download(file.id);
+        const r = await decryptEnv(env, { title: 'Unlock your Drive vault', remember: true, text: `Found a vault last saved ${esc(timeAgo(env.at || Date.parse(file.modifiedTime)))}${env.devName ? ` from ${esc(env.devName)}` : ''}. Enter its master password.` });
+        if (Crypto.isEnvelope(lsGet(LS.vault))) backupPrev();
+        lsSet(LS.vault, env);
+        Sync.setMeta({ fileId: file.id, version: String(file.version), dirty: false, lastSync: now() });
+        await enterVault(r.key, r.kdf, r.data, r.remember);
+        toast('Vault restored from Google Drive');
+      } catch (e) { if (!e.cancelled) gateMsg(e.message, true); }
+    }
+    async function gateImport(text) {
+      let obj;
+      try { obj = JSON.parse(text); } catch { return gateMsg('That file is not a StackVault backup (invalid JSON).', true); }
+      if (Crypto.isEnvelope(obj)) {
+        try {
+          const r = await decryptEnv(obj, { title: 'Unlock backup', remember: true, text: 'Enter the master password this backup was created with.' });
+          if (Crypto.isEnvelope(lsGet(LS.vault))) backupPrev();
+          lsSet(LS.vault, obj);
+          if (Prefs.get().driveEnabled) Sync.setMeta({ dirty: true });
+          await enterVault(r.key, r.kdf, r.data, r.remember, { save: true });
+          toast('Backup restored');
+        } catch (e) { if (!e.cancelled) gateMsg(e.message, true); }
+      } else if (obj && Array.isArray(obj.projects)) {
+        S.pendingImport = Model.normalize(obj);
+        showGate('setup');
+      } else gateMsg('That file is not a StackVault backup.', true);
+    }
+
+    /* ═════════════════ Drive account actions ═════════════════ */
+    function rememberDriveUser(user) {
+      const p = Prefs.get();
+      if (p.driveEmail && p.driveEmail !== user.emailAddress) lsSet(LS.sync, { dirty: true, seq: (Sync.meta().seq || 0) + 1 });
+      Prefs.set({ driveEnabled: true, driveEmail: user.emailAddress, driveName: user.displayName || '', drivePhoto: user.photoLink || '' });
+    }
+    function connectDrive() {
+      Auth.request().then(async () => {
+        const { user } = await Drive.about();
+        rememberDriveUser(user);
+        Sync.state = 'idle';
+        render();
+        toast(`Connected to ${user.emailAddress}`);
+        await Sync.run('connect', { interactive: true });
+        S.snaps = null; if (S.view === 'backup') render(); else renderRail();
+      }).catch((e) => { if (!e.cancelled) toast(e.message, 'error'); });
+    }
+    function syncNow() {
+      if (!Prefs.get().driveEnabled) return connectDrive();
+      const go = () => Sync.run('manual', { interactive: true }).then(() => { if (Sync.state === 'idle') toast('Synced with Google Drive'); S.snaps = null; if (S.view === 'backup') loadSnapshots(true); });
+      if (Auth.valid()) return go();
+      Auth.request().then(go).catch((e) => { if (!e.cancelled) toast(e.message, 'error'); });
+    }
+
+    async function importIntoVault(text) {
+      let obj;
+      try { obj = JSON.parse(text); } catch { return toast('That file is not valid JSON', 'error'); }
+      let r;
+      try { r = await decryptEnv(obj, { title: 'Unlock backup', text: 'This backup was encrypted with a different master password. Enter it to import.' }); }
+      catch (e) { if (!e.cancelled) toast(e.message, 'error'); return; }
+      const inc = r.data, c = Model.counts(inc);
+      const mode = await Modal.open({
+        title: 'Import backup', submit: 'Import',
+        body: `<p class="modal-text">This backup contains <b>${plural(c.projects, 'project')}</b>, <b>${plural(c.tools, 'tool')}</b> and <b>${plural(c.keys, 'key')}</b>.</p>
+          <div class="choice">
+            <label><input type="radio" name="mode" value="merge" checked><span><b>Merge</b><small>Add what's missing; the most recently edited version of each item wins.</small></span></label>
+            <label><input type="radio" name="mode" value="replace"><span><b>Replace</b><small>Make the vault exactly match the backup — on every synced PC.</small></span></label>
+          </div>`,
+        onSubmit: (fd) => fd.mode,
+      });
+      if (!mode) return;
+      backupPrev();
+      if (mode === 'replace') { const ts = tick(); S.data = Model.stampAll({ ...inc, resetAt: ts, tombstones: {} }, ts); }
+      else S.data = Model.merge(S.data, { ...inc, resetAt: S.data.resetAt, tombstones: {} });
+      if (!findProject(S.projectId)) S.projectId = (S.data.projects[0] || {}).id || null;
+      await persist(); render();
+      toast(mode === 'replace' ? 'Vault replaced from backup' : 'Backup merged', 'ok', { action: 'Undo', onAction: undoRestore });
+    }
+    async function undoRestore() {
+      const prev = lsGet(LS.prev);
+      if (!prev) return toast('Nothing to undo', 'info');
+      try {
+        const r = await decryptEnv(prev.env, { title: 'Unlock previous vault', text: 'The previous version used a different master password.' });
+        backupPrev();
+        const ts = tick();
+        S.data = Model.stampAll({ ...r.data, resetAt: ts, tombstones: {} }, ts);
+        if (!findProject(S.projectId)) S.projectId = (S.data.projects[0] || {}).id || null;
+        await persist(); render(); toast('Previous version restored');
+      } catch (e) { if (!e.cancelled) toast(e.message, 'error'); }
+    }
+
+    /* ═════════════════ Modals: project / tool / key ═════════════════ */
+    function projectModal(p) {
+      Modal.open({
+        title: p ? 'Edit project' : 'New project', size: 'sm', submit: p ? 'Save' : 'Create project',
+        body: `<label class="field"><span>Name</span><input name="name" value="${esc(p ? p.name : '')}" placeholder="e.g. Snappy App" maxlength="80" autofocus></label>
+          <label class="field"><span>Description <em>optional</em></span><input name="description" value="${esc(p ? p.description : '')}" placeholder="What is this project?" maxlength="200"></label>`,
+        onSubmit: (fd) => {
+          const name = fd.name.trim();
+          if (!name) throw new Error('Give the project a name');
+          if (p) { Object.assign(p, { name, description: fd.description.trim() }); touch(p); }
+          else {
+            const ts = tick();
+            const np = { id: uid('p'), name, description: fd.description.trim(), createdAt: ts, updatedAt: ts, tools: [] };
+            S.data.projects.push(np);
+            S.projectId = np.id; S.view = 'project'; S.filter = '';
+            Prefs.set({ lastProject: np.id });
+          }
+          persist(); render();
+        },
+      });
+    }
+    function defaultAccount() {
+      const p = curProject(), freq = {};
+      if (p) p.tools.forEach((t) => { if (t.account) freq[t.account] = (freq[t.account] || 0) + 1; });
+      return Object.entries(freq).sort((a, b) => b[1] - a[1])[0]?.[0] || Prefs.get().driveEmail || '';
+    }
+    function toolModal(t) {
+      const accounts = [...new Set([Prefs.get().driveEmail, ...S.data.projects.flatMap((p) => p.tools.map((x) => x.account))].filter(Boolean))];
+      const tiers = t && t.tier && !TIERS.includes(t.tier) ? [...TIERS, t.tier] : TIERS;
+      Modal.open({
+        title: t ? `Edit ${t.name}` : 'Add tool', submit: t ? 'Save' : 'Add tool',
+        body: `<div class="form-grid">
+            <label class="field span-2"><span>Name</span><input name="name" value="${esc(t ? t.name : '')}" placeholder="e.g. Firebase, Stripe, Vercel" maxlength="60" autofocus></label>
+            <label class="field"><span>Tier</span><select name="tier">${tiers.map((x) => `<option ${(t ? t.tier || 'Prod' : 'Prod') === x ? 'selected' : ''}>${esc(x)}</option>`).join('')}</select></label>
+            <label class="field"><span>Category</span><input name="category" list="dlCats" value="${esc(t ? t.category : '')}" placeholder="Backend"></label>
+            <label class="field span-2"><span>Account / login email</span><input name="account" list="dlAccts" value="${esc(t ? t.account : defaultAccount())}" placeholder="you@example.com" autocomplete="off"></label>
+            <label class="field"><span>Project / resource ID</span><input name="resourceId" class="mono" value="${esc(t ? t.resourceId : '')}" placeholder="my-app-prod" spellcheck="false"></label>
+            <label class="field"><span>Console URL</span><input name="consoleUrl" value="${esc(t ? t.consoleUrl : '')}" placeholder="https://console…" spellcheck="false"></label>
+            <label class="field span-2"><span>Notes <em>optional</em></span><textarea name="notes" rows="2" placeholder="Billing owner, quotas, rotation reminders…">${esc(t ? t.notes : '')}</textarea></label>
+          </div>
+          <datalist id="dlCats">${CATEGORIES.map((c) => `<option value="${esc(c)}">`).join('')}</datalist>
+          <datalist id="dlAccts">${accounts.map((a) => `<option value="${esc(a)}">`).join('')}</datalist>`,
+        onSubmit: (fd) => {
+          const name = fd.name.trim();
+          if (!name) throw new Error('Tool name is required');
+          const url = fd.consoleUrl.trim() ? safeUrl(fd.consoleUrl) : '';
+          if (fd.consoleUrl.trim() && !url) throw new Error('Console URL must be an http(s) web address');
+          const vals = { name, tier: fd.tier, category: fd.category.trim(), account: fd.account.trim(), resourceId: fd.resourceId.trim(), consoleUrl: url, notes: fd.notes.trim() };
+          let flash = null;
+          if (t) { Object.assign(t, vals); touch(t); }
+          else {
+            const ts = tick();
+            const nt = { id: uid('t'), ...vals, createdAt: ts, updatedAt: ts, fields: [] };
+            curProject().tools.push(nt);
+            flash = nt.id;
+          }
+          persist(); render();
+          if (flash) requestAnimationFrame(() => flashEl('tool-' + flash));
+        },
+      });
+    }
+    function fieldModal(tid, fid) {
+      const { t, f } = fid ? findField(tid, fid) : findTool(tid);
+      if (!t) return;
+      const type = f ? f.type : 'secret';
+      Modal.open({
+        title: f ? `Edit ${f.label}` : `Add key to ${t.name}`, submit: f ? 'Save' : 'Add key',
+        body: `<label class="field"><span>Key name</span><input name="label" class="mono" value="${esc(f ? f.label : '')}" placeholder="API_KEY" spellcheck="false" autocomplete="off" autofocus></label>
+          <div class="field"><span>Type</span><div class="seg">
+            <label><input type="radio" name="type" value="secret" ${type === 'secret' ? 'checked' : ''}><span>${ic('key')}Secret</span></label>
+            <label><input type="radio" name="type" value="text" ${type === 'text' ? 'checked' : ''}><span>Plain text</span></label>
+          </div></div>
+          <label class="field"><span>Value</span><textarea name="value" class="mono" rows="3" spellcheck="false" autocomplete="off" placeholder="Paste the value">${esc(f ? f.value : '')}</textarea></label>`,
+        onSubmit: (fd) => {
+          const label = fd.label.trim().replace(/\s+/g, '_');
+          if (!label) throw new Error('Key name is required');
+          if (t.fields.some((x) => x.label === label && x !== f)) throw new Error(`${label} already exists in ${t.name}`);
+          const value = fd.value.replace(/\r\n/g, '\n');
+          if (f) { if (f.label !== label || f.type !== fd.type || f.value !== value) { Object.assign(f, { label, type: fd.type, value }); touch(f); } }
+          else { const ts = tick(); t.fields.push({ id: uid('f'), label, type: fd.type || guessType(label), value, createdAt: ts, updatedAt: ts }); }
+          persist(); render();
+        },
+      });
+    }
+    function bulkModal(tid) {
+      const { t } = findTool(tid);
+      if (!t) return;
+      Modal.open({
+        title: `Paste .env into ${t.name}`, submit: 'Import keys',
+        body: `<p class="modal-text">Paste <code>KEY=value</code> lines. Comments and <code>export</code> are ignored; keys that already exist are updated.</p>
+          <label class="field"><textarea name="env" rows="9" class="mono" spellcheck="false" placeholder="DATABASE_URL=postgres://…&#10;STRIPE_SECRET_KEY=sk_live_…" autofocus></textarea></label>`,
+        onSubmit: (fd) => {
+          const rows = parseEnv(fd.env);
+          if (!rows.length) throw new Error('No KEY=value lines found');
+          let added = 0, updated = 0;
+          for (const { key, val } of rows) {
+            const ex = t.fields.find((f) => f.label === key);
+            if (ex) { if (ex.value !== val) { ex.value = val; touch(ex); updated++; } }
+            else { const ts = tick(); t.fields.push({ id: uid('f'), label: key, type: guessType(key), value: val, createdAt: ts, updatedAt: ts }); added++; }
+          }
+          persist(); render();
+          toast(`${plural(added, 'key')} added${updated ? `, ${updated} updated` : ''}`);
+        },
+      });
+    }
+    function changePasswordModal() {
+      Modal.open({
+        title: 'Change master password', size: 'sm', submit: 'Change password',
+        body: `<label class="field"><span>Current password</span><input type="password" name="current" autocomplete="current-password" autofocus></label>
+          <label class="field"><span>New password</span><input type="password" name="next" autocomplete="new-password"></label>
+          <label class="field"><span>Confirm new password</span><input type="password" name="confirm" autocomplete="new-password"></label>
+          <p class="hint">${ic('alert')}<span>Old restore points and exported backups keep the old password.</span></p>`,
+        onSubmit: async (fd) => {
+          const cur = await Crypto.derive(fd.current, fromB64(S.kdf.salt), S.kdf.iter);
+          try { await Crypto.open(cur, lsGet(LS.vault)); } catch { throw new Error('Current password is incorrect'); }
+          if (fd.next.length < 8) throw new Error('Use at least 8 characters');
+          if (fd.next !== fd.confirm) throw new Error('New passwords do not match');
+          const kdf = Crypto.newKdf();
+          const key = await Crypto.derive(fd.next, fromB64(kdf.salt), kdf.iter);
+          S.prevKeys.push({ key: S.key, kdf: S.kdf });
+          S.key = key; S.kdf = kdf;
+          if (Prefs.get().remember) await KeyStore.set({ key, salt: kdf.salt, iter: kdf.iter });
+          await persist();
+          toast(Prefs.get().driveEnabled ? 'Password changed — other PCs will ask for it once' : 'Master password changed');
+        },
+      });
+    }
+
+    /* ═════════════════ Navigation ═════════════════ */
+    function setView(v) { S.view = v; toggleRail(false); render(); $('#content').scrollTop = 0; }
+    function openProject(id) {
+      S.view = 'project'; S.projectId = id; S.filter = '';
+      Prefs.set({ lastProject: id });
+      toggleRail(false); render(); $('#content').scrollTop = 0;
+    }
+    function flashEl(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    }
+    function gotoTool(tid, fid) {
+      const { p } = findTool(tid);
+      if (!p) return;
+      S.view = 'project'; S.projectId = p.id; S.filter = ''; S.collapsed.delete(tid);
+      Prefs.set({ lastProject: p.id });
+      toggleRail(false); render();
+      requestAnimationFrame(() => flashEl(fid ? 'kv-' + fid : 'tool-' + tid));
+    }
+
+    /* ═════════════════ Command palette ═════════════════ */
+    const Palette = {
+      items: [], shown: [], idx: 0,
+      open() {
+        if (S.locked) return;
+        this.items = this.build();
+        $('#palette').hidden = false;
+        const i = $('#paletteInput'); i.value = '';
+        this.filter('');
+        i.focus();
+      },
+      close() { const el = $('#palette'); if (el) el.hidden = true; },
+      build() {
+        const it = [], cur = curProject();
+        const act = (label, icon, run, sub = '') => it.push({ kind: 'Action', label, sub, icon: ic(icon), run });
+        act('New project', 'plus', () => projectModal());
+        if (cur) act(`Add tool to ${cur.name}`, 'plus', () => toolModal());
+        if (cur) act(`Copy ${cur.name} as .env`, 'copy', () => copyText(envText(cur.name, cur.tools), '.env'));
+        act('Overview', 'grid', () => setView('overview'));
+        act('Accounts', 'users', () => setView('accounts'));
+        act('Backup & sync', 'cloud', () => setView('backup'));
+        if (Prefs.get().driveEnabled) act('Sync now', 'refresh', syncNow);
+        act('Change theme', 'monitor', Actions.theme);
+        act('Lock vault', 'lock', lock);
+        for (const p of S.data.projects) {
+          it.push({ kind: 'Project', label: p.name, sub: p.description, icon: `<span class="dot" style="--hue:${hue(p.name)}"></span>`, run: () => openProject(p.id) });
+          for (const t of p.tools) {
+            it.push({ kind: 'Tool', label: t.name, sub: `${p.name}${t.account ? ' · ' + t.account : ''}`, icon: esc(initial(t.name)), run: () => gotoTool(t.id) });
+            for (const f of t.fields) it.push({ kind: 'Key', label: f.label, sub: `${p.name} / ${t.name}`, icon: ic('key'), run: () => gotoTool(t.id, f.id), copy: f.value });
+          }
+        }
+        return it;
+      },
+      filter(q) {
+        q = q.trim().toLowerCase();
+        if (!q) this.shown = this.items.filter((x) => x.kind !== 'Key').slice(0, 40);
+        else {
+          this.shown = this.items.map((x) => {
+            const l = x.label.toLowerCase(), s = (x.sub || '').toLowerCase();
+            const sc = l === q ? 5 : l.startsWith(q) ? 4 : l.includes(q) ? 3 : s.includes(q) ? 1 : 0;
+            return [sc + (x.kind === 'Action' ? 0 : 0.5), x];
+          }).filter(([s]) => s >= 1).sort((a, b) => b[0] - a[0]).slice(0, 60).map(([, x]) => x);
+        }
+        this.idx = 0; this.paint();
+      },
+      paint() {
+        const el = $('#paletteList');
+        el.innerHTML = this.shown.length ? this.shown.map((x, i) => `<button class="pal-item${i === this.idx ? ' active' : ''}" data-pal="${i}" role="option" aria-selected="${i === this.idx}"><span class="pal-ico">${x.icon}</span><span class="pal-text"><b>${esc(x.label)}</b>${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</span><span class="pal-kind">${x.kind}</span></button>`).join('') : `<p class="pal-empty">No results</p>`;
+        const a = el.querySelector('.active'); a && a.scrollIntoView({ block: 'nearest' });
+      },
+      run(i, copy) {
+        const x = this.shown[i];
+        if (!x) return;
+        this.close();
+        if (copy && x.copy != null) copyText(x.copy, x.label); else x.run();
+      },
+    };
+
+    /* ═════════════════ Actions (event delegation) ═════════════════ */
+    const Actions = {
+      theme() {
+        const order = ['system', 'light', 'dark'];
+        const t = order[(order.indexOf(Prefs.get().theme) + 1) % 3];
+        Prefs.set({ theme: t }); applyTheme();
+        if (S.locked) { const b = $('#gateCard [data-act=theme]'); if (b) { b.innerHTML = ic(t === 'light' ? 'sun' : t === 'dark' ? 'moon' : 'monitor'); b.title = 'Theme: ' + t; } }
+        toast(`Theme: ${t[0].toUpperCase() + t.slice(1)}`, 'info', { ms: 1200 });
+      },
+      palette() { Palette.open(); },
+      'open-rail'() { toggleRail(true); },
+      'close-rail'() { toggleRail(false); },
+      view(el) { setView(el.dataset.view); },
+      'open-project'(el) { openProject(el.dataset.id); },
+      'new-project'() { projectModal(); },
+      'edit-project'() { const p = curProject(); if (p) projectModal(p); },
+      async 'delete-project'() {
+        const p = curProject(); if (!p) return;
+        const keys = p.tools.reduce((n, t) => n + t.fields.length, 0);
+        if (!(await confirmBox(`Delete ${p.name}?`, `This removes <b>${plural(p.tools.length, 'tool')}</b> and <b>${plural(keys, 'key')}</b> from every synced PC. You can still get it back from a restore point or backup.`, { submit: 'Delete project', danger: true }))) return;
+        S.data.projects = S.data.projects.filter((x) => x !== p);
+        S.data.tombstones[p.id] = tick();
+        S.projectId = (S.data.projects[0] || {}).id || null;
+        persist(); render(); toast(`Deleted ${p.name}`, 'info');
+      },
+      'add-tool'() { if (!curProject()) return projectModal(); toolModal(); },
+      'edit-tool'(el) { const { t } = findTool(el.dataset.id); if (t) toolModal(t); },
+      async 'delete-tool'(el) {
+        const { p, t } = findTool(el.dataset.id); if (!t) return;
+        if (!(await confirmBox(`Delete ${t.name}?`, `Its <b>${plural(t.fields.length, 'key')}</b> will be removed from every synced PC.`, { submit: 'Delete tool', danger: true }))) return;
+        p.tools = p.tools.filter((x) => x !== t);
+        S.data.tombstones[`${p.id}/${t.id}`] = tick();
+        persist(); render(); toast(`Deleted ${t.name}`, 'info');
+      },
+      'toggle-tool'(el) { const id = el.dataset.id; S.collapsed.has(id) ? S.collapsed.delete(id) : S.collapsed.add(id); rerenderStack(); },
+      'reveal-all'() { S.revealAll = !S.revealAll; S.revealed.clear(); render(); },
+      'toggle-reveal'(el) { const id = el.dataset.id; S.revealed.has(id) ? S.revealed.delete(id) : S.revealed.add(id); rerenderStack(); },
+      'copy-field'(el) { const { f } = findField(el.dataset.tool, el.dataset.id); if (f) copyText(f.value, f.label); },
+      'delete-field'(el) {
+        const { p, t, f } = findField(el.dataset.tool, el.dataset.id); if (!f) return;
+        const idx = t.fields.indexOf(f), path = `${p.id}/${t.id}/${f.id}`;
+        t.fields.splice(idx, 1);
+        S.data.tombstones[path] = tick();
+        persist(); rerenderStack();
+        toast(`Deleted ${f.label}`, 'info', {
+          action: 'Undo',
+          onAction: () => {
+            const cur = findTool(t.id).t; if (!cur) return;
+            delete S.data.tombstones[path];
+            f.updatedAt = tick();
+            cur.fields.splice(Math.min(idx, cur.fields.length), 0, f);
+            persist(); render();
+          },
+        });
+      },
+      'add-field'(el) { fieldModal(el.dataset.id); },
+      'edit-field'(el) { fieldModal(el.dataset.tool, el.dataset.id); },
+      'bulk-env'(el) { bulkModal(el.dataset.id); },
+      'copy-tool-env'(el) { const { t } = findTool(el.dataset.id); if (t) copyText(envText(t.name, [t]), `${t.name} .env`); },
+      'copy-project-env'() { const p = curProject(); if (p) copyText(envText(p.name, p.tools), `${p.name} .env`); },
+      'download-project-env'() { const p = curProject(); if (p) downloadFile(`${slug(p.name)}.env`, envText(p.name, p.tools), 'text/plain'); },
+      'goto-tool'(el) { gotoTool(el.dataset.id); },
+      'copy-account'(el) { copyText(el.dataset.value, 'Account'); },
+      'sync-chip'() {
+        if (!Prefs.get().driveEnabled) return setView('backup');
+        syncNow();
+      },
+      'connect-drive'() { connectDrive(); },
+      async 'disconnect-drive'() {
+        if (!(await confirmBox('Disconnect Google Drive?', 'This PC stops syncing. Your vault stays here and in Drive; reconnect any time.', { submit: 'Disconnect' }))) return;
+        Auth.clear(true);
+        Prefs.set({ driveEnabled: false });
+        lsSet(LS.sync, { dirty: !!Sync.meta().dirty, seq: Sync.meta().seq || 0 });
+        Sync.needsPassword = false; Sync.set('off'); S.snaps = null;
+        render();
+      },
+      'sync-now'() { syncNow(); },
+      async 'snapshot-now'() {
+        if (!Auth.valid()) return syncNow();
+        try { await flushSaves(); await Drive.create(`${SNAP_PREFIX}${stampName()}-manual.json`, lsGet(LS.vault)); toast('Restore point created'); loadSnapshots(true); }
+        catch (e) { toast(e.message, 'error'); }
+      },
+      async 'force-push'() {
+        if (!(await confirmBox('Replace the Drive copy?', 'The vault in Google Drive (protected by a password you could not enter) will be overwritten by this one. A copy of it is saved as a restore point first.', { submit: 'Replace Drive copy', danger: true }))) return;
+        Sync.forcePush();
+      },
+      async 'restore-snap'(el) {
+        const id = el.dataset.id;
+        if (!(await confirmBox('Restore this point?', `Your vault will be replaced with the version from <b>${esc(el.dataset.when)}</b> on every synced PC. The current state is saved as a new restore point first.`, { submit: 'Restore', danger: true }))) return;
+        try {
+          const env = await Drive.download(id);
+          const r = await decryptEnv(env, { title: 'Unlock restore point', text: 'This restore point was saved with a different master password. Enter it to restore.' });
+          await flushSaves();
+          await Drive.create(`${SNAP_PREFIX}${stampName()}-before-restore.json`, lsGet(LS.vault));
+          backupPrev();
+          const ts = tick();
+          S.data = Model.stampAll({ ...r.data, resetAt: ts, tombstones: {} }, ts);
+          if (!findProject(S.projectId)) S.projectId = (S.data.projects[0] || {}).id || null;
+          S.snaps = null;
+          await persist(); render();
+          toast('Vault restored');
+          Sync.run('restore');
+        } catch (e) { if (!e.cancelled) toast(e.message, 'error'); }
+      },
+      async 'export-encrypted'() {
+        await flushSaves();
+        downloadFile(`stackvault-${today()}.encrypted.json`, JSON.stringify(lsGet(LS.vault)));
+        toast('Encrypted backup downloaded');
+      },
+      async 'export-plain'() {
+        if (!(await confirmBox('Export without encryption?', 'Anyone who gets this file can read <b>every key</b>. Prefer the encrypted export unless you really need plain text.', { submit: 'Export plain JSON', danger: true }))) return;
+        downloadFile(`stackvault-${today()}-UNENCRYPTED.json`, JSON.stringify(S.data, null, 2));
+      },
+      'import-file'(el) { const fi = $('#fileInput'); fi.dataset.mode = el.dataset.mode || 'vault'; fi.value = ''; fi.click(); },
+      'undo-restore'() { undoRestore(); },
+      'change-password'() { changePasswordModal(); },
+      lock() { lock(); },
+      'modal-close'() { Modal.close(); },
+      'gate-drive'() { gateRestoreDrive(); },
+      'gate-setup'() { showGate('setup'); },
+      'gate-unlock'() { S.pendingImport = null; showGate('unlock'); },
+    };
+    const Changes = {
+      'field-value'(el) {
+        const { f } = findField(el.dataset.tool, el.dataset.id);
+        if (!f || f.value === el.value) return;
+        f.value = el.value; touch(f); persist();
+        const row = el.closest('.kv');
+        if (row) { row.classList.add('saved'); setTimeout(() => row.classList.remove('saved'), 1100); }
+      },
+      async remember(el) {
+        if (el.checked) { await KeyStore.set({ key: S.key, salt: S.kdf.salt, iter: S.kdf.iter }); Prefs.set({ remember: true }); toast('This device will stay unlocked'); }
+        else { await KeyStore.clear(); Prefs.set({ remember: false }); toast('Password required next time'); }
+        render();
+      },
+      autolock(el) { Prefs.set({ autoLockMin: Number(el.value) }); toast(Number(el.value) ? `Auto-lock after ${el.selectedOptions[0].text}` : 'Auto-lock off'); },
+    };
+
+    /* ═════════════════ Wiring ═════════════════ */
+    let lastActive = now();
+    function wire() {
+      document.addEventListener('click', (e) => {
+        const pal = e.target.closest('[data-pal]');
+        if (pal) return Palette.run(Number(pal.dataset.pal), e.shiftKey);
+        if (e.target.id === 'palette') return Palette.close();
+        if (e.target.id === 'modal') return Modal.close();
+        const el = e.target.closest('[data-act]');
+        if (!el || el.disabled) return;
+        const fn = Actions[el.dataset.act];
+        if (fn) fn(el, e);
+      });
+      document.addEventListener('change', (e) => {
+        const el = e.target.closest('[data-change]');
+        if (el && Changes[el.dataset.change]) Changes[el.dataset.change](el, e);
+      });
+      document.addEventListener('input', (e) => {
+        if (e.target.dataset.input === 'filter') { S.filter = e.target.value; rerenderStack(); }
+        if (e.target.id === 'paletteInput') Palette.filter(e.target.value);
+      });
+      document.addEventListener('submit', async (e) => {
+        const form = e.target;
+        if (form.id === 'modalForm') return Modal.submit(e);
+        const kind = form.dataset.form;
+        if (!kind) return;
+        e.preventDefault();
+        const fd = Object.fromEntries(new FormData(form));
+        const err = form.querySelector('.form-error'), btn = form.querySelector('[type=submit]'), label = btn.innerHTML;
+        const fail = (m) => { err.textContent = m; err.hidden = false; btn.disabled = false; btn.innerHTML = label; };
+        err.hidden = true;
+        if (kind === 'unlock') {
+          // Reconnect Google inside this click so the token pop-up isn't blocked.
+          if (Prefs.get().driveEnabled && !Auth.valid() && Auth.ready()) Auth.request().then(() => Sync.run('auth', { interactive: true })).catch(() => {});
+          btn.disabled = true; btn.innerHTML = `${ic('refresh', 'spin')} Unlocking…`;
+          try { await unlockWithPassword(fd.password, !!fd.remember); } catch (x) { fail(x.message); form.password.select(); }
+        } else if (kind === 'create') {
+          if ((fd.password || '').length < 8) return fail('Use at least 8 characters.');
+          if (fd.password !== fd.confirm) return fail('Passwords do not match.');
+          btn.disabled = true; btn.innerHTML = `${ic('refresh', 'spin')} Encrypting…`;
+          try {
+            const kdf = Crypto.newKdf();
+            const key = await Crypto.derive(fd.password, fromB64(kdf.salt), kdf.iter);
+            const data = S.pendingImport || Model.empty();
+            if (Crypto.isEnvelope(lsGet(LS.vault))) backupPrev();
+            if (Prefs.get().driveEnabled) Sync.setMeta({ version: null });
+            S.pendingImport = null;
+            await enterVault(key, kdf, data, !!fd.remember, { save: true });
+            toast('Vault created and encrypted');
+          } catch (x) { fail(x.message); }
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          if (!S.locked) $('#palette').hidden ? Palette.open() : Palette.close();
           return;
         }
+        if (!$('#palette').hidden && e.target.id === 'paletteInput') {
+          if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const n = Palette.shown.length; if (n) { Palette.idx = (Palette.idx + (e.key === 'ArrowDown' ? 1 : -1) + n) % n; Palette.paint(); } }
+          else if (e.key === 'Enter') { e.preventDefault(); Palette.run(Palette.idx, e.shiftKey); }
+          else if (e.key === 'Escape') Palette.close();
+          return;
+        }
+        if (e.key === 'Escape') {
+          if (Modal.isOpen()) return Modal.close();
+          if ($('#shell').classList.contains('rail-open')) return toggleRail(false);
+        }
+        if (e.key === 'Enter' && e.target.matches && e.target.matches('.kv-val input:not([readonly])')) e.target.blur();
+        if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('tr[data-act], input[readonly][data-act]')) { e.preventDefault(); e.target.click(); }
+      });
+      document.addEventListener('focusout', () => setTimeout(() => {
+        if (!S.pendingRender || S.locked || Modal.isOpen()) return;
+        const a = document.activeElement;
+        if (a && $('#content').contains(a) && a.matches('input, textarea, select')) return;
+        render();
+      }, 0));
+      $('#fileInput').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (file.size > 10e6) return toast('That file is too large to be a StackVault backup', 'error');
+        const text = await file.text();
+        if (e.target.dataset.mode === 'gate' || S.locked) gateImport(text); else importIntoVault(text);
+      });
 
-        pane.innerHTML = `
-          <div class="max-w-4xl mx-auto space-y-8 pb-12">
-            
-            <div class="flex items-center justify-between">
-              <div>
-                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">${tool.name}</h2>
-                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
-                  <span class="px-2 py-1 rounded-md bg-slate-200 dark:bg-slate-800 font-medium">${tool.tier || 'Prod'}</span>
-                  <span>Category: ${tool.category || 'General'}</span>
-                </div>
-              </div>
-              <div class="flex gap-3">
-                ${tool.consoleUrl ? `<a href="${tool.consoleUrl}" target="_blank" class="btn btn-secondary">Open Console ↗</a>` : ''}
-                <button onclick="window.app.deleteTool('${tool.id}')" class="btn btn-ghost text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10">Delete Tool</button>
-              </div>
-            </div>
+      // Another tab saved → merge it in.
+      window.addEventListener('storage', async (e) => {
+        if (e.key !== LS.vault || S.locked || !e.newValue) return;
+        try {
+          const env = JSON.parse(e.newValue);
+          if (!Crypto.isEnvelope(env) || env.kdf.salt !== S.kdf.salt) return;
+          const merged = Model.merge(S.data, Model.normalize(await Crypto.open(S.key, env)));
+          if (canon(merged) !== canon(S.data)) { S.data = merged; softRender(); }
+        } catch {}
+      });
 
-            <!-- Identity Card -->
-            <div class="card space-y-6">
-              <h3 class="text-lg font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-4">Account & Identity</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Account / Email Used</label>
-                  <input type="text" value="${tool.account || ''}" onchange="window.app.updateToolField('${tool.id}', 'account', this.value)" class="input-field">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Project / Resource ID</label>
-                  <input type="text" value="${tool.resourceId || ''}" onchange="window.app.updateToolField('${tool.id}', 'resourceId', this.value)" class="input-field code-input">
-                </div>
-              </div>
-            </div>
+      // Activity + auto-lock
+      ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((ev) => addEventListener(ev, () => { lastActive = now(); }, { passive: true }));
+      setInterval(() => {
+        if (S.locked) return;
+        Sync.paint();
+        const p = Prefs.get();
+        if (!p.remember && Number(p.autoLockMin) > 0 && now() - lastActive > p.autoLockMin * 60e3) { lock(); toast('Locked after inactivity', 'info'); }
+      }, 20e3);
 
-            <!-- Secrets Card -->
-            <div class="card space-y-6">
-              <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4">
-                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Environment Variables</h3>
-                <div class="flex gap-2">
-                  <button onclick="window.app.openBulkEnvModal('${tool.id}')" class="btn btn-secondary text-sm">📥 Bulk .env</button>
-                  <button onclick="window.app.openAddFieldModal('${tool.id}')" class="btn btn-primary text-sm">+ Add Key</button>
-                </div>
-              </div>
-              
-              <div class="space-y-4">
-                ${(tool.fields || []).map((f, idx) => `
-                  <div class="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                    <div class="sm:w-1/3">
-                      <label class="block font-mono text-sm font-semibold text-slate-900 dark:text-slate-200 mb-1 break-all">${f.label}</label>
-                      <span class="inline-block px-2 py-0.5 rounded text-[11px] font-medium uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">${f.type}</span>
-                    </div>
-                    <div class="flex-1 flex gap-2 items-center">
-                      <div class="relative flex-1">
-                        <input type="${f.type === 'secret' ? 'password' : 'text'}" id="val_${f.id}" value="${f.value || ''}" onchange="window.app.updateSecretVal('${tool.id}',${idx}, this.value)" class="input-field code-input pr-10">
-                        ${f.type === 'secret' ? `
-                          <button onclick="window.app.toggleVis('val_${f.id}')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                          </button>
-                        ` : ''}
-                      </div>
-                      <button onclick="navigator.clipboard.writeText('${f.value || ''}')" class="btn btn-secondary px-3 py-2.5" title="Copy">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                      </button>
-                      <button onclick="window.app.deleteField('${tool.id}',${idx})" class="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                      </button>
-                    </div>
-                  </div>
-                `).join('') || `<p class="text-sm text-slate-500 py-4 text-center">No keys or secrets added yet.</p>`}
-              </div>
-            </div>
-          </div>
-        `;
-      },
+      // Sync triggers
+      setInterval(() => { if (!S.locked && document.visibilityState === 'visible') Sync.run('poll'); }, POLL_MS);
+      document.addEventListener('visibilitychange', () => Sync.run(document.visibilityState === 'visible' ? 'focus' : 'hidden'));
+      addEventListener('online', () => Sync.run('online'));
+      addEventListener('offline', () => { if (Sync.enabled()) Sync.set('offline'); });
+      addEventListener('pagehide', () => Sync.flush());
+    }
 
-      selectTool(toolId) { this.state.activeToolId = toolId; this.renderAll(); },
-      toggleVis(id) { const el = document.getElementById(id); if(el) el.type = el.type === 'password' ? 'text' : 'password'; },
-      
-      updateToolField(tid, fld, val) {
-        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
-        p.tools.find(t => t.id === tid)[fld] = val; this.saveLocalData();
-      },
-      updateSecretVal(tid, idx, val) {
-        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
-        p.tools.find(t => t.id === tid).fields[idx].value = val; this.saveLocalData();
-      },
-      deleteField(tid, idx) {
-        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
-        p.tools.find(t => t.id === tid).fields.splice(idx, 1); this.saveLocalData(); this.renderAll();
-      },
-      deleteTool(tid) {
-        if(!confirm("Delete tool?")) return;
-        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
-        p.tools = p.tools.filter(t => t.id !== tid);
-        this.state.activeToolId = p.tools.length ? p.tools[0].id : null;
-        this.saveLocalData(); this.renderAll();
-      },
+    /* ═════════════════ Boot ═════════════════ */
+    async function boot() {
+      document.querySelectorAll('.mod-k').forEach((k) => { k.textContent = `${MOD} K`; });
+      applyTheme();
+      Auth.load();
+      wire();
+      if (!window.isSecureContext || !crypto.subtle) {
+        document.body.innerHTML = '<p style="padding:40px;font:15px system-ui">StackVault needs a secure (https) page to use encryption.</p>';
+        return;
+      }
+      const env = lsGet(LS.vault);
+      if (Crypto.isEnvelope(env)) {
+        const rec = await KeyStore.get();
+        if (rec && rec.salt === env.kdf.salt) {
+          try { return await enterVault(rec.key, { salt: rec.salt, iter: rec.iter }, await Crypto.open(rec.key, env), true); } catch {}
+        }
+        return showGate('unlock');
+      }
+      showGate('setup');
+    }
 
-      renderMatrixView() {
-        document.getElementById('toolSidebar').classList.add('hidden');
-        document.getElementById('mainWorkspacePane').innerHTML = `
-          <div class="max-w-6xl mx-auto space-y-6">
-            <div>
-              <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Cross-Project Matrix</h2>
-              <p class="text-slate-500">Bird's-eye view of every service across your stack.</p>
-            </div>
-            <div class="card overflow-x-auto p-0">
-              <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-                  <tr class="text-xs uppercase tracking-wider text-slate-500 font-semibold">
-                    <th class="p-4">Project</th>
-                    <th class="p-4">Tool</th>
-                    <th class="p-4">Account</th>
-                    <th class="p-4">Keys</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-                  ${this.state.data.projects.flatMap(p => p.tools.map(t => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td class="p-4 font-semibold text-slate-900 dark:text-slate-100">${p.name}</td>
-                      <td class="p-4 font-medium text-indigo-600 dark:text-indigo-400">${t.name}</td>
-                      <td class="p-4 text-sm text-slate-600 dark:text-slate-400">${t.account || '—'}</td>
-                      <td class="p-4 text-sm text-slate-600 dark:text-slate-400">${(t.fields||[]).length} saved</td>
-                    </tr>
-                  `)).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      },
-
-      renderAccountsView() {
-        document.getElementById('toolSidebar').classList.add('hidden');
-        const accs = {};
-        this.state.data.projects.forEach(p => p.tools.forEach(t => {
-          const a = t.account || 'Unassigned';
-          if(!accs[a]) accs[a] = [];
-          accs[a].push({ p: p.name, t: t.name });
-        }));
-
-        document.getElementById('mainWorkspacePane').innerHTML = `
-          <div class="max-w-5xl mx-auto space-y-6">
-            <div>
-              <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Accounts Directory</h2>
-              <p class="text-slate-500">Grouped by registration email.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              ${Object.entries(accs).map(([a, items]) => `
-                <div class="card space-y-4">
-                  <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
-                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold">${a.charAt(0).toUpperCase()}</div>
-                    <h3 class="font-bold text-lg text-slate-900 dark:text-white">${a}</h3>
-                  </div>
-                  <ul class="space-y-2">
-                    ${items.map(i => `
-                      <li class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
-                        <span class="font-semibold text-slate-800 dark:text-slate-200">${i.t}</span>
-                        <span class="text-sm text-slate-500">${i.p}</span>
-                      </li>
-                    `).join('')}
-                  </ul>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      },
-
-      openProjectModal() {
-        this.openModal("Create Project", `
-          <div class="space-y-5">
-            <div><label class="block text-sm font-medium mb-2">Project Name</label><input type="text" id="nProj" class="input-field"></div>
-            <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveProject()" class="btn btn-primary">Create</button>
-            </div>
-          </div>
-        `);
-      },
-      saveProject() {
-        const name = document.getElementById('nProj').value.trim();
-        if(!name) return;
-        const id = 'p_' + Date.now();
-        this.state.data.projects.push({ id, name, tools: [] });
-        this.saveLocalData(); this.selectProject(id); this.closeModal();
-      },
-
-      openAddToolModal() {
-        this.openModal("Add Tool", `
-          <div class="space-y-5">
-            <div><label class="block text-sm font-medium mb-2">Tool Name (e.g. Vercel)</label><input type="text" id="nTool" class="input-field"></div>
-            <div class="grid grid-cols-2 gap-4">
-              <div><label class="block text-sm font-medium mb-2">Tier</label><select id="nTier" class="input-field"><option>Prod</option><option>Dev</option></select></div>
-              <div><label class="block text-sm font-medium mb-2">Account</label><input type="text" id="nAcc" value="menisasson@gmail.com" class="input-field"></div>
-            </div>
-            <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveTool()" class="btn btn-primary">Add</button>
-            </div>
-          </div>
-        `);
-      },
-      saveTool() {
-        const name = document.getElementById('nTool').value.trim();
-        if(!name) return;
-        const t = { id: 't_'+Date.now(), name, tier: document.getElementById('nTier').value, account: document.getElementById('nAcc').value, fields: [] };
-        this.state.data.projects.find(p => p.id === this.state.activeProjectId).tools.push(t);
-        this.state.activeToolId = t.id; this.saveLocalData(); this.renderAll(); this.closeModal();
-      },
-
-      openAddFieldModal(tid) {
-        this.openModal("Add Key", `
-          <div class="space-y-5">
-            <div><label class="block text-sm font-medium mb-2">Key Name (e.g. API_KEY)</label><input type="text" id="nKey" class="input-field code-input"></div>
-            <div><label class="block text-sm font-medium mb-2">Type</label><select id="nType" class="input-field"><option value="secret">Secret / Password</option><option value="text">Plain Text</option></select></div>
-            <div><label class="block text-sm font-medium mb-2">Value</label><input type="text" id="nVal" class="input-field code-input"></div>
-            <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveField('${tid}')" class="btn btn-primary">Save Key</button>
-            </div>
-          </div>
-        `);
-      },
-      saveField(tid) {
-        const label = document.getElementById('nKey').value.trim();
-        if(!label) return;
-        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
-        p.tools.find(t => t.id === tid).fields.push({ id: 'f_'+Date.now(), label, type: document.getElementById('nType').value, value: document.getElementById('nVal').value });
-        this.saveLocalData(); this.renderAll(); this.closeModal();
-      },
-
-      openBulkEnvModal(tid) {
-        this.openModal("Bulk Import .env", `
-          <div class="space-y-5">
-            <textarea id="bulkEnv" rows="8" class="input-field code-input w-full" placeholder="API_KEY=xyz..."></textarea>
-            <div class="flex justify-end gap-3">
-              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveBulk('${tid}')" class="btn btn-primary">Import</button>
-            </div>
-          </div>
-        `);
-      },
-      saveBulk(tid) {
-        const text = document.getElementById('bulkEnv').value;
-        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
-        const t = p.tools.find(x => x.id === tid);
-        text.split('\n').forEach(l => {
-          if(!l.includes('=')) return;
-          const [k, ...v] = l.split('=');
-          const isSec = /key|secret|token|pass/i.test(k);
-          t.fields.push({ id: 'f_'+Math.random(), label: k.trim(), type: isSec?'secret':'text', value: v.join('=').replace(/^['"]|['"]$/g, '') });
-        });
-        this.saveLocalData(); this.renderAll(); this.closeModal();
-      },
-
-      exportProjectDotEnv() {
-        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
-        let out = `# Env for ${p.name}\n`;
-        p.tools.forEach(t => { out += `\n# --- ${t.name} ---\n`; (t.fields||[]).forEach(f => out += `${f.label}=${f.value}\n`); });
-        navigator.clipboard.writeText(out); alert("Copied!");
-      },
-
-      openBackupModal() {
-        this.openModal("Backup Database", `
-          <div class="flex flex-col gap-4">
-            <button onclick="window.app.dlBackup()" class="btn btn-primary w-full py-3">⬇ Download Full Backup (.json)</button>
-            <label class="btn btn-secondary w-full py-3 text-center cursor-pointer">⬆ Import Backup <input type="file" accept=".json" onchange="window.app.imBackup(event)" class="hidden"></label>
-          </div>
-        `);
-      },
-      dlBackup() {
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.state.data)], {type:'application/json'}));
-        a.download = 'stackvault.json'; a.click();
-      },
-      imBackup(e) {
-        const r = new FileReader(); r.onload = (ev) => { this.state.data = JSON.parse(ev.target.result); this.saveLocalData(); this.renderAll(); this.closeModal(); };
-        r.readAsText(e.target.files[0]);
-      },
-
-      openModal(title, html) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalBody').innerHTML = html; document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); },
-      closeModal() { document.getElementById('modalOverlay').classList.replace('flex', 'hidden'); }
-    };
-    document.addEventListener('DOMContentLoaded', () => window.app.init());
+    if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) window.__sv = { Model, Crypto, S, Sync, Drive, Auth, decryptEnv, canon };
+    boot();
+  })();
   </script>
 </body>
 </html>
