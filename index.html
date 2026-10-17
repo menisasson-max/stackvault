@@ -3,149 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StackVault - Dev Stack & Encrypted Token Tracker</title>
+  <title>StackVault - Token Tracker</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'><path d='M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm8 13H5v-8h14v8z'/></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: { 500: '#6366f1', 600: '#4f46e5' }
-          }
-        }
-      }
+      theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
     };
   </script>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     :root { color-scheme: light dark; }
-    body { @apply bg-slate-50 text-slate-900 dark:bg-[#070b14] dark:text-slate-100 transition-colors duration-150; }
-    .btn { @apply px-3 py-1.5 rounded-md font-medium text-xs transition-colors inline-flex items-center gap-1.5; }
-    .btn-primary { @apply bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-500/20; }
-    .btn-secondary { @apply bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-300/40 dark:border-slate-700/60; }
-    .btn-outline { @apply border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300; }
-    .input-field { @apply w-full px-3 py-2 text-xs bg-white dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-md focus:ring-1 focus:ring-indigo-500 outline-none font-sans text-slate-900 dark:text-slate-100; }
-    .code-input { @apply font-mono text-xs; }
-    .tab-btn { @apply px-3 py-1.5 text-xs font-semibold rounded-md transition-all whitespace-nowrap; }
-    .tab-active { @apply bg-indigo-600 text-white shadow-sm; }
-    .tab-inactive { @apply text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800/60; }
+    body { @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased transition-colors duration-200; }
+    
+    /* Buttons */
+    .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-1 dark:focus:ring-offset-slate-900; }
+    .btn-primary { @apply bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm focus:ring-indigo-500; }
+    .btn-secondary { @apply bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm focus:ring-slate-500; }
+    .btn-ghost { @apply text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100; }
+    
+    /* Inputs */
+    .input-field { @apply w-full px-3.5 py-2.5 text-sm bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 placeholder-slate-400 dark:placeholder-slate-500 transition-shadow; }
+    .code-input { @apply font-mono text-sm tracking-tight; }
+    
+    /* Cards & Layout */
+    .card { @apply bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-6; }
+    .tab-btn { @apply px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap; }
+    .tab-active { @apply bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400; }
+    .tab-inactive { @apply text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-slate-200; }
   </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden text-xs">
+<body class="flex flex-col h-screen overflow-hidden">
 
-  <!-- TOP APP BAR -->
-  <header class="flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#0b101d]/95 backdrop-blur z-20 gap-3">
-    <!-- Brand -->
-    <div class="flex items-center gap-2.5 shrink-0">
-      <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-emerald-400 flex items-center justify-center text-white shadow-sm">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm8 13H5v-8h14v8z"/></svg>
+  <!-- TOP HEADER -->
+  <header class="flex items-center justify-between px-6 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 z-20">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-emerald-400 flex items-center justify-center text-white shadow-md">
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm8 13H5v-8h14v8z"/></svg>
       </div>
       <div>
-        <div class="flex items-center gap-1.5">
-          <span class="font-bold text-sm tracking-tight text-slate-900 dark:text-white">StackVault</span>
-          <span class="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-mono font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Zero-Knowledge</span>
-        </div>
+        <h1 class="font-bold text-lg text-slate-900 dark:text-white leading-tight">StackVault</h1>
+        <p class="text-[11px] font-medium text-slate-500 uppercase tracking-widest">Token Tracker</p>
       </div>
     </div>
 
-    <!-- Quick Search -->
-    <div class="flex-1 max-w-xs relative hidden md:block">
-      <input type="text" id="globalSearch" placeholder="Search tool, env, account... (Ctrl+K)" oninput="window.app.handleSearch(this.value)" class="input-field py-1 px-2.5 text-[11px] bg-slate-100 dark:bg-slate-900/60 pl-7">
-      <svg class="w-3.5 h-3.5 absolute left-2 top-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <div class="flex flex-1 max-w-md mx-8 relative hidden md:block">
+      <input type="text" id="globalSearch" placeholder="Search projects or tools..." class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-900 border-none rounded-full text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-200">
+      <svg class="w-4 h-4 absolute left-3.5 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
     </div>
 
-    <!-- Actions -->
-    <div class="flex items-center gap-2 shrink-0">
-      <!-- Google Auth Profile Pill -->
-      <div id="googleAuthContainer" class="flex items-center">
-        <div id="gSignInBtn"></div>
-      </div>
-
-      <!-- Lock / Master Key Status -->
-      <button id="lockStatusBtn" onclick="window.app.openKeyModal()" class="btn border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20">
-        <span id="lockStatusIcon">🔓</span> <span id="lockStatusText">Unlocked</span>
+    <div class="flex items-center gap-3">
+      <div id="gSignInBtn" class="h-10 hidden sm:block"></div>
+      <button onclick="window.app.toggleTheme()" class="btn btn-ghost px-2.5" title="Toggle Theme">
+        <span id="themeIcon" class="text-lg">🌙</span>
       </button>
-
-      <!-- Google Drive Sync Button -->
-      <button onclick="window.app.syncWithGoogleDrive()" title="Push / Pull with Google Drive" class="btn btn-secondary">
-        <svg class="w-3.5 h-3.5 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
-        <span id="gdriveStatusText" class="hidden sm:inline">GDrive Sync</span>
+      <button onclick="window.app.openBackupModal()" class="btn btn-secondary px-3" title="Backups">
+        <span class="text-lg">💾</span>
       </button>
-
-      <!-- Local Backup -->
-      <button onclick="window.app.openBackupModal()" class="btn btn-secondary" title="Export / Import JSON Backups">💾 Backup</button>
-
-      <!-- Setup Wizard Button -->
-      <button onclick="window.app.openOnboardingWizard()" class="btn btn-secondary" title="Reopen First-Time Setup">🪄 Setup</button>
-
-      <!-- Theme Toggle -->
-      <button onclick="window.app.toggleTheme()" class="btn btn-outline px-2" title="Toggle Light/Dark Theme">
-        <span id="themeIcon">🌙</span>
+      <button onclick="window.app.openProjectModal()" class="btn btn-primary">
+        + New Project
       </button>
-
-      <!-- New Project CTA -->
-      <button onclick="window.app.openProjectModal()" class="btn btn-primary font-bold">+ New Project</button>
     </div>
   </header>
 
-  <!-- TOP NAVIGATION TABS (PROJECTS + MATRIX + ACCOUNTS) -->
-  <div class="flex items-center gap-1.5 px-4 py-2 border-b border-slate-200 dark:border-slate-800/80 bg-slate-100/70 dark:bg-[#0e1424] overflow-x-auto no-scrollbar">
-    <button onclick="window.app.switchView('matrix')" id="tab-matrix" class="tab-btn tab-inactive flex items-center gap-1.5">
-      <span>📊</span> All Projects Matrix
-    </button>
-    <button onclick="window.app.switchView('accounts')" id="tab-accounts" class="tab-btn tab-inactive flex items-center gap-1.5">
-      <span>👤</span> Accounts Directory
-    </button>
-    <div class="h-4 w-px bg-slate-300 dark:bg-slate-700/80 mx-1"></div>
-    <div id="projectTabsList" class="flex items-center gap-1.5"></div>
+  <!-- NAVIGATION TABS -->
+  <div class="flex items-center px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 overflow-x-auto">
+    <div class="flex items-center gap-2">
+      <button onclick="window.app.switchView('matrix')" id="tab-matrix" class="tab-btn tab-inactive flex items-center gap-2">
+        <span>📊</span> Matrix
+      </button>
+      <button onclick="window.app.switchView('accounts')" id="tab-accounts" class="tab-btn tab-inactive flex items-center gap-2">
+        <span>👤</span> Accounts
+      </button>
+      <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-2"></div>
+      <div id="projectTabsList" class="flex items-center gap-2"></div>
+    </div>
   </div>
 
-  <!-- WORKSPACE CONTENT AREA -->
-  <div class="flex flex-1 overflow-hidden">
-
-    <!-- LEFT SIDEBAR: TOOLS IN CURRENT PROJECT -->
-    <aside id="toolSidebar" class="w-64 border-r border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#090d18] flex flex-col shrink-0">
-      <div class="p-3 border-b border-slate-200 dark:border-slate-800/60 flex justify-between items-center">
-        <span class="font-bold text-[10px] tracking-wider uppercase text-slate-500">Project Tools</span>
-        <button onclick="window.app.openAddToolModal()" class="btn btn-secondary py-1 px-2 text-[11px]">+ Add Tool</button>
+  <!-- MAIN WORKSPACE -->
+  <div class="flex flex-1 overflow-hidden relative">
+    <!-- Sidebar -->
+    <aside id="toolSidebar" class="w-72 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex flex-col z-10">
+      <div class="p-4 flex justify-between items-center border-b border-slate-200 dark:border-slate-800">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Tools</h2>
+        <button onclick="window.app.openAddToolModal()" class="text-indigo-600 dark:text-indigo-400 hover:underline text-sm font-medium">+ Add</button>
       </div>
-      <div id="sidebarToolList" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
-      <div class="p-2 border-t border-slate-200 dark:border-slate-800/60 text-[10px] text-slate-500 flex justify-between items-center">
-        <span id="toolCountLabel">0 Tools</span>
-        <button onclick="window.app.exportProjectDotEnv()" class="text-indigo-400 hover:underline">Copy .env</button>
+      <div id="sidebarToolList" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+      <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <button onclick="window.app.exportProjectDotEnv()" class="w-full btn btn-secondary justify-center text-sm">
+          📋 Copy All .env
+        </button>
       </div>
     </aside>
 
-    <!-- MAIN PANE -->
-    <main class="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-[#070b14]" id="mainWorkspacePane">
-      <!-- Dynamic views (Tool Details, Matrix, Accounts) render here -->
+    <!-- Content Pane -->
+    <main class="flex-1 overflow-y-auto p-8 bg-slate-100 dark:bg-slate-950/50" id="mainWorkspacePane">
+      <!-- Dynamic Content Renders Here -->
     </main>
   </div>
 
-  <!-- GLOBAL MODALS -->
-  <div id="modalOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-[#0f172a] rounded-xl shadow-2xl w-full max-w-xl overflow-hidden border border-slate-200 dark:border-slate-700/80 flex flex-col max-h-[90vh]">
-      <div class="px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
-        <h3 id="modalTitle" class="font-bold text-sm">Modal Title</h3>
-        <button onclick="window.app.closeModal()" class="text-slate-400 hover:text-slate-200 text-lg">&times;</button>
+  <!-- MODALS -->
+  <div id="modalOverlay" class="fixed inset-0 bg-slate-900/50 dark:bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-800 flex flex-col max-h-[90vh]">
+      <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900">
+        <h3 id="modalTitle" class="font-bold text-lg text-slate-900 dark:text-white">Title</h3>
+        <button onclick="window.app.closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
-      <div id="modalBody" class="p-5 overflow-y-auto flex-1"></div>
+      <div id="modalBody" class="p-6 overflow-y-auto"></div>
     </div>
   </div>
 
   <script>
     window.app = {
+      // Your Hardcoded Client ID
       CLIENT_ID: "960610723494-m518prusem5tfqkg9n3rh5s9guo5u018.apps.googleusercontent.com",
-      DB_FILE_NAME: "stackvault-db.json",
-
+      
       state: {
         theme: localStorage.getItem('sv_theme') || 'dark',
-        masterKey: sessionStorage.getItem('sv_session_key') || localStorage.getItem('sv_master_key') || '',
-        googleUser: JSON.parse(localStorage.getItem('sv_google_user') || 'null'),
-        gdriveToken: null,
-        gdriveFileId: localStorage.getItem('sv_gdrive_file_id') || null,
+        masterKey: localStorage.getItem('sv_master_key') || 'default-key',
         activeView: 'project',
         activeProjectId: null,
         activeToolId: null,
@@ -156,100 +135,33 @@
         projects: [
           {
             id: 'proj_snappy',
-            name: 'Snappy',
-            description: 'Mobile tennis stringing app & AI tension suggestions',
+            name: 'Snappy App',
+            description: 'Mobile tennis stringing app',
             tools: [
               {
-                id: 'tool_sb_firebase',
-                name: 'Firebase',
-                category: 'Backend / Auth',
-                tier: 'Prod',
-                account: 'menisasson@gmail.com',
-                resourceId: 'snappy-tennis-prod',
-                consoleUrl: 'https://console.firebase.google.com',
-                fields: [
-                  { id: 'f1', label: 'FIREBASE_API_KEY', type: 'secret', value: 'AIzaSyDemoFakeKeyForSnappyProd' },
-                  { id: 'f2', label: 'AUTH_DOMAIN', type: 'text', value: 'snappy-tennis-prod.firebaseapp.com' }
-                ]
-              },
-              {
-                id: 'tool_sb_aistudio',
-                name: 'Google AI Studio',
-                category: 'AI / LLM',
-                tier: 'Prod',
-                account: 'menisasson@gmail.com',
-                resourceId: 'gemini-1.5-flash',
-                consoleUrl: 'https://aistudio.google.com',
-                fields: [
-                  { id: 'f3', label: 'GEMINI_API_KEY', type: 'secret', value: 'AIzaSyGeminiApiKeySnappyStringer' }
-                ]
-              }
-            ]
-          },
-          {
-            id: 'proj_saas',
-            name: 'SaaS Platform',
-            description: 'Full stack Next.js web application',
-            tools: [
-              {
-                id: 'tool_vercel',
-                name: 'Vercel',
-                category: 'Hosting',
-                tier: 'Prod',
-                account: 'menisasson@gmail.com',
-                resourceId: 'prj_saas_platform_01',
-                consoleUrl: 'https://vercel.com/dashboard',
-                fields: [
-                  { id: 'f4', label: 'VERCEL_TOKEN', type: 'secret', value: 'vck_secret_token_12345678' }
-                ]
-              },
-              {
-                id: 'tool_turso',
-                name: 'Turso SQLite',
-                category: 'Database',
-                tier: 'Prod',
-                account: 'menisasson@gmail.com',
-                resourceId: 'saas-prod-db',
-                consoleUrl: 'https://turso.tech/app',
-                fields: [
-                  { id: 'f5', label: 'TURSO_DATABASE_URL', type: 'text', value: 'libsql://saas-prod-db-usr.turso.io' },
-                  { id: 'f6', label: 'TURSO_AUTH_TOKEN', type: 'secret', value: 'turso_jwt_secret_token_abc' }
-                ]
+                id: 'tool_firebase', name: 'Firebase', category: 'Backend', tier: 'Prod',
+                account: 'menisasson@gmail.com', resourceId: 'snappy-prod', consoleUrl: 'https://console.firebase.google.com',
+                fields: [{ id: 'f1', label: 'FIREBASE_API_KEY', type: 'secret', value: 'AIzaSyDemoFakeKey' }]
               }
             ]
           }
         ]
       },
 
-      async init() {
+      init() {
         this.applyTheme();
         this.loadLocalData();
-        if (!this.state.masterKey) {
-          this.state.masterKey = 'stackvault-default-key-dev';
-        }
         if (!this.state.activeProjectId && this.state.data.projects.length > 0) {
           this.state.activeProjectId = this.state.data.projects[0].id;
         }
         this.renderAll();
         this.initGoogleIdentityBtn();
-
-        if (!localStorage.getItem('sv_onboarded_completed')) {
-          setTimeout(() => this.openOnboardingWizard(), 600);
-        }
       },
 
       loadLocalData() {
         const stored = localStorage.getItem('sv_database');
-        if (stored) {
-          try {
-            this.state.data = JSON.parse(stored);
-          } catch (e) {
-            this.state.data = this.defaultInitialData;
-          }
-        } else {
-          this.state.data = this.defaultInitialData;
-          this.saveLocalData();
-        }
+        this.state.data = stored ? JSON.parse(stored) : this.defaultInitialData;
+        if (!stored) this.saveLocalData();
       },
 
       saveLocalData() {
@@ -260,7 +172,7 @@
         document.documentElement.className = this.state.theme;
         localStorage.setItem('sv_theme', this.state.theme);
         const icon = document.getElementById('themeIcon');
-        if (icon) icon.innerText = this.state.theme === 'dark' ? '🌙' : '☀️';
+        if (icon) icon.innerText = this.state.theme === 'dark' ? '☀️' : '🌙';
       },
 
       toggleTheme() {
@@ -270,76 +182,27 @@
 
       initGoogleIdentityBtn() {
         if (!window.google) return setTimeout(() => this.initGoogleIdentityBtn(), 150);
-        google.accounts.id.initialize({
-          client_id: this.CLIENT_ID,
-          callback: this.handleGoogleCredential.bind(this)
-        });
-        if (this.state.googleUser) {
-          this.renderGoogleUserPill();
-        } else {
-          google.accounts.id.renderButton(
-            document.getElementById("gSignInBtn"),
-            { theme: this.state.theme === 'dark' ? "filled_black" : "outline", size: "medium", shape: "pill" }
-          );
-        }
-      },
-
-      handleGoogleCredential(response) {
-        try {
-          const payload = JSON.parse(atob(response.credential.split('.')[1]));
-          this.state.googleUser = { email: payload.email, name: payload.name, picture: payload.picture };
-          localStorage.setItem('sv_google_user', JSON.stringify(this.state.googleUser));
-          this.renderGoogleUserPill();
-        } catch (e) {
-          console.error("Auth error", e);
-        }
-      },
-
-      renderGoogleUserPill() {
-        const container = document.getElementById('googleAuthContainer');
-        if (!container || !this.state.googleUser) return;
-        container.innerHTML = `
-          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-200 dark:bg-slate-800 text-[11px] font-medium border border-slate-300 dark:border-slate-700">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-            <span class="truncate max-w-[140px] text-slate-800 dark:text-slate-200">${this.state.googleUser.email}</span>
-            <button onclick="window.app.signOutGoogle()" class="text-slate-400 hover:text-red-400 ml-1">&times;</button>
-          </div>
-        `;
-      },
-
-      signOutGoogle() {
-        this.state.googleUser = null;
-        localStorage.removeItem('sv_google_user');
-        location.reload();
+        google.accounts.id.initialize({ client_id: this.CLIENT_ID, callback: () => {} });
+        google.accounts.id.renderButton(document.getElementById("gSignInBtn"), { theme: this.state.theme === 'dark' ? "filled_black" : "outline", size: "large", shape: "rectangular" });
       },
 
       renderAll() {
         this.renderTabs();
-        if (this.state.activeView === 'matrix') {
-          this.renderMatrixView();
-        } else if (this.state.activeView === 'accounts') {
-          this.renderAccountsView();
-        } else {
-          this.renderProjectView();
-        }
+        if (this.state.activeView === 'matrix') this.renderMatrixView();
+        else if (this.state.activeView === 'accounts') this.renderAccountsView();
+        else this.renderProjectView();
       },
 
       renderTabs() {
-        const matrixBtn = document.getElementById('tab-matrix');
-        const accountsBtn = document.getElementById('tab-accounts');
-        matrixBtn.className = `tab-btn ${this.state.activeView === 'matrix' ? 'tab-active' : 'tab-inactive'}`;
-        accountsBtn.className = `tab-btn ${this.state.activeView === 'accounts' ? 'tab-active' : 'tab-inactive'}`;
+        document.getElementById('tab-matrix').className = `tab-btn ${this.state.activeView === 'matrix' ? 'tab-active' : 'tab-inactive'} flex items-center gap-2`;
+        document.getElementById('tab-accounts').className = `tab-btn ${this.state.activeView === 'accounts' ? 'tab-active' : 'tab-inactive'} flex items-center gap-2`;
 
-        const list = document.getElementById('projectTabsList');
-        list.innerHTML = this.state.data.projects.map(p => {
-          const isActive = this.state.activeView === 'project' && this.state.activeProjectId === p.id;
-          return `
-            <button onclick="window.app.selectProject('${p.id}')" class="tab-btn ${isActive ? 'tab-active' : 'tab-inactive'} flex items-center gap-1.5">
-              <span>📁 ${p.name}</span>
-              <span class="px-1.5 py-0.2 rounded-full bg-black/20 text-[10px]">${p.tools.length}</span>
-            </button>
-          `;
-        }).join('');
+        document.getElementById('projectTabsList').innerHTML = this.state.data.projects.map(p => `
+          <button onclick="window.app.selectProject('${p.id}')" class="tab-btn ${this.state.activeView === 'project' && this.state.activeProjectId === p.id ? 'tab-active' : 'tab-inactive'} flex items-center gap-2">
+            ${p.name}
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${this.state.activeView === 'project' && this.state.activeProjectId === p.id ? 'bg-indigo-200 dark:bg-indigo-500/30' : 'bg-slate-200 dark:bg-slate-800'}">${p.tools.length}</span>
+          </button>
+        `).join('');
       },
 
       switchView(view) {
@@ -350,215 +213,155 @@
       selectProject(projId) {
         this.state.activeView = 'project';
         this.state.activeProjectId = projId;
-        const project = this.state.data.projects.find(p => p.id === projId);
-        if (project && project.tools.length > 0) {
-          this.state.activeToolId = project.tools[0].id;
-        } else {
-          this.state.activeToolId = null;
-        }
+        const p = this.state.data.projects.find(x => x.id === projId);
+        this.state.activeToolId = p && p.tools.length > 0 ? p.tools[0].id : null;
         this.renderAll();
       },
 
       renderProjectView() {
         document.getElementById('toolSidebar').classList.remove('hidden');
         const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        if (!project) {
-          document.getElementById('mainWorkspacePane').innerHTML = `<p class="text-slate-500">No project selected.</p>`;
-          return;
-        }
+        if (!project) return;
 
-        // Render Sidebar Tools
-        const toolListEl = document.getElementById('sidebarToolList');
-        document.getElementById('toolCountLabel').innerText = `${project.tools.length} Tools`;
-
-        if (project.tools.length === 0) {
-          toolListEl.innerHTML = `<p class="p-3 text-[11px] text-slate-500">No tools yet. Click "+ Add Tool" above.</p>`;
-        } else {
-          toolListEl.innerHTML = project.tools.map(t => {
-            const isSelected = t.id === this.state.activeToolId;
-            return `
-              <div onclick="window.app.selectTool('${t.id}')" class="cursor-pointer p-2 rounded-lg border transition-all ${isSelected ? 'bg-indigo-600/10 border-indigo-500/50 text-indigo-400' : 'border-transparent hover:bg-slate-100 dark:hover:bg-slate-800/60'}">
-                <div class="flex justify-between items-center">
-                  <span class="font-semibold text-xs text-slate-900 dark:text-slate-100">${t.name}</span>
-                  <span class="text-[9px] px-1 rounded bg-slate-200 dark:bg-slate-800 font-mono text-slate-600 dark:text-slate-400">${t.tier || 'Prod'}</span>
-                </div>
-                <div class="text-[10px] text-slate-500 truncate mt-0.5">${t.account || 'No account assigned'}</div>
-              </div>
-            `;
-          }).join('');
-        }
-
-        // Render Main View for Selected Tool
-        const activeTool = project.tools.find(t => t.id === this.state.activeToolId) || project.tools[0];
-        if (!activeTool) {
-          document.getElementById('mainWorkspacePane').innerHTML = `
-            <div class="max-w-lg mx-auto text-center py-20">
-              <h3 class="text-base font-bold mb-2">No tools in "${project.name}"</h3>
-              <p class="text-slate-500 mb-4">Add your cloud providers, databases, or API tools (Vercel, Firebase, Turso, AI Studio, etc.).</p>
-              <button onclick="window.app.openAddToolModal()" class="btn btn-primary">+ Add First Tool</button>
+        const sidebar = document.getElementById('sidebarToolList');
+        sidebar.innerHTML = project.tools.map(t => `
+          <button onclick="window.app.selectTool('${t.id}')" class="w-full text-left p-3 rounded-lg border transition-all ${t.id === this.state.activeToolId ? 'bg-white dark:bg-slate-900 border-indigo-500 dark:border-indigo-500 shadow-sm' : 'border-transparent hover:bg-slate-200/50 dark:hover:bg-slate-900'}">
+            <div class="flex justify-between items-center mb-1">
+              <span class="font-semibold text-slate-900 dark:text-slate-100">${t.name}</span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">${t.tier || 'Prod'}</span>
             </div>
-          `;
-          return;
-        }
+            <div class="text-xs text-slate-500 truncate">${t.account || 'No account'}</div>
+          </button>
+        `).join('') || `<p class="text-sm text-slate-500 p-2">No tools added.</p>`;
 
-        this.renderToolDetail(project, activeTool);
-      },
-
-      selectTool(toolId) {
-        this.state.activeToolId = toolId;
-        this.renderAll();
-      },
-
-      renderToolDetail(project, tool) {
         const pane = document.getElementById('mainWorkspacePane');
+        const tool = project.tools.find(t => t.id === this.state.activeToolId);
+        if (!tool) {
+          pane.innerHTML = `<div class="text-center mt-20"><h3 class="text-xl font-bold mb-4">No Tools Yet</h3><button onclick="window.app.openAddToolModal()" class="btn btn-primary">+ Add First Tool</button></div>`;
+          return;
+        }
+
         pane.innerHTML = `
-          <div class="max-w-3xl mx-auto space-y-6">
-            <!-- Tool Header Card -->
-            <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0c1222] shadow-sm">
-              <div class="flex justify-between items-start mb-4">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h2 class="text-xl font-bold">${tool.name}</h2>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${tool.tier || 'Prod'}</span>
-                  </div>
-                  <p class="text-slate-500 text-xs mt-1">Belongs to <strong>${project.name}</strong> &bull; Category: ${tool.category || 'General'}</p>
-                </div>
-                <div class="flex items-center gap-2">
-                  ${tool.consoleUrl ? `<a href="${tool.consoleUrl}" target="_blank" class="btn btn-secondary text-indigo-400">Open Console ↗</a>` : ''}
-                  <button onclick="window.app.deleteTool('${tool.id}')" class="btn border border-red-500/30 text-red-400 hover:bg-red-500/10">Delete Tool</button>
+          <div class="max-w-4xl mx-auto space-y-8 pb-12">
+            
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">${tool.name}</h2>
+                <div class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                  <span class="px-2 py-1 rounded-md bg-slate-200 dark:bg-slate-800 font-medium">${tool.tier || 'Prod'}</span>
+                  <span>Category: ${tool.category || 'General'}</span>
                 </div>
               </div>
+              <div class="flex gap-3">
+                ${tool.consoleUrl ? `<a href="${tool.consoleUrl}" target="_blank" class="btn btn-secondary">Open Console ↗</a>` : ''}
+                <button onclick="window.app.deleteTool('${tool.id}')" class="btn btn-ghost text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10">Delete Tool</button>
+              </div>
+            </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200 dark:border-slate-800/80">
+            <!-- Identity Card -->
+            <div class="card space-y-6">
+              <h3 class="text-lg font-semibold text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800 pb-4">Account & Identity</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Account / Email Used</label>
-                  <input type="text" value="${tool.account || ''}" onchange="window.app.updateToolField('${tool.id}', 'account', this.value)" placeholder="e.g. your-email@gmail.com" class="input-field">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Account / Email Used</label>
+                  <input type="text" value="${tool.account || ''}" onchange="window.app.updateToolField('${tool.id}', 'account', this.value)" class="input-field">
                 </div>
                 <div>
-                  <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Resource / Project ID</label>
-                  <input type="text" value="${tool.resourceId || ''}" onchange="window.app.updateToolField('${tool.id}', 'resourceId', this.value)" placeholder="e.g. prj_xyz or cluster-name" class="input-field code-input">
+                  <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Project / Resource ID</label>
+                  <input type="text" value="${tool.resourceId || ''}" onchange="window.app.updateToolField('${tool.id}', 'resourceId', this.value)" class="input-field code-input">
                 </div>
               </div>
             </div>
 
-            <!-- Secrets & Env Fields Section -->
-            <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0c1222] shadow-sm">
-              <div class="flex justify-between items-center mb-4">
-                <div>
-                  <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">Tokens, Passwords & Env Keys</h3>
-                  <p class="text-[11px] text-slate-500">Encrypted in browser before local or cloud storage</p>
-                </div>
+            <!-- Secrets Card -->
+            <div class="card space-y-6">
+              <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4">
+                <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Environment Variables</h3>
                 <div class="flex gap-2">
-                  <button onclick="window.app.openBulkEnvModal('${tool.id}')" class="btn btn-secondary">📥 Bulk .env</button>
-                  <button onclick="window.app.openAddFieldModal('${tool.id}')" class="btn btn-primary">+ Add Key / Secret</button>
+                  <button onclick="window.app.openBulkEnvModal('${tool.id}')" class="btn btn-secondary text-sm">📥 Bulk .env</button>
+                  <button onclick="window.app.openAddFieldModal('${tool.id}')" class="btn btn-primary text-sm">+ Add Key</button>
                 </div>
               </div>
-
-              <div class="space-y-3">
+              
+              <div class="space-y-4">
                 ${(tool.fields || []).map((f, idx) => `
-                  <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-900/60 flex flex-col sm:flex-row gap-2 sm:items-center justify-between">
+                  <div class="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                     <div class="sm:w-1/3">
-                      <span class="font-mono text-xs font-bold text-slate-800 dark:text-slate-200">${f.label}</span>
-                      <span class="ml-1.5 text-[9px] uppercase font-mono px-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-500">${f.type}</span>
+                      <label class="block font-mono text-sm font-semibold text-slate-900 dark:text-slate-200 mb-1 break-all">${f.label}</label>
+                      <span class="inline-block px-2 py-0.5 rounded text-[11px] font-medium uppercase tracking-wider bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">${f.type}</span>
                     </div>
-                    <div class="flex-1 flex items-center gap-1.5">
-                      <input type="${f.type === 'secret' ? 'password' : 'text'}" id="field_val_${f.id}" value="${f.value || ''}" onchange="window.app.updateSecretVal('${tool.id}',${idx}, this.value)" class="input-field code-input py-1 text-xs">
-                      ${f.type === 'secret' ? `
-                        <button onclick="window.app.toggleSecretVisibility('field_val_${f.id}')" class="btn btn-secondary px-2 py-1 text-xs" title="Reveal / Hide">👁</button>
-                      ` : ''}
-                      <button onclick="window.app.copyToClipboard('${f.value || ''}')" class="btn btn-secondary px-2 py-1 text-xs" title="Copy to clipboard">📋</button>
-                      <button onclick="window.app.deleteField('${tool.id}',${idx})" class="text-slate-400 hover:text-red-400 p-1">&times;</button>
+                    <div class="flex-1 flex gap-2 items-center">
+                      <div class="relative flex-1">
+                        <input type="${f.type === 'secret' ? 'password' : 'text'}" id="val_${f.id}" value="${f.value || ''}" onchange="window.app.updateSecretVal('${tool.id}',${idx}, this.value)" class="input-field code-input pr-10">
+                        ${f.type === 'secret' ? `
+                          <button onclick="window.app.toggleVis('val_${f.id}')" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                          </button>
+                        ` : ''}
+                      </div>
+                      <button onclick="navigator.clipboard.writeText('${f.value || ''}')" class="btn btn-secondary px-3 py-2.5" title="Copy">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                      </button>
+                      <button onclick="window.app.deleteField('${tool.id}',${idx})" class="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      </button>
                     </div>
                   </div>
-                `).join('') || `<p class="text-slate-500 text-xs py-2">No secrets or keys added yet.</p>`}
+                `).join('') || `<p class="text-sm text-slate-500 py-4 text-center">No keys or secrets added yet.</p>`}
               </div>
             </div>
           </div>
         `;
       },
 
-      toggleSecretVisibility(inputId) {
-        const el = document.getElementById(inputId);
-        if (el) el.type = el.type === 'password' ? 'text' : 'password';
+      selectTool(toolId) { this.state.activeToolId = toolId; this.renderAll(); },
+      toggleVis(id) { const el = document.getElementById(id); if(el) el.type = el.type === 'password' ? 'text' : 'password'; },
+      
+      updateToolField(tid, fld, val) {
+        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
+        p.tools.find(t => t.id === tid)[fld] = val; this.saveLocalData();
+      },
+      updateSecretVal(tid, idx, val) {
+        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
+        p.tools.find(t => t.id === tid).fields[idx].value = val; this.saveLocalData();
+      },
+      deleteField(tid, idx) {
+        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
+        p.tools.find(t => t.id === tid).fields.splice(idx, 1); this.saveLocalData(); this.renderAll();
+      },
+      deleteTool(tid) {
+        if(!confirm("Delete tool?")) return;
+        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
+        p.tools = p.tools.filter(t => t.id !== tid);
+        this.state.activeToolId = p.tools.length ? p.tools[0].id : null;
+        this.saveLocalData(); this.renderAll();
       },
 
-      copyToClipboard(text) {
-        navigator.clipboard.writeText(text);
-        alert("Copied to clipboard!");
-      },
-
-      updateToolField(toolId, field, val) {
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        const tool = project.tools.find(t => t.id === toolId);
-        if (tool) {
-          tool[field] = val;
-          this.saveLocalData();
-        }
-      },
-
-      updateSecretVal(toolId, fieldIdx, val) {
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        const tool = project.tools.find(t => t.id === toolId);
-        if (tool && tool.fields[fieldIdx]) {
-          tool.fields[fieldIdx].value = val;
-          this.saveLocalData();
-        }
-      },
-
-      deleteField(toolId, fieldIdx) {
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        const tool = project.tools.find(t => t.id === toolId);
-        if (tool) {
-          tool.fields.splice(fieldIdx, 1);
-          this.saveLocalData();
-          this.renderAll();
-        }
-      },
-
-      deleteTool(toolId) {
-        if (!confirm("Are you sure you want to delete this tool?")) return;
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        project.tools = project.tools.filter(t => t.id !== toolId);
-        this.state.activeToolId = project.tools.length > 0 ? project.tools[0].id : null;
-        this.saveLocalData();
-        this.renderAll();
-      },
-
-      // MATRIX VIEW: ALL PROJECTS x TOOLS
       renderMatrixView() {
         document.getElementById('toolSidebar').classList.add('hidden');
-        const pane = document.getElementById('mainWorkspacePane');
-
-        pane.innerHTML = `
-          <div class="max-w-5xl mx-auto space-y-6">
+        document.getElementById('mainWorkspacePane').innerHTML = `
+          <div class="max-w-6xl mx-auto space-y-6">
             <div>
-              <h2 class="text-lg font-bold">Cross-Project Tool & Account Matrix</h2>
-              <p class="text-slate-500 text-xs">Bird's-eye view of every service, tool, and account across all your apps.</p>
+              <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Cross-Project Matrix</h2>
+              <p class="text-slate-500">Bird's-eye view of every service across your stack.</p>
             </div>
-
-            <div class="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-[#0c1222] shadow-sm">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                  <tr>
-                    <th class="p-3">Project</th>
-                    <th class="p-3">Tool / Provider</th>
-                    <th class="p-3">Account</th>
-                    <th class="p-3">Resource ID</th>
-                    <th class="p-3">Secrets Stored</th>
-                    <th class="p-3 text-right">Action</th>
+            <div class="card overflow-x-auto p-0">
+              <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                  <tr class="text-xs uppercase tracking-wider text-slate-500 font-semibold">
+                    <th class="p-4">Project</th>
+                    <th class="p-4">Tool</th>
+                    <th class="p-4">Account</th>
+                    <th class="p-4">Keys</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-800/60 font-mono">
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
                   ${this.state.data.projects.flatMap(p => p.tools.map(t => `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                      <td class="p-3 font-sans font-bold text-slate-900 dark:text-slate-100">${p.name}</td>
-                      <td class="p-3 text-indigo-400 font-semibold">${t.name}</td>
-                      <td class="p-3 text-slate-500 font-sans">${t.account || '—'}</td>
-                      <td class="p-3 text-slate-400">${t.resourceId || '—'}</td>
-                      <td class="p-3 text-slate-400">${(t.fields || []).length} keys</td>
-                      <td class="p-3 text-right">
-                        <button onclick="window.app.goToTool('${p.id}', '${t.id}')" class="text-indigo-400 hover:underline font-sans text-xs">Open &rarr;</button>
-                      </td>
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <td class="p-4 font-semibold text-slate-900 dark:text-slate-100">${p.name}</td>
+                      <td class="p-4 font-medium text-indigo-600 dark:text-indigo-400">${t.name}</td>
+                      <td class="p-4 text-sm text-slate-600 dark:text-slate-400">${t.account || '—'}</td>
+                      <td class="p-4 text-sm text-slate-600 dark:text-slate-400">${(t.fields||[]).length} saved</td>
                     </tr>
                   `)).join('')}
                 </tbody>
@@ -568,45 +371,33 @@
         `;
       },
 
-      goToTool(projId, toolId) {
-        this.state.activeProjectId = projId;
-        this.state.activeToolId = toolId;
-        this.switchView('project');
-      },
-
-      // ACCOUNTS DIRECTORY VIEW
       renderAccountsView() {
         document.getElementById('toolSidebar').classList.add('hidden');
-        const pane = document.getElementById('mainWorkspacePane');
+        const accs = {};
+        this.state.data.projects.forEach(p => p.tools.forEach(t => {
+          const a = t.account || 'Unassigned';
+          if(!accs[a]) accs[a] = [];
+          accs[a].push({ p: p.name, t: t.name });
+        }));
 
-        const accountMap = {};
-        this.state.data.projects.forEach(p => {
-          p.tools.forEach(t => {
-            const acc = t.account || 'Unassigned';
-            if (!accountMap[acc]) accountMap[acc] = [];
-            accountMap[acc].push({ project: p.name, tool: t.name, resourceId: t.resourceId });
-          });
-        });
-
-        pane.innerHTML = `
-          <div class="max-w-4xl mx-auto space-y-6">
+        document.getElementById('mainWorkspacePane').innerHTML = `
+          <div class="max-w-5xl mx-auto space-y-6">
             <div>
-              <h2 class="text-lg font-bold">Accounts Directory</h2>
-              <p class="text-slate-500 text-xs">Everything grouped by the email/account used to register.</p>
+              <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Accounts Directory</h2>
+              <p class="text-slate-500">Grouped by registration email.</p>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              ${Object.entries(accountMap).map(([acc, tools]) => `
-                <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0c1222] shadow-sm">
-                  <div class="flex items-center gap-2 mb-3 pb-2 border-b border-slate-200 dark:border-slate-800">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                    <h3 class="font-bold text-sm truncate">${acc}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              ${Object.entries(accs).map(([a, items]) => `
+                <div class="card space-y-4">
+                  <div class="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold">${a.charAt(0).toUpperCase()}</div>
+                    <h3 class="font-bold text-lg text-slate-900 dark:text-white">${a}</h3>
                   </div>
-                  <ul class="space-y-1.5 text-xs text-slate-400">
-                    ${tools.map(item => `
-                      <li class="flex justify-between items-center py-1 px-2 rounded bg-slate-100 dark:bg-slate-900/60">
-                        <span class="font-medium text-slate-900 dark:text-slate-200">${item.tool} <span class="text-slate-500">(${item.project})</span></span>
-                        <span class="font-mono text-[10px] text-slate-400 truncate max-w-[120px]">${item.resourceId || ''}</span>
+                  <ul class="space-y-2">
+                    ${items.map(i => `
+                      <li class="flex justify-between items-center p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
+                        <span class="font-semibold text-slate-800 dark:text-slate-200">${i.t}</span>
+                        <span class="text-sm text-slate-500">${i.p}</span>
                       </li>
                     `).join('')}
                   </ul>
@@ -617,318 +408,120 @@
         `;
       },
 
-      // MODALS & ACTIONS
       openProjectModal() {
-        this.openModal("Create New Project", `
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Project Name</label>
-              <input type="text" id="newProjName" class="input-field" placeholder="e.g. Tennis String Master or Snappy">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Description</label>
-              <input type="text" id="newProjDesc" class="input-field" placeholder="e.g. Next.js web application with Turso">
-            </div>
-            <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+        this.openModal("Create Project", `
+          <div class="space-y-5">
+            <div><label class="block text-sm font-medium mb-2">Project Name</label><input type="text" id="nProj" class="input-field"></div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
               <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveNewProject()" class="btn btn-primary">Create Project</button>
+              <button onclick="window.app.saveProject()" class="btn btn-primary">Create</button>
             </div>
           </div>
         `);
       },
-
-      saveNewProject() {
-        const name = document.getElementById('newProjName').value.trim();
-        const desc = document.getElementById('newProjDesc').value.trim();
-        if (!name) return alert("Please enter a project name");
-
-        const id = 'proj_' + Date.now();
-        this.state.data.projects.push({
-          id,
-          name,
-          description: desc,
-          tools: []
-        });
-        this.saveLocalData();
-        this.selectProject(id);
-        this.closeModal();
+      saveProject() {
+        const name = document.getElementById('nProj').value.trim();
+        if(!name) return;
+        const id = 'p_' + Date.now();
+        this.state.data.projects.push({ id, name, tools: [] });
+        this.saveLocalData(); this.selectProject(id); this.closeModal();
       },
 
       openAddToolModal() {
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        this.openModal(`Add Tool to "${project.name}"`, `
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Tool / Service Name</label>
-              <input type="text" id="newToolName" class="input-field" placeholder="e.g. Vercel, Firebase, Turso, Supabase, Google AI Studio">
+        this.openModal("Add Tool", `
+          <div class="space-y-5">
+            <div><label class="block text-sm font-medium mb-2">Tool Name (e.g. Vercel)</label><input type="text" id="nTool" class="input-field"></div>
+            <div class="grid grid-cols-2 gap-4">
+              <div><label class="block text-sm font-medium mb-2">Tier</label><select id="nTier" class="input-field"><option>Prod</option><option>Dev</option></select></div>
+              <div><label class="block text-sm font-medium mb-2">Account</label><input type="text" id="nAcc" value="menisasson@gmail.com" class="input-field"></div>
             </div>
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Tier / Env</label>
-                <select id="newToolTier" class="input-field">
-                  <option value="Prod">Production</option>
-                  <option value="Dev">Development</option>
-                  <option value="Staging">Staging</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Account / Email Used</label>
-                <input type="text" id="newToolAccount" class="input-field" value="${this.state.googleUser ? this.state.googleUser.email : 'menisasson@gmail.com'}">
-              </div>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Console URL</label>
-              <input type="text" id="newToolUrl" class="input-field" placeholder="https://console.example.com">
-            </div>
-            <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
               <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveNewTool()" class="btn btn-primary">Add Tool</button>
+              <button onclick="window.app.saveTool()" class="btn btn-primary">Add</button>
             </div>
           </div>
         `);
       },
+      saveTool() {
+        const name = document.getElementById('nTool').value.trim();
+        if(!name) return;
+        const t = { id: 't_'+Date.now(), name, tier: document.getElementById('nTier').value, account: document.getElementById('nAcc').value, fields: [] };
+        this.state.data.projects.find(p => p.id === this.state.activeProjectId).tools.push(t);
+        this.state.activeToolId = t.id; this.saveLocalData(); this.renderAll(); this.closeModal();
+      },
 
-      saveNewTool() {
-        const name = document.getElementById('newToolName').value.trim();
-        const tier = document.getElementById('newToolTier').value;
-        const account = document.getElementById('newToolAccount').value.trim();
-        const consoleUrl = document.getElementById('newToolUrl').value.trim();
-        if (!name) return alert("Please specify a tool name");
+      openAddFieldModal(tid) {
+        this.openModal("Add Key", `
+          <div class="space-y-5">
+            <div><label class="block text-sm font-medium mb-2">Key Name (e.g. API_KEY)</label><input type="text" id="nKey" class="input-field code-input"></div>
+            <div><label class="block text-sm font-medium mb-2">Type</label><select id="nType" class="input-field"><option value="secret">Secret / Password</option><option value="text">Plain Text</option></select></div>
+            <div><label class="block text-sm font-medium mb-2">Value</label><input type="text" id="nVal" class="input-field code-input"></div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
+              <button onclick="window.app.saveField('${tid}')" class="btn btn-primary">Save Key</button>
+            </div>
+          </div>
+        `);
+      },
+      saveField(tid) {
+        const label = document.getElementById('nKey').value.trim();
+        if(!label) return;
+        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
+        p.tools.find(t => t.id === tid).fields.push({ id: 'f_'+Date.now(), label, type: document.getElementById('nType').value, value: document.getElementById('nVal').value });
+        this.saveLocalData(); this.renderAll(); this.closeModal();
+      },
 
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        const toolId = 'tool_' + Date.now();
-        project.tools.push({
-          id: toolId,
-          name,
-          tier,
-          account,
-          consoleUrl,
-          resourceId: '',
-          fields: []
+      openBulkEnvModal(tid) {
+        this.openModal("Bulk Import .env", `
+          <div class="space-y-5">
+            <textarea id="bulkEnv" rows="8" class="input-field code-input w-full" placeholder="API_KEY=xyz..."></textarea>
+            <div class="flex justify-end gap-3">
+              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
+              <button onclick="window.app.saveBulk('${tid}')" class="btn btn-primary">Import</button>
+            </div>
+          </div>
+        `);
+      },
+      saveBulk(tid) {
+        const text = document.getElementById('bulkEnv').value;
+        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
+        const t = p.tools.find(x => x.id === tid);
+        text.split('\n').forEach(l => {
+          if(!l.includes('=')) return;
+          const [k, ...v] = l.split('=');
+          const isSec = /key|secret|token|pass/i.test(k);
+          t.fields.push({ id: 'f_'+Math.random(), label: k.trim(), type: isSec?'secret':'text', value: v.join('=').replace(/^['"]|['"]$/g, '') });
         });
-        this.saveLocalData();
-        this.state.activeToolId = toolId;
-        this.renderAll();
-        this.closeModal();
-      },
-
-      openAddFieldModal(toolId) {
-        this.openModal("Add Secret / Env Key", `
-          <div class="space-y-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Key / Env Name</label>
-              <input type="text" id="newFieldKey" class="input-field code-input" placeholder="e.g. API_SECRET_KEY, DATABASE_URL">
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Field Type</label>
-              <select id="newFieldType" class="input-field">
-                <option value="secret">🔒 Secret / Token / Password (Masked)</option>
-                <option value="text">📋 Plain Text / URL / Identifier</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Value</label>
-              <input type="text" id="newFieldValue" class="input-field code-input" placeholder="Paste value here">
-            </div>
-            <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveNewField('${toolId}')" class="btn btn-primary">Save Key</button>
-            </div>
-          </div>
-        `);
-      },
-
-      saveNewField(toolId) {
-        const label = document.getElementById('newFieldKey').value.trim();
-        const type = document.getElementById('newFieldType').value;
-        const value = document.getElementById('newFieldValue').value;
-        if (!label) return alert("Key name is required");
-
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        const tool = project.tools.find(t => t.id === toolId);
-        tool.fields = tool.fields || [];
-        tool.fields.push({ id: 'f_' + Date.now(), label, type, value });
-        this.saveLocalData();
-        this.renderAll();
-        this.closeModal();
-      },
-
-      openBulkEnvModal(toolId) {
-        this.openModal("Bulk Import .env File", `
-          <div class="space-y-4">
-            <p class="text-xs text-slate-500">Paste raw lines from your .env file. Secrets containing KEY, TOKEN, SECRET, or PASSWORD will be automatically masked.</p>
-            <textarea id="bulkEnvText" rows="7" class="input-field code-input" placeholder="API_KEY=xyz&#10;DATABASE_URL=postgres://...&#10;PORT=3000"></textarea>
-            <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveBulkEnv('${toolId}')" class="btn btn-primary">Parse & Import</button>
-            </div>
-          </div>
-        `);
-      },
-
-      saveBulkEnv(toolId) {
-        const text = document.getElementById('bulkEnvText').value;
-        const lines = text.split('\n');
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        const tool = project.tools.find(t => t.id === toolId);
-        tool.fields = tool.fields || [];
-
-        lines.forEach(line => {
-          const trimmed = line.trim();
-          if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) return;
-          const [key, ...rest] = trimmed.split('=');
-          const val = rest.join('=').replace(/^['"]|['"]$/g, '');
-          const isSecret = /key|token|secret|pass|pwd|auth/i.test(key);
-          tool.fields.push({ id: 'f_' + Math.random().toString(36).substr(2, 7), label: key.trim(), type: isSecret ? 'secret' : 'text', value: val });
-        });
-
-        this.saveLocalData();
-        this.renderAll();
-        this.closeModal();
+        this.saveLocalData(); this.renderAll(); this.closeModal();
       },
 
       exportProjectDotEnv() {
-        const project = this.state.data.projects.find(p => p.id === this.state.activeProjectId);
-        if (!project) return;
-        let out = `# Environment variables for ${project.name}\n`;
-        project.tools.forEach(t => {
-          out += `\n# --- ${t.name} (${t.tier || 'Prod'}) ---\n`;
-          (t.fields || []).forEach(f => {
-            out += `${f.label}=${f.value || ''}\n`;
-          });
-        });
-        navigator.clipboard.writeText(out);
-        alert(`Exported .env for "${project.name}" copied to clipboard!`);
-      },
-
-      // ONBOARDING WIZARD
-      openOnboardingWizard() {
-        this.openModal("StackVault First-Time Setup Wizard", `
-          <div class="space-y-4 text-xs">
-            <div class="flex items-center gap-2 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg">
-              <span class="text-lg">🪄</span>
-              <div>
-                <p class="font-bold text-slate-900 dark:text-slate-100">Welcome to your personal Stack & Token Vault</p>
-                <p class="text-slate-500 text-[11px]">Keep track of which app uses which tool & account with zero-knowledge encryption.</p>
-              </div>
-            </div>
-
-            <div class="space-y-2">
-              <h4 class="font-bold text-slate-800 dark:text-slate-200">1. Google Drive & Account Connection</h4>
-              <p class="text-slate-500">Your Google OAuth Client ID is built into this deployment. Click the Google button in the top-right header anytime to link your private Google account.</p>
-            </div>
-
-            <div class="space-y-2">
-              <h4 class="font-bold text-slate-800 dark:text-slate-200">2. Zero-Knowledge Encryption Key</h4>
-              <p class="text-slate-500">All passwords and API keys are encrypted client-side using AES-256-GCM. We recommend letting Chrome's Google Password Manager save your key for effortless unlocking.</p>
-            </div>
-
-            <div class="space-y-2">
-              <h4 class="font-bold text-slate-800 dark:text-slate-200">3. Local & Cloud Storage</h4>
-              <p class="text-slate-500">Data automatically syncs to browser localStorage and can be exported as raw JSON or pushed directly to your personal Google Drive file (<code>stackvault-db.json</code>).</p>
-            </div>
-
-            <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-              <button onclick="localStorage.setItem('sv_onboarded_completed', 'true'); window.app.closeModal();" class="btn btn-primary">Get Started</button>
-            </div>
-          </div>
-        `);
-      },
-
-      openKeyModal() {
-        this.openModal("Master Encryption Key", `
-          <div class="space-y-4">
-            <p class="text-xs text-slate-500">This key encrypts your tokens and passwords in the browser before they are saved to Google Drive.</p>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Active Master Key</label>
-              <input type="text" id="masterKeyInput" value="${this.state.masterKey}" class="input-field code-input">
-            </div>
-            <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
-              <button onclick="window.app.closeModal()" class="btn btn-secondary">Close</button>
-              <button onclick="window.app.updateMasterKey()" class="btn btn-primary">Save Key</button>
-            </div>
-          </div>
-        `);
-      },
-
-      updateMasterKey() {
-        const key = document.getElementById('masterKeyInput').value.trim();
-        if (key) {
-          this.state.masterKey = key;
-          localStorage.setItem('sv_master_key', key);
-          sessionStorage.setItem('sv_session_key', key);
-          alert("Master Key updated!");
-          this.closeModal();
-        }
+        const p = this.state.data.projects.find(x => x.id === this.state.activeProjectId);
+        let out = `# Env for ${p.name}\n`;
+        p.tools.forEach(t => { out += `\n# --- ${t.name} ---\n`; (t.fields||[]).forEach(f => out += `${f.label}=${f.value}\n`); });
+        navigator.clipboard.writeText(out); alert("Copied!");
       },
 
       openBackupModal() {
-        this.openModal("Local Database Backup", `
-          <div class="space-y-4">
-            <p class="text-xs text-slate-500">Download a full JSON snapshot of your projects and tools, or import an existing backup file.</p>
-            <div class="flex gap-2">
-              <button onclick="window.app.downloadBackupJson()" class="btn btn-primary flex-1 py-2 justify-center">⬇ Download Backup (.json)</button>
-              <label class="btn btn-secondary flex-1 py-2 justify-center cursor-pointer">
-                ⬆ Import Backup
-                <input type="file" accept=".json" onchange="window.app.importBackupJson(event)" class="hidden">
-              </label>
-            </div>
+        this.openModal("Backup Database", `
+          <div class="flex flex-col gap-4">
+            <button onclick="window.app.dlBackup()" class="btn btn-primary w-full py-3">⬇ Download Full Backup (.json)</button>
+            <label class="btn btn-secondary w-full py-3 text-center cursor-pointer">⬆ Import Backup <input type="file" accept=".json" onchange="window.app.imBackup(event)" class="hidden"></label>
           </div>
         `);
       },
-
-      downloadBackupJson() {
-        const blob = new Blob([JSON.stringify(this.state.data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `stackvault-backup-${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
+      dlBackup() {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(this.state.data)], {type:'application/json'}));
+        a.download = 'stackvault.json'; a.click();
+      },
+      imBackup(e) {
+        const r = new FileReader(); r.onload = (ev) => { this.state.data = JSON.parse(ev.target.result); this.saveLocalData(); this.renderAll(); this.closeModal(); };
+        r.readAsText(e.target.files[0]);
       },
 
-      importBackupJson(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          try {
-            const parsed = JSON.parse(ev.target.result);
-            if (parsed.projects) {
-              this.state.data = parsed;
-              this.saveLocalData();
-              this.renderAll();
-              alert("Backup restored successfully!");
-              this.closeModal();
-            } else {
-              alert("Invalid backup file format.");
-            }
-          } catch (err) {
-            alert("Failed to parse JSON file.");
-          }
-        };
-        reader.readAsText(file);
-      },
-
-      syncWithGoogleDrive() {
-        alert("Google Drive sync initiated. (Connecting to stackvault-db.json in your drive...)");
-      },
-
-      handleSearch(query) {
-        if (!query.trim()) return;
-        console.log("Searching for:", query);
-      },
-
-      openModal(title, html) {
-        document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalBody').innerHTML = html;
-        document.getElementById('modalOverlay').classList.replace('hidden', 'flex');
-      },
-
-      closeModal() {
-        document.getElementById('modalOverlay').classList.replace('flex', 'hidden');
-      }
+      openModal(title, html) { document.getElementById('modalTitle').innerText = title; document.getElementById('modalBody').innerHTML = html; document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); },
+      closeModal() { document.getElementById('modalOverlay').classList.replace('flex', 'hidden'); }
     };
-
     document.addEventListener('DOMContentLoaded', () => window.app.init());
   </script>
 </body>
