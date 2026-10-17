@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StackVault — Project, Tool &amp; Encrypted Credential Manager</title>
+  <!-- Inline SVG Padlock Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b0f19'/%3E%3Cpath d='M22 28V20a10 10 0 0 1 20 0v8' fill='none' stroke='%23818cf8' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='16' y='28' width='32' height='24' rx='6' fill='%236366f1'/%3E%3Ccircle cx='32' cy='38' r='3' fill='%23ffffff'/%3E%3Cpath d='M32 41v5' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          colors: {
+            vault: {
+              950: 'var(--v-950)',
+              900: 'var(--v-900)',
+              800: 'var(--v-800)',
+              700: 'var(--v-700)'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      --v-950: #090b10;
+      --v-900: #11151f;
+      --v-800: #1c2230;
+      --v-700: #2a3346;
+    }
+    html.light-mode {
+      --v-950: #f1f5f9;
+      --v-900: #ffffff;
+      --v-800: #e2e8f0;
+      --v-700: #cbd5e1;
+    }
+    html.light-mode body { color: #0f172a; }
+    html.light-mode .text-white { color: #0f172a !important; }
+    html.light-mode .keep-white,
+    html.light-mode button.bg-indigo-600,
+    html.light-mode button.bg-emerald-600,
+    html.light-mode button.bg-sky-600,
+    html.light-mode button.bg-rose-600 { color: #ffffff !important; }
+    html.light-mode .text-slate-200, html.light-mode .text-slate-300 { color: #334155 !important; }
+    html.light-mode .text-slate-400 { color: #475569 !important; }
+    html.light-mode .text-indigo-300 { color: #4338ca !important; }
+    html.light-mode .text-emerald-300 { color: #047857 !important; }
+    html.light-mode .text-amber-300 { color: #b45309 !important; }
+    html.light-mode .text-sky-300 { color: #0369a1 !important; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .tour-highlight {
+      position: relative;
+      z-index: 45 !important;
+      box-shadow: 0 0 0 3px #6366f1, 0 0 0 9999px rgba(5, 8, 15, 0.72) !important;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body class="bg-vault-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden select-none">
+
+  <!-- TOP HEADER BAR -->
+  <header class="bg-vault-900 border-b border-vault-700 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shrink-0 z-30">
+    <div class="flex items-center gap-3 flex-1 min-w-[260px]">
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="window.app.selectTab('matrix')">
+        <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
+          <svg class="w-4 h-4 text-white keep-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-sm tracking-tight text-white">StackVault</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">AES-256</span>
+          </div>
+          <p class="text-[10px] text-slate-400 hidden sm:block">Dev Stack, Account &amp; Encrypted Token Manager</p>
+        </div>
+      </div>
+
+      <!-- Quick Global Search -->
+      <div class="relative flex-1 max-w-sm ml-2">
+        <input
+          id="global-search"
+          type="text"
+          placeholder="Search projects, tools, accounts, keys (Ctrl+K)..."
+          class="w-full bg-vault-950 border border-vault-700 focus:border-indigo-500 rounded-lg pl-3 pr-12 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none"
+          oninput="window.app.renderSearchDropdown(this.value)"
+          onfocus="window.app.renderSearchDropdown(this.value)"
+        />
+        <kbd class="hidden sm:inline-block absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-vault-800 px-1.5 py-0.5 rounded">Ctrl+K</kbd>
+        <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-vault-900 border border-vault-700 rounded-xl shadow-2xl max-h-80 overflow-y-auto z-50 divide-y divide-vault-800"></div>
+      </div>
+    </div>
+
+    <!-- Header Right Controls -->
+    <div id="header-actions" class="flex items-center gap-1.5 flex-wrap">
+      <button id="vault-btn" type="button" onclick="window.app.openKeyModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5"></button>
+
+      <div class="flex items-center bg-vault-950 border border-vault-700 rounded-lg p-0.5">
+        <button type="button" onclick="window.app.openDriveModal()" class="flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium text-slate-300 hover:bg-vault-800">
+          <span id="drive-dot" class="w-2 h-2 rounded-full bg-amber-400"></span>
+          <span>GDrive DB</span>
+        </button>
+        <button type="button" onclick="window.app.pullDrive()" class="px-2 py-1 text-[11px] font-mono text-slate-300 hover:text-sky-300 border-l border-vault-800" title="Pull DB from Google Drive">↓ Pull</button>
+        <button type="button" onclick="window.app.pushDrive()" class="px-2 py-1 text-[11px] font-mono text-slate-300 hover:text-emerald-300 border-l border-vault-800" title="Push DB to Google Drive">↑ Push</button>
+      </div>
+
+      <button type="button" onclick="window.app.openBackupModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-vault-950 border border-vault-700 text-slate-300 hover:bg-vault-800">
+        💾 <span id="backup-label" class="hidden md:inline">Backup</span>
+      </button>
+
+      <button type="button" onclick="window.app.openOnboardingWizard(1)" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25">
+        🪄 Setup
+      </button>
+
+      <button type="button" onclick="window.app.startTour(0)" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-vault-950 border border-vault-700 text-slate-300 hover:bg-vault-800">
+        🎯 Tour
+      </button>
+
+      <button id="theme-btn" type="button" onclick="window.app.toggleTheme()" class="p-1.5 rounded-lg bg-vault-950 border border-vault-700 text-slate-300 hover:bg-vault-800" title="Toggle Light / Dark Mode">
+        ☀️
+      </button>
+    </div>
+  </header>
+
+  <!-- PROJECT TABS BAR -->
+  <nav id="project-tabs" class="bg-vault-900 border-b border-vault-700 px-4 flex items-center justify-between gap-2 shrink-0 z-20">
+    <div id="tabs-list" class="flex items-center gap-1 overflow-x-auto no-scrollbar py-1.5"></div>
+    <button type="button" onclick="window.app.openProjectModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white keep-white shrink-0">
+      + New Project
+    </button>
+  </nav>
+
+  <!-- MAIN WORKSPACE -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Left Sidebar: Tools for Selected Project -->
+    <aside id="tools-sidebar" class="w-72 bg-vault-900/70 border-r border-vault-700 flex flex-col shrink-0">
+      <div id="sidebar-header" class="p-3 border-b border-vault-800 flex items-center justify-between"></div>
+      <div class="px-3 pt-2.5 pb-1 flex items-center justify-between">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Project Tools</span>
+        <button type="button" onclick="window.app.openAddToolModal()" class="text-xs font-medium text-indigo-300 hover:underline px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">+ Add Tool</button>
+      </div>
+      <div id="sidebar-tools" class="flex-1 overflow-y-auto p-2.5 space-y-1.5"></div>
+      <div class="p-2.5 border-t border-vault-800 bg-vault-950/50 flex items-center gap-1.5">
+        <button type="button" onclick="window.app.copyProjectEnv()" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-mono bg-vault-800 hover:bg-vault-700 text-slate-200 border border-vault-700">
+          📤 Copy Project .env
+        </button>
+        <button type="button" onclick="window.app.openProjectModal(true)" class="p-1.5 rounded-lg bg-vault-800 hover:bg-vault-700 text-slate-300 border border-vault-700" title="Edit Project">⚙️</button>
+      </div>
+    </aside>
+
+    <!-- Main View: Active Tool Editor, Matrix, or Accounts Directory -->
+    <main id="main-editor" class="flex-1 overflow-y-auto bg-vault-950 p-4 md:p-6 select-text"></main>
+  </div>
+
+  <!-- AUTOCOMPLETE DATALIST FOR ACCOUNTS -->
+  <datalist id="accounts-datalist"></datalist>
+
+  <!-- MODAL ROOT -->
+  <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex items-center justify-center p-4 overflow-y-auto">
+    <div id="modal-root" class="bg-vault-900 border border-vault-700 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden my-8 select-text"></div>
+  </div>
+
+  <!-- GUIDED TOUR POPOVER -->
+  <div id="tour-card" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4">
+    <div class="bg-vault-900 border-2 border-indigo-500 rounded-2xl shadow-2xl p-4">
+      <div class="flex items-center justify-between mb-1.5">
+        <span id="tour-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">Tour</span>
+        <button type="button" onclick="window.app.endTour()" class="text-xs text-slate-400 hover:text-white">Skip ✕</button>
+      </div>
+      <h4 id="tour-title" class="text-sm font-bold text-white mb-1"></h4>
+      <p id="tour-body" class="text-xs text-slate-300 leading-relaxed mb-3"></p>
+      <div class="flex items-center justify-between">
+        <button id="tour-prev" type="button" onclick="window.app.stepTour(-1)" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-300">← Back</button>
+        <button id="tour-next" type="button" onclick="window.app.stepTour(1)" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white keep-white">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER & HELPERS -->
+  <div id="toast-root" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
+  <iframe name="pm-frame" class="hidden"></iframe>
+  <textarea id="clip-helper" class="fixed -top-96 -left-96 opacity-0 pointer-events-none" readonly></textarea>
+
+  <script>
+    // Define global app object immediately at the top of <script>
+    const app = {};
+    window.app = app;
+
+    const PRESETS = {
+      vercel:     { name: 'Vercel', badge: '▲ Vercel', url: 'https://vercel.com/dashboard', color: 'bg-zinc-800 text-zinc-100 border-zinc-600' },
+      firebase:   { name: 'Firebase', badge: '🔥 Firebase', url: 'https://console.firebase.google.com/', color: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
+      turso:      { name: 'Turso (libSQL)', badge: '🐢 Turso', url: 'https://app.turso.tech/', color: 'bg-teal-500/15 text-teal-300 border-teal-500/30' },
+      aistudio:   { name: 'Google AI Studio', badge: '✨ AI Studio', url: 'https://aistudio.google.com/app/apikey', color: 'bg-blue-500/15 text-blue-300 border-blue-500/30' },
+      github:     { name: 'GitHub', badge: '🐙 GitHub', url: 'https://github.com/', color: 'bg-purple-500/15 text-purple-300 border-purple-500/30' },
+      gcp:        { name: 'Google Cloud', badge: '☁️ GCP', url: 'https://console.cloud.google.com/', color: 'bg-sky-500/15 text-sky-300 border-sky-500/30' },
+      cloudflare: { name: 'Cloudflare', badge: '⚡ Cloudflare', url: 'https://dash.cloudflare.com/', color: 'bg-orange-500/15 text-orange-300 border-orange-500/30' },
+      supabase:   { name: 'Supabase', badge: '⚡ Supabase', url: 'https://supabase.com/dashboard', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
+      custom:     { name: 'Custom Service', badge: '🔧 Custom', url: 'https://', color: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30' }
+    };
+
+    const DEMO_KEY = 'svk_demo_master_key_2026';
+
+    // Web Crypto AES-256-GCM Engine
+    const CryptoVault = {
+      PREFIX: 'enc:gcm:',
+      isEnc(v) { return typeof v === 'string' && v.startsWith(this.PREFIX); },
+      toB64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); },
+      fromB64(b64) { return Uint8Array.from(atob(b64), c => c.charCodeAt(0)); },
+      async getKey(secret, salt) {
+        const raw = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), 'PBKDF2', false, ['deriveKey']);
+        return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+      },
+      async encrypt(plain, secret) {
+        if (!plain || this.isEnc(plain)) return plain || '';
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const key = await this.getKey(secret, salt);
+        const buf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plain));
+        return this.PREFIX + this.toB64(salt) + ':' + this.toB64(iv) + ':' + this.toB64(buf);
+      },
+      async decrypt(cipher, secret) {
+        if (!cipher || !this.isEnc(cipher)) return cipher || '';
+        const [sB64, ivB64, cB64] = cipher.slice(this.PREFIX.length).split(':');
+        const key = await this.getKey(secret, this.fromB64(sB64));
+        const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: this.fromB64(ivB64) }, key, this.fromB64(cB64));
+        return new TextDecoder().decode(plainBuf);
+      },
+      randomKey() {
+        const arr = crypto.getRandomValues(new Uint8Array(18));
+        return 'svk_' + Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
+      }
+    };
+
+    function getSeedData() {
+      return {
+        version: '2.2',
+        updatedAt: new Date().toISOString(),
+        verifyToken: '',
+        projects: [
+          {
+            id: 'p_snappy', name: 'Snappy', subtitle: 'React Native AI App',
+            tools: [
+              {
+                id: 't_sn_fb', preset: 'firebase', name: 'Firebase Auth & Firestore', env: 'Prod',
+                account: 'meni.apps.main@gmail.com', url: 'https://console.firebase.google.com/project/snappy-prod', resourceId: 'snappy-prod-882',
+                usedFor: 'Google Sign-In auth, Firestore user profiles, and Cloud Storage.',
+                fields: [
+                  { id: 'f1', key: 'EXPO_PUBLIC_FIREBASE_API_KEY', type: 'secret', value: 'AIzaSyD9_SnappyProdKey_892381', encrypted: true },
+                  { id: 'f2', key: 'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN', type: 'env', value: 'snappy-prod.firebaseapp.com', encrypted: false }
+                ]
+              },
+              {
+                id: 't_sn_ai', preset: 'aistudio', name: 'Google AI Studio', env: 'Prod',
+                account: 'meni.apps.main@gmail.com', url: 'https://aistudio.google.com/app/apikey', resourceId: 'gemini-snappy-client',
+                usedFor: 'Gemini 2.5 Flash vision & structured JSON extraction.',
+                fields: [
+                  { id: 'f3', key: 'GEMINI_API_KEY', type: 'secret', value: 'AIzaSyB_GeminiStudio_Snappy_99412', encrypted: true }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'p_stringmaster', name: 'StringMaster', subtitle: 'Next.js SaaS Web App',
+            tools: [
+              {
+                id: 't_sm_vc', preset: 'vercel', name: 'Vercel Hosting', env: 'Prod',
+                account: 'meni-dev (GitHub SSO)', url: 'https://vercel.com/meni-dev/stringmaster', resourceId: 'prj_stringmaster_99',
+                usedFor: 'Production Next.js deployment and preview branches.',
+                fields: [
+                  { id: 'f4', key: 'NEXT_PUBLIC_SITE_URL', type: 'url', value: 'https://stringmaster.app', encrypted: false },
+                  { id: 'f5', key: 'VERCEL_DEPLOY_HOOK_TOKEN', type: 'secret', value: 'vcel_hook_secret_9918273', encrypted: true }
+                ]
+              },
+              {
+                id: 't_sm_tr', preset: 'turso', name: 'Turso Edge SQLite', env: 'Prod',
+                account: 'meni.cloud.work@gmail.com', url: 'https://app.turso.tech/', resourceId: 'stringmaster-prod-db',
+                usedFor: 'Primary libSQL database via Drizzle ORM.',
+                fields: [
+                  { id: 'f6', key: 'TURSO_DATABASE_URL', type: 'env', value: 'libsql://stringmaster-menicloud.turso.io', encrypted: false },
+                  { id: 'f7', key: 'TURSO_AUTH_TOKEN', type: 'secret', value: 'eyJhbGciOiJFZERTQSI.stringmaster_turso_token_88', encrypted: true }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'p_renovator', name: 'home-il-renovator', subtitle: 'Renovation Budget Tracker',
+            tools: [
+              {
+                id: 't_rn_fb', preset: 'firebase', name: 'Firebase Blaze', env: 'Prod',
+                account: 'meni.personal.il@gmail.com', url: 'https://console.firebase.google.com/project/home-il-renovator', resourceId: 'home-il-renovator',
+                usedFor: 'Contractor quotes DB & PDF invoice storage.',
+                fields: [
+                  { id: 'f8', key: 'VITE_FIREBASE_API_KEY', type: 'secret', value: 'AIzaSyA_RenovatorIL_55192', encrypted: true }
+                ]
+              },
+              {
+                id: 't_rn_vc', preset: 'vercel', name: 'Vercel PWA', env: 'Prod',
+                account: 'meni-dev (GitHub SSO)', url: 'https://home-il-renovator.vercel.app', resourceId: 'prj_renovator_il',
+                usedFor: 'Mobile PWA hosting.',
+                fields: []
+              }
+            ]
+          },
+          {
+            id: 'p_nuc', name: 'Smart Home NUC', subtitle: 'Home Assistant & Docker',
+            tools: [
+              {
+                id: 't_nc_cf', preset: 'cloudflare', name: 'Cloudflare Zero Trust Tunnel', env: 'Prod',
+                account: 'meni.personal.il@gmail.com', url: 'https://one.dash.cloudflare.com/', resourceId: 'tunnel-nuc-il',
+                usedFor: 'Securely exposes Home Assistant without opening router ports.',
+                fields: [
+                  { id: 'f9', key: 'TUNNEL_TOKEN', type: 'secret', value: 'eyJhIjoiY2xvdWRmbGFyZV9udWNfdHVubmVsXzk5In0=', encrypted: true }
+                ]
+              }
+            ]
+          }
+        ]
+      };
+    }
+
+    // State & Core Methods attached to app
+    Object.assign(app, {
+      db: null,
+      activeTab: 'p_snappy',
+      activeToolId: 't_sn_fb',
+      masterKey: sessionStorage.getItem('sv_master_key') || DEMO_KEY,
+      cache: {},
+      revealed: new Set(),
+      theme: localStorage.getItem('sv_theme') || 'dark',
+      googleEmail: localStorage.getItem('sv_google_email') || '',
+      driveClientId: localStorage.getItem('sv_drive_client_id') || '',
+      driveFileId: localStorage.getItem('sv_drive_file_id') || '',
+      driveToken: null,
+      localHandle: null,
+      localFileName: '',
+      wizStep: 1,
+      wizTempKey: '',
+      wizDriveMode: 'local',
+      wizWorkspaceChoice: 'sample',
+      tourIdx: 0,
+
+      esc(s) {
+        return String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+      },
+
+      async init() {
+        this.applyTheme(this.theme);
+        const raw = localStorage.getItem('stackvault_db_v2');
+        if (raw) {
+          try { this.db = JSON.parse(raw); } catch (e) { this.db = null; }
+        }
+        if (!this.db || !Array.isArray(this.db.projects)) {
+          this.db = getSeedData();
+          await this.encryptPlainSecrets(this.masterKey);
+          this.db.verifyToken = await CryptoVault.encrypt('SV_OK', this.masterKey);
+          this.saveDb(false);
+        } else if (this.db.verifyToken) {
+          try {
+            const check = await CryptoVault.decrypt(this.db.verifyToken, this.masterKey);
+            if (check !== 'SV_OK') this.masterKey = null;
+          } catch (e) {
+            this.masterKey = null;
+          }
+        }
+
+        if (this.masterKey) await this.decryptAllToCache();
+        if (this.db.projects.length && !['matrix', 'accounts'].includes(this.activeTab)) {
+          const p = this.getProject() || this.db.projects[0];
+          this.activeTab = p.id;
+          this.activeToolId = p.tools[0]?.id || null;
+        }
+
+        window.addEventListener('keydown', e => {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            document.getElementById('global-search')?.focus();
+          }
+          if (e.key === 'Escape') {
+            this.closeModal();
+            document.getElementById('search-dropdown')?.classList.add('hidden');
+          }
+        });
+
+        document.addEventListener('click', e => {
+          const box = document.getElementById('search-dropdown');
+          const inp = document.getElementById('global-search');
+          if (box && !box.contains(e.target) && e.target !== inp) box.classList.add('hidden');
+        });
+
+        this.render();
+
+        if (!localStorage.getItem('sv_onboarded')) {
+          setTimeout(() => this.openOnboardingWizard(1), 120);
+        }
+      },
+
+      applyTheme(mode) {
+        this.theme = mode === 'light' ? 'light' : 'dark';
+        localStorage.setItem('sv_theme', this.theme);
+        document.documentElement.classList.toggle('light-mode', this.theme === 'light');
+        const btn = document.getElementById('theme-btn');
+        if (btn) btn.textContent = this.theme === 'light' ? '🌙' : '☀️';
+      },
+
+      toggleTheme() {
+        this.applyTheme(this.theme === 'dark' ? 'light' : 'dark');
+        this.toast(this.theme === 'light' ? '☀️ Light Mode enabled' : '🌙 Dark Mode enabled');
+      },
+
+      toast(msg, tone = 'indigo') {
+        const root = document.getElementById('toast-root');
+        if (!root) return;
+        const colors = {
+          indigo: 'border-indigo-500 bg-vault-900 text-indigo-200',
+          emerald: 'border-emerald-500 bg-vault-900 text-emerald-200',
+          rose: 'border-rose-500 bg-vault-900 text-rose-200',
+          amber: 'border-amber-500 bg-vault-900 text-amber-200'
+        };
+        const el = document.createElement('div');
+        el.className = `px-3.5 py-2 rounded-xl border-l-4 shadow-xl text-xs font-medium transition ${colors[tone] || colors.indigo}`;
+        el.textContent = msg;
+        root.appendChild(el);
+        setTimeout(() => el.remove(), 2800);
+      },
+
+      copyText(val, label = 'Copied to clipboard') {
+        if (!val) return this.toast('Nothing to copy', 'amber');
+        const helper = document.getElementById('clip-helper');
+        helper.value = val;
+        helper.select();
+        document.execCommand('copy');
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(val).catch(() => {});
+        }
+        this.toast('📋 ' + label, 'emerald');
+      },
+
+      async readClipboard(cb) {
+        if (navigator.clipboard && window.isSecureContext) {
+          try {
+            const t = await navigator.clipboard.readText();
+            if (t) return cb(t);
+          } catch (e) {}
+        }
+        this.openModal(`
+          <div class="p-5 space-y-3">
+            <h3 class="text-sm font-bold text-white">Paste Value</h3>
+            <textarea id="fallback-paste" rows="3" class="w-full bg-vault-950 border border-vault-700 rounded-lg p-2.5 text-xs font-mono text-white" placeholder="Press Ctrl+V here..."></textarea>
+            <div class="flex justify-end gap-2">
+              <button type="button" onclick="window.app.closeModal()" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-300">Cancel</button>
+              <button type="button" id="fallback-paste-apply" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white keep-white">Apply</button>
+            </div>
+          </div>
+        `);
+        setTimeout(() => {
+          const area = document.getElementById('fallback-paste');
+          area?.focus();
+          document.getElementById('fallback-paste-apply').onclick = () => {
+            const v = area.value;
+            this.closeModal();
+            if (v) cb(v);
+          };
+        }, 50);
+      },
+
+      async encryptPlainSecrets(key) {
+        if (!key) return;
+        for (const p of this.db.projects) {
+          for (const t of p.tools) {
+            for (const f of (t.fields || [])) {
+              if ((f.type === 'secret' || f.type === 'password') && f.value && !CryptoVault.isEnc(f.value)) {
+                this.cache[f.id] = f.value;
+                f.value = await CryptoVault.encrypt(f.value, key);
+                f.encrypted = true;
+              }
+            }
+          }
+        }
+      },
+
+      async decryptAllToCache() {
+        this.cache = {};
+        if (!this.masterKey) return;
+        for (const p of this.db.projects) {
+          for (const t of p.tools) {
+            for (const f of (t.fields || [])) {
+              if (CryptoVault.isEnc(f.value)) {
+                try {
+                  this.cache[f.id] = await CryptoVault.decrypt(f.value, this.masterKey);
+                } catch (e) {
+                  this.cache[f.id] = null;
+                }
+              } else {
+                this.cache[f.id] = f.value;
+              }
+            }
+          }
+        }
+      },
+
+      async saveDb(syncDisk = true) {
+        this.db.updatedAt = new Date().toISOString();
+        localStorage.setItem('stackvault_db_v2', JSON.stringify(this.db));
+        if (syncDisk && this.localHandle) {
+          try {
+            const w = await this.localHandle.createWritable();
+            await w.write(JSON.stringify(this.db, null, 2));
+            await w.close();
+          } catch (e) {}
+        }
+      },
+
+      getProject() {
+        return this.db.projects.find(p => p.id === this.activeTab) || null;
+      },
+
+      getTool() {
+        const p = this.getProject();
+        return p ? (p.tools.find(t => t.id === this.activeToolId) || p.tools[0] || null) : null;
+      },
+
+      getAllAccounts() {
+        const set = new Set();
+        if (this.googleEmail) set.add(this.googleEmail);
+        this.db.projects.forEach(p => p.tools.forEach(t => { if (t.account?.trim()) set.add(t.account.trim()); }));
+        return Array.from(set);
+      },
+
+      // UI RENDERERS
+      render() {
+        this.renderHeaderStatus();
+        this.renderTabs();
+        this.renderSidebar();
+        this.renderMain();
+        const dl = document.getElementById('accounts-datalist');
+        if (dl) dl.innerHTML = this.getAllAccounts().map(a => `<option value="${this.esc(a)}"></option>`).join('');
+      },
+
+      renderHeaderStatus() {
+        const vBtn = document.getElementById('vault-btn');
+        if (vBtn) {
+          if (this.masterKey) {
+            vBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 flex items-center gap-1.5';
+            vBtn.innerHTML = '🔓 <span>Unlocked</span>';
+          } else {
+            vBtn.className = 'px-2.5 py-1.5 rounded-lg text-xs font-medium border border-rose-500/40 bg-rose-500/15 text-rose-300 flex items-center gap-1.5';
+            vBtn.innerHTML = '🔒 <span>Locked</span>';
+          }
+        }
+        const dot = document.getElementById('drive-dot');
+        if (dot) dot.className = 'w-2 h-2 rounded-full ' + (this.driveToken || this.localHandle ? 'bg-emerald-400' : 'bg-amber-400');
+        const bLbl = document.getElementById('backup-label');
+        if (bLbl) bLbl.textContent = this.localFileName ? this.localFileName : 'Backup';
+      },
+
+      renderTabs() {
+        const el = document.getElementById('tabs-list');
+        if (!el) return;
+        const matrixActive = this.activeTab === 'matrix';
+        const accActive = this.activeTab === 'accounts';
+        let html = `
+          <button type="button" onclick="window.app.selectTab('matrix')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 ${matrixActive ? 'bg-indigo-600 text-white keep-white' : 'text-slate-400 hover:text-white hover:bg-vault-800'}">📊 All Projects Matrix</button>
+          <button type="button" onclick="window.app.selectTab('accounts')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 ${accActive ? 'bg-indigo-600 text-white keep-white' : 'text-slate-400 hover:text-white hover:bg-vault-800'}">👤 Accounts (${this.getAllAccounts().length})</button>
+          <div class="h-4 w-[1px] bg-vault-700 mx-1 shrink-0"></div>
+        `;
+        for (const p of this.db.projects) {
+          const active = this.activeTab === p.id;
+          html += `
+            <button type="button" onclick="window.app.selectTab('${p.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shrink-0 ${active ? 'bg-vault-800 text-white border border-indigo-500/50' : 'text-slate-400 hover:text-white hover:bg-vault-800/50'}">
+              <span>${this.esc(p.name)}</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-vault-950 text-slate-400">${p.tools.length}</span>
+            </button>
+          `;
+        }
+        el.innerHTML = html;
+      },
+
+      selectTab(tabId) {
+        this.activeTab = tabId;
+        const p = this.getProject();
+        if (p) this.activeToolId = p.tools[0]?.id || null;
+        this.render();
+      },
+
+      renderSidebar() {
+        const aside = document.getElementById('tools-sidebar');
+        const p = this.getProject();
+        if (!p) {
+          aside.classList.add('hidden');
+          return;
+        }
+        aside.classList.remove('hidden');
+        document.getElementById('sidebar-header').innerHTML = `
+          <div class="truncate">
+            <h2 class="text-sm font-bold text-white truncate">${this.esc(p.name)}</h2>
+            <p class="text-[11px] text-slate-400 truncate">${this.esc(p.subtitle || 'Project Stack')}</p>
+          </div>
+        `;
+        const list = document.getElementById('sidebar-tools');
+        if (!p.tools.length) {
+          list.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">No tools yet. Click <b>+ Add Tool</b> above.</div>`;
+          return;
+        }
+        list.innerHTML = p.tools.map(t => {
+          const active = t.id === (this.getTool()?.id);
+          const pr = PRESETS[t.preset] || PRESETS.custom;
+          return `
+            <button type="button" onclick="window.app.activeToolId='${t.id}';window.app.render();" class="w-full text-left p-2.5 rounded-xl border transition block ${active ? 'bg-indigo-600/15 border-indigo-500/60' : 'bg-vault-950/60 border-vault-800 hover:border-vault-700'}">
+              <div class="flex items-center justify-between gap-1 mb-1">
+                <span class="text-xs font-semibold text-white truncate">${this.esc(t.name)}</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded border ${pr.color}">${this.esc(t.env || 'Prod')}</span>
+              </div>
+              <div class="text-[11px] font-mono text-slate-400 truncate">👤 ${this.esc(t.account || 'No account set')}</div>
+            </button>
+          `;
+        }).join('');
+      },
+
+      renderMain() {
+        const main = document.getElementById('main-editor');
+        if (this.activeTab === 'matrix') return this.renderMatrixView(main);
+        if (this.activeTab === 'accounts') return this.renderAccountsView(main);
+
+        const p = this.getProject();
+        const t = this.getTool();
+        if (!p || !t) {
+          main.innerHTML = `<div class="p-12 text-center text-sm text-slate-400">Select or add a tool from the left sidebar.</div>`;
+          return;
+        }
+        const pr = PRESETS[t.preset] || PRESETS.custom;
+        const presetOptions = Object.entries(PRESETS).map(([k, v]) => `<option value="${k}" ${t.preset === k ? 'selected' : ''}>${v.badge}</option>`).join('');
+
+        main.innerHTML = `
+          <div class="max-w-4xl mx-auto space-y-5">
+            <!-- Tool Header Card -->
+            <div class="bg-vault-900 border border-vault-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 flex-1 min-w-[240px]">
+                <select onchange="window.app.updateToolProp('preset', this.value)" class="bg-vault-950 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-200">
+                  ${presetOptions}
+                </select>
+                <input type="text" value="${this.esc(t.name)}" onchange="window.app.updateToolProp('name', this.value)" class="bg-transparent border-b border-transparent focus:border-indigo-500 text-base font-bold text-white focus:outline-none flex-1" />
+                <select onchange="window.app.updateToolProp('env', this.value)" class="bg-vault-950 border border-vault-700 rounded-lg px-2 py-1 text-xs font-mono text-slate-300">
+                  ${['Prod', 'Dev', 'Staging', 'Local'].map(e => `<option value="${e}" ${t.env === e ? 'selected' : ''}>${e}</option>`).join('')}
+                </select>
+              </div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button type="button" onclick="window.app.openBulkEnvModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-vault-800 hover:bg-vault-700 text-slate-200 border border-vault-700">📥 Bulk Paste .env</button>
+                <button type="button" onclick="window.app.copyToolEnv()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-vault-800 hover:bg-vault-700 text-emerald-300 border border-vault-700">📤 Copy .env</button>
+                <button type="button" onclick="window.app.deleteCurrentTool()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30">🗑️ Delete</button>
+              </div>
+            </div>
+
+            <!-- Core Account, Console URL, Resource ID & Purpose Card -->
+            <div class="bg-vault-900 border border-vault-700 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              <div>
+                <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">👤 Account / Email Used</label>
+                <div class="flex gap-1">
+                  <input list="accounts-datalist" type="text" value="${this.esc(t.account)}" onchange="window.app.updateToolProp('account', this.value)" placeholder="e.g. name@gmail.com" class="w-full bg-vault-950 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white" />
+                  <button type="button" onclick="window.app.copyText('${this.esc(t.account)}', 'Account copied')" class="px-2 rounded-lg bg-vault-800 text-xs" title="Copy">📋</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">🔗 Console / Dashboard Link</label>
+                <div class="flex gap-1">
+                  <input type="text" value="${this.esc(t.url)}" onchange="window.app.updateToolProp('url', this.value)" placeholder="https://..." class="w-full bg-vault-950 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-sky-300" />
+                  <a href="${this.esc(t.url || '#')}" target="_blank" rel="noopener" class="px-2 py-1.5 rounded-lg bg-vault-800 text-xs flex items-center" title="Open Link">↗</a>
+                  <button type="button" onclick="window.app.copyText('${this.esc(t.url)}', 'URL copied')" class="px-2 rounded-lg bg-vault-800 text-xs" title="Copy">📋</button>
+                </div>
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">🆔 Project / Resource ID</label>
+                <div class="flex gap-1">
+                  <input type="text" value="${this.esc(t.resourceId)}" onchange="window.app.updateToolProp('resourceId', this.value)" placeholder="e.g. snappy-prod-882" class="w-full bg-vault-950 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white" />
+                  <button type="button" onclick="window.app.copyText('${this.esc(t.resourceId)}', 'Resource ID copied')" class="px-2 rounded-lg bg-vault-800 text-xs" title="Copy">📋</button>
+                </div>
+              </div>
+              <div class="md:col-span-3">
+                <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">📝 Used For / Details &amp; Notes</label>
+                <input type="text" value="${this.esc(t.usedFor)}" onchange="window.app.updateToolProp('usedFor', this.value)" placeholder="What does this tool power in ${this.esc(p.name)}?" class="w-full bg-vault-950 border border-vault-700 rounded-lg px-3 py-1.5 text-xs text-slate-200" />
+              </div>
+            </div>
+
+            <!-- Dynamic Fields & Encrypted Secrets -->
+            <div class="bg-vault-900 border border-vault-700 rounded-2xl p-4 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <h3 class="text-xs font-bold uppercase tracking-wider text-white">Tokens, Passwords &amp; Configuration Fields</h3>
+                  <p class="text-[11px] text-slate-400">Secret &amp; Password fields are encrypted in your DB using AES-256-GCM</p>
+                </div>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <button type="button" onclick="window.app.addField('secret')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">+ 🔒 Secret Token</button>
+                  <button type="button" onclick="window.app.addField('password')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30">+ 🔑 Password</button>
+                  <button type="button" onclick="window.app.addField('env')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-vault-800 text-slate-200 border border-vault-700">+ 📋 Env Var</button>
+                  <button type="button" onclick="window.app.addField('url')" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-vault-800 text-sky-300 border border-vault-700">+ 🔗 URL</button>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                ${(t.fields || []).length === 0 ? `<div class="p-6 text-center text-xs text-slate-400 border border-dashed border-vault-700 rounded-xl">No fields yet. Add a Secret Token, Password, Env Variable, or paste a .env file.</div>` : ''}
+                ${(t.fields || []).map(f => this.renderFieldRow(f)).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      },
+
+      renderFieldRow(f) {
+        const isSec = f.type === 'secret' || f.type === 'password';
+        const unlocked = Boolean(this.masterKey);
+        const plainVal = isSec ? (unlocked ? (this.cache[f.id] ?? '') : '') : (f.value ?? '');
+        const isShown = !isSec || this.revealed.has(f.id);
+        const badge = isSec ? '🔒 AES-256' : f.type.toUpperCase();
+        const badgeCls = isSec ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' : 'bg-vault-800 text-slate-300 border-vault-700';
+
+        return `
+          <div class="bg-vault-950 border border-vault-800 rounded-xl p-2.5 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <span class="text-[10px] font-mono px-2 py-1 rounded border ${badgeCls} shrink-0 text-center">${badge}</span>
+            <input type="text" value="${this.esc(f.key)}" onchange="window.app.updateFieldKey('${f.id}', this.value)" placeholder="KEY_NAME" class="sm:w-56 bg-vault-900 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-indigo-300" />
+            <div class="flex-1 flex items-center gap-1">
+              <input
+                type="${isShown ? 'text' : 'password'}"
+                value="${unlocked || !isSec ? this.esc(plainVal) : ''}"
+                ${!unlocked && isSec ? 'disabled placeholder="🔒 Vault Locked — Unlock to view/edit"' : 'placeholder="Value..."'}
+                onchange="window.app.updateFieldValue('${f.id}', this.value)"
+                class="w-full bg-vault-900 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white"
+              />
+              ${isSec ? `<button type="button" onclick="window.app.toggleReveal('${f.id}')" class="px-2 py-1.5 rounded-lg bg-vault-800 hover:bg-vault-700 text-xs" title="Reveal / Hide">${isShown ? '🙈' : '👁️'}</button>` : ''}
+              <button type="button" onclick="window.app.copyField('${f.id}')" class="px-2.5 py-1.5 rounded-lg bg-vault-800 hover:bg-vault-700 text-xs font-medium text-slate-200 shrink-0" title="Copy value">📋 Copy</button>
+              <button type="button" onclick="window.app.pasteField('${f.id}')" class="px-2.5 py-1.5 rounded-lg bg-vault-800 hover:bg-vault-700 text-xs font-medium text-slate-200 shrink-0" title="Paste from clipboard">📥 Paste</button>
+              <button type="button" onclick="window.app.deleteField('${f.id}')" class="px-2 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs shrink-0" title="Remove field">✕</button>
+            </div>
+          </div>
+        `;
+      },
+
+      renderMatrixView(main) {
+        const cols = ['vercel', 'firebase', 'turso', 'aistudio', 'github', 'gcp', 'cloudflare', 'supabase', 'custom'];
+        main.innerHTML = `
+          <div class="max-w-6xl mx-auto space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-bold text-white">📊 All Projects &amp; Tools Matrix</h2>
+                <p class="text-xs text-slate-400">See which app uses which service and under which account at a glance. Click any badge to jump directly to its credentials.</p>
+              </div>
+            </div>
+            <div class="bg-vault-900 border border-vault-700 rounded-2xl overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-vault-700 bg-vault-950/60 text-slate-400 font-mono text-[11px]">
+                    <th class="p-3">Project</th>
+                    ${cols.map(c => `<th class="p-3">${PRESETS[c].badge}</th>`).join('')}
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-vault-800">
+                  ${this.db.projects.map(p => `
+                    <tr class="hover:bg-vault-800/40">
+                      <td class="p-3 font-bold text-white whitespace-nowrap cursor-pointer" onclick="window.app.selectTab('${p.id}')">${this.esc(p.name)}</td>
+                      ${cols.map(c => {
+                        const matches = p.tools.filter(t => t.preset === c);
+                        if (!matches.length) return `<td class="p-3 text-slate-600">—</td>`;
+                        return `<td class="p-2 space-y-1">${matches.map(m => `
+                          <button type="button" onclick="window.app.jumpTo('${p.id}','${m.id}')" class="block w-full text-left px-2 py-1 rounded bg-vault-950 border border-vault-700 hover:border-indigo-500">
+                            <div class="font-medium text-white truncate">${this.esc(m.name)}</div>
+                            <div class="text-[10px] font-mono text-indigo-300 truncate">${this.esc(m.account || 'no-account')}</div>
+                          </button>
+                        `).join('')}</td>`;
+                      }).join('')}
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      },
+
+      renderAccountsView(main) {
+        const map = {};
+        this.db.projects.forEach(p => p.tools.forEach(t => {
+          const acc = t.account?.trim() || 'Unassigned Account';
+          if (!map[acc]) map[acc] = [];
+          map[acc].push({ p, t });
+        }));
+        main.innerHTML = `
+          <div class="max-w-5xl mx-auto space-y-4">
+            <div>
+              <h2 class="text-lg font-bold text-white">👤 Accounts Directory</h2>
+              <p class="text-xs text-slate-400">Every email/login account across your projects and which tools depend on it.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${Object.entries(map).map(([acc, items]) => `
+                <div class="bg-vault-900 border border-vault-700 rounded-2xl p-4 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="font-mono text-xs font-bold text-indigo-300">${this.esc(acc)}</span>
+                    <button type="button" onclick="window.app.copyText('${this.esc(acc)}', 'Account copied')" class="text-xs px-2 py-0.5 rounded bg-vault-800 text-slate-300">📋 Copy</button>
+                  </div>
+                  <div class="space-y-1.5">
+                    ${items.map(({ p, t }) => `
+                      <button type="button" onclick="window.app.jumpTo('${p.id}','${t.id}')" class="w-full flex items-center justify-between px-3 py-1.5 rounded-lg bg-vault-950 border border-vault-800 hover:border-indigo-500 text-xs">
+                        <span class="font-semibold text-white">${this.esc(p.name)} · <span class="text-slate-300">${this.esc(t.name)}</span></span>
+                        <span class="text-[10px] font-mono text-slate-400">${this.esc(t.env)}</span>
+                      </button>
+                    `).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      },
+
+      jumpTo(projId, toolId) {
+        this.activeTab = projId;
+        this.activeToolId = toolId;
+        document.getElementById('search-dropdown')?.classList.add('hidden');
+        this.render();
+      },
+
+      renderSearchDropdown(q) {
+        const box = document.getElementById('search-dropdown');
+        if (!box) return;
+        const term = (q || '').trim().toLowerCase();
+        if (!term) { box.classList.add('hidden'); return; }
+        const hits = [];
+        this.db.projects.forEach(p => {
+          p.tools.forEach(t => {
+            const hay = `${p.name} ${t.name} ${t.preset} ${t.account} ${t.resourceId} ${(t.fields || []).map(f => f.key).join(' ')}`.toLowerCase();
+            if (hay.includes(term)) hits.push({ p, t });
+          });
+        });
+        box.classList.remove('hidden');
+        if (!hits.length) {
+          box.innerHTML = `<div class="p-3 text-xs text-slate-400">No matches for "${this.esc(q)}"</div>`;
+          return;
+        }
+        box.innerHTML = hits.slice(0, 10).map(({ p, t }) => `
+          <button type="button" onclick="window.app.jumpTo('${p.id}','${t.id}')" class="w-full text-left px-3.5 py-2.5 hover:bg-vault-800 flex items-center justify-between text-xs">
+            <div>
+              <div class="font-semibold text-white">${this.esc(p.name)} → ${this.esc(t.name)}</div>
+              <div class="text-[11px] font-mono text-slate-400">👤 ${this.esc(t.account || 'no-account')}</div>
+            </div>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-vault-950 text-indigo-300">${this.esc(t.env)}</span>
+          </button>
+        `).join('');
+      },
+
+      // TOOL & FIELD CRUD
+      updateToolProp(prop, val) {
+        const t = this.getTool();
+        if (!t) return;
+        t[prop] = val;
+        this.saveDb();
+        this.render();
+      },
+
+      async addField(type) {
+        const t = this.getTool();
+        if (!t) return;
+        const isSec = type === 'secret' || type === 'password';
+        if (isSec && !this.masterKey) return this.openKeyModal();
+        const id = 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+        const defaultKey = type === 'secret' ? 'API_SECRET_TOKEN' : type === 'password' ? 'SERVICE_PASSWORD' : type === 'url' ? 'SERVICE_URL' : 'ENV_KEY';
+        const f = { id, key: defaultKey, type, value: '', encrypted: isSec };
+        t.fields = t.fields || [];
+        t.fields.push(f);
+        this.cache[id] = '';
+        this.revealed.add(id);
+        await this.saveDb();
+        this.render();
+      },
+
+      updateFieldKey(fid, newKey) {
+        const t = this.getTool();
+        const f = t?.fields?.find(x => x.id === fid);
+        if (!f) return;
+        f.key = newKey.trim();
+        this.saveDb();
+      },
+
+      async updateFieldValue(fid, plain) {
+        const t = this.getTool();
+        const f = t?.fields?.find(x => x.id === fid);
+        if (!f) return;
+        if (f.type === 'secret' || f.type === 'password') {
+          if (!this.masterKey) return this.toast('Unlock vault first', 'rose');
+          this.cache[fid] = plain;
+          f.value = plain ? await CryptoVault.encrypt(plain, this.masterKey) : '';
+          f.encrypted = true;
+        } else {
+          f.value = plain;
+          this.cache[fid] = plain;
+        }
+        await this.saveDb();
+        this.toast('Saved & encrypted field ' + f.key, 'emerald');
+      },
+
+      toggleReveal(fid) {
+        if (!this.masterKey) return this.openKeyModal();
+        if (this.revealed.has(fid)) this.revealed.delete(fid);
+        else this.revealed.add(fid);
+        this.renderMain();
+      },
+
+      copyField(fid) {
+        const t = this.getTool();
+        const f = t?.fields?.find(x => x.id === fid);
+        if (!f) return;
+        const isSec = f.type === 'secret' || f.type === 'password';
+        if (isSec && !this.masterKey) return this.openKeyModal();
+        const val = isSec ? this.cache[fid] : f.value;
+        this.copyText(val, f.key + ' copied');
+      },
+
+      pasteField(fid) {
+        this.readClipboard(async text => {
+          await this.updateFieldValue(fid, text.trim());
+          this.renderMain();
+        });
+      },
+
+      deleteField(fid) {
+        const t = this.getTool();
+        if (!t) return;
+        t.fields = (t.fields || []).filter(x => x.id !== fid);
+        this.saveDb();
+        this.renderMain();
+      },
+
+      copyToolEnv() {
+        const t = this.getTool();
+        if (!t) return;
+        if (!this.masterKey) return this.openKeyModal();
+        const lines = (t.fields || []).map(f => `${f.key}=${(f.type === 'secret' || f.type === 'password') ? (this.cache[f.id] || '') : (f.value || '')}`);
+        this.copyText(lines.join('\n'), t.name + ' .env copied');
+      },
+
+      copyProjectEnv() {
+        const p = this.getProject();
+        if (!p) return;
+        if (!this.masterKey) return this.openKeyModal();
+        const lines = [];
+        p.tools.forEach(t => {
+          lines.push(`# === ${t.name} (${t.account || 'no-account'}) ===`);
+          (t.fields || []).forEach(f => {
+            lines.push(`${f.key}=${(f.type === 'secret' || f.type === 'password') ? (this.cache[f.id] || '') : (f.value || '')}`);
+          });
+        });
+        this.copyText(lines.join('\n'), p.name + ' full .env copied');
+      },
+
+      // MODALS SYSTEM
+      openModal(html) {
+        const bd = document.getElementById('modal-backdrop');
+        const root = document.getElementById('modal-root');
+        root.innerHTML = html;
+        bd.classList.remove('hidden');
+      },
+
+      closeModal() {
+        document.getElementById('modal-backdrop')?.classList.add('hidden');
+      },
+
+      openBulkEnvModal() {
+        this.openModal(`
+          <div class="p-5 space-y-3">
+            <h3 class="text-base font-bold text-white">📥 Bulk Paste .env Variables</h3>
+            <p class="text-xs text-slate-400">Paste lines in <code class="font-mono text-indigo-300">KEY=VALUE</code> format. Keys containing SECRET, TOKEN, KEY, or PASSWORD are automatically encrypted with AES-256-GCM.</p>
+            <textarea id="bulk-env-input" rows="7" placeholder="TURSO_DATABASE_URL=libsql://...\nTURSO_AUTH_TOKEN=eyJhbGci..." class="w-full bg-vault-950 border border-vault-700 rounded-xl p-3 text-xs font-mono text-white"></textarea>
+            <div class="flex justify-end gap-2">
+              <button type="button" onclick="window.app.closeModal()" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-300">Cancel</button>
+              <button type="button" onclick="window.app.applyBulkEnv()" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white keep-white">Import &amp; Encrypt</button>
+            </div>
+          </div>
+        `);
+      },
+
+      async applyBulkEnv() {
+        const raw = document.getElementById('bulk-env-input')?.value || '';
+        const t = this.getTool();
+        if (!t || !raw.trim()) return this.closeModal();
+        if (!this.masterKey) return this.openKeyModal();
+        let count = 0;
+        for (const line of raw.split(/\r?\n/)) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
+          const idx = trimmed.indexOf('=');
+          const k = trimmed.slice(0, idx).trim();
+          const v = trimmed.slice(idx + 1).trim().replace(/^['"]|['"]$/g, '');
+          const isSec = /SECRET|TOKEN|KEY|PASS|PRIVATE/i.test(k) && !/PUBLIC|URL|DOMAIN/i.test(k);
+          const id = 'f_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+          this.cache[id] = v;
+          t.fields.push({
+            id, key: k,
+            type: isSec ? 'secret' : (v.startsWith('http') ? 'url' : 'env'),
+            value: isSec ? await CryptoVault.encrypt(v, this.masterKey) : v,
+            encrypted: isSec
+          });
+          count++;
+        }
+        await this.saveDb();
+        this.closeModal();
+        this.renderMain();
+        this.toast(`Imported ${count} variables`, 'emerald');
+      },
+
+      openProjectModal(isEdit = false) {
+        const p = isEdit ? this.getProject() : null;
+        this.openModal(`
+          <div class="p-5 space-y-4">
+            <h3 class="text-base font-bold text-white">${isEdit ? 'Edit Project' : 'Create New Project'}</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Project Name</label>
+                <input id="proj-name-inp" type="text" value="${this.esc(p?.name || '')}" placeholder="e.g. MyNextSaaS" class="w-full bg-vault-950 border border-vault-700 rounded-lg px-3 py-2 text-xs text-white" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Subtitle / Stack Description</label>
+                <input id="proj-sub-inp" type="text" value="${this.esc(p?.subtitle || '')}" placeholder="e.g. Next.js + Supabase + Vercel" class="w-full bg-vault-950 border border-vault-700 rounded-lg px-3 py-2 text-xs text-white" />
+              </div>
+            </div>
+            <div class="flex items-center justify-between pt-2">
+              ${isEdit ? `<button type="button" onclick="window.app.deleteCurrentProject()" class="px-3 py-1.5 rounded-lg text-xs bg-rose-500/15 text-rose-300 border border-rose-500/30">Delete Project</button>` : '<span></span>'}
+              <div class="flex gap-2">
+                <button type="button" onclick="window.app.closeModal()" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-300">Cancel</button>
+                <button type="button" onclick="window.app.saveProjectModal(${isEdit})" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white keep-white">Save Project</button>
+              </div>
+            </div>
+          </div>
+        `);
+      },
+
+      saveProjectModal(isEdit) {
+        const name = document.getElementById('proj-name-inp')?.value.trim();
+        const subtitle = document.getElementById('proj-sub-inp')?.value.trim();
+        if (!name) return this.toast('Enter a project name', 'rose');
+        if (isEdit) {
+          const p = this.getProject();
+          if (p) { p.name = name; p.subtitle = subtitle; }
+        } else {
+          const id = 'p_' + Date.now();
+          const tId = 't_' + Date.now();
+          this.db.projects.push({
+            id, name, subtitle,
+            tools: [{ id: tId, preset: 'vercel', name: 'Vercel', env: 'Prod', account: this.googleEmail || '', url: 'https://vercel.com/dashboard', resourceId: '', usedFor: 'Main deployment', fields: [] }]
+          });
+          this.activeTab = id;
+          this.activeToolId = tId;
+        }
+        this.saveDb();
+        this.closeModal();
+        this.render();
+      },
+
+      deleteCurrentProject() {
+        const p = this.getProject();
+        if (!p) return;
+        this.db.projects = this.db.projects.filter(x => x.id !== p.id);
+        this.activeTab = this.db.projects[0]?.id || 'matrix';
+        this.saveDb();
+        this.closeModal();
+        this.render();
+      },
+
+      openAddToolModal() {
+        const cards = Object.entries(PRESETS).map(([k, v]) => `
+          <button type="button" onclick="window.app.createToolFromPreset('${k}')" class="p-3 rounded-xl bg-vault-950 border border-vault-800 hover:border-indigo-500 text-left transition">
+            <div class="text-xs font-bold text-white">${v.badge}</div>
+            <div class="text-[10px] text-slate-400 truncate mt-0.5">${v.url}</div>
+          </button>
+        `).join('');
+        this.openModal(`
+          <div class="p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-white">Add Tool to Project</h3>
+              <button type="button" onclick="window.app.closeModal()" class="text-xs text-slate-400">✕</button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">${cards}</div>
+          </div>
+        `);
+      },
+
+      async createToolFromPreset(presetKey) {
+        const p = this.getProject();
+        if (!p) return;
+        const pr = PRESETS[presetKey] || PRESETS.custom;
+        const id = 't_' + Date.now();
+        const fid = 'f_' + Date.now();
+        const secretVal = '';
+        this.cache[fid] = secretVal;
+        p.tools.push({
+          id, preset: presetKey, name: pr.name, env: 'Prod',
+          account: this.googleEmail || this.getAllAccounts()[0] || '',
+          url: pr.url, resourceId: '', usedFor: '',
+          fields: [{ id: fid, key: presetKey.toUpperCase() + '_API_KEY', type: 'secret', value: '', encrypted: true }]
+        });
+        this.activeToolId = id;
+        await this.saveDb();
+        this.closeModal();
+        this.render();
+      },
+
+      deleteCurrentTool() {
+        const p = this.getProject();
+        const t = this.getTool();
+        if (!p || !t) return;
+        p.tools = p.tools.filter(x => x.id !== t.id);
+        this.activeToolId = p.tools[0]?.id || null;
+        this.saveDb();
+        this.render();
+      },
+
+      // MASTER KEY MODAL
+      openKeyModal() {
+        this.openModal(`
+          <div class="p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-white">🔐 Master Encryption Key (AES-256-GCM)</h3>
+              <button type="button" onclick="window.app.closeModal()" class="text-xs text-slate-400">✕</button>
+            </div>
+            <p class="text-xs text-slate-400">Your Master Key encrypts and decrypts all secret tokens locally in your browser. Store it in your Google Password Manager (separate from your Google Drive DB).</p>
+            <form action="about:blank" target="pm-frame" method="post" onsubmit="window.app.applyKeyFromModal(event)" class="space-y-3">
+              <input type="text" name="username" autocomplete="username" value="${this.esc(this.googleEmail || 'stackvault-master-key')}" class="w-full bg-vault-950 border border-vault-700 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-400" />
+              <div class="flex gap-2">
+                <input id="modal-key-inp" type="text" name="password" autocomplete="current-password" value="${this.esc(this.masterKey || '')}" placeholder="Enter or generate Master Key..." class="flex-1 bg-vault-950 border border-emerald-500/50 rounded-lg px-3 py-2 text-xs font-mono text-emerald-300" />
+                <button type="button" onclick="document.getElementById('modal-key-inp').value = window.app.randomKey()" class="px-3 py-1.5 rounded-lg bg-vault-800 text-xs font-mono text-indigo-300">🎲 Generate</button>
+                <button type="button" onclick="window.app.copyText(document.getElementById('modal-key-inp').value, 'Master Key copied')" class="px-3 py-1.5 rounded-lg bg-vault-800 text-xs">📋</button>
+              </div>
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+                <button type="button" onclick="window.app.lockVault()" class="px-3 py-1.5 rounded-lg text-xs bg-rose-500/15 text-rose-300 border border-rose-500/30">🔒 Lock Vault Now</button>
+                <div class="flex gap-2">
+                  <button type="button" onclick="window.app.downloadKeyFile(document.getElementById('modal-key-inp').value)" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-200">⬇️ .key File</button>
+                  <button type="submit" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white keep-white">Unlock / Rotate &amp; Save to Password Manager</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        `);
+      },
+
+      randomKey() { return CryptoVault.randomKey(); },
+
+      async applyKeyFromModal(e) {
+        const newKey = document.getElementById('modal-key-inp')?.value.trim();
+        if (!newKey) { if (e) e.preventDefault(); return this.toast('Enter a key', 'rose'); }
+        await this.setOrRotateKey(newKey);
+        this.closeModal();
+        this.render();
+      },
+
+      async setOrRotateKey(newKey) {
+        if (this.masterKey) {
+          await this.decryptAllToCache();
+          this.masterKey = newKey;
+          for (const p of this.db.projects) {
+            for (const t of p.tools) {
+              for (const f of (t.fields || [])) {
+                if (f.type === 'secret' || f.type === 'password') {
+                  f.value = this.cache[f.id] ? await CryptoVault.encrypt(this.cache[f.id], newKey) : '';
+                  f.encrypted = true;
+                }
+              }
+            }
+          }
+          this.db.verifyToken = await CryptoVault.encrypt('SV_OK', newKey);
+          await this.saveDb();
+        } else {
+          this.masterKey = newKey;
+          await this.decryptAllToCache();
+          this.db.verifyToken = await CryptoVault.encrypt('SV_OK', newKey);
+          await this.saveDb();
+        }
+        sessionStorage.setItem('sv_master_key', newKey);
+        this.toast('🔐 Master Key active & secrets encrypted', 'emerald');
+      },
+
+      lockVault() {
+        this.masterKey = null;
+        this.cache = {};
+        this.revealed.clear();
+        sessionStorage.removeItem('sv_master_key');
+        this.closeModal();
+        this.render();
+        this.toast('🔒 Vault locked', 'amber');
+      },
+
+      downloadKeyFile(k) {
+        if (!k) return this.toast('No key to download', 'rose');
+        const blob = new Blob([`ACCOUNT=${this.googleEmail || 'stackvault'}\nMASTER_KEY=${k}\n`], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'stackvault-master.key';
+        a.click();
+      },
+
+      // GOOGLE DRIVE & LOCAL BACKUP MODALS
+      openDriveModal() {
+        this.openModal(`
+          <div class="p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-white">☁️ Google Drive Database Sync</h3>
+              <button type="button" onclick="window.app.closeModal()" class="text-xs text-slate-400">✕</button>
+            </div>
+            <div class="bg-vault-950 border border-vault-800 rounded-xl p-3.5 space-y-2.5 text-xs">
+              <div class="font-bold text-emerald-300">Option A: Local Google Drive for Desktop File (Recommended · Zero OAuth)</div>
+              <p class="text-slate-400">Bind directly to <code class="font-mono text-white">G:\\My Drive\\stackvault-db.json</code> so every edit auto-saves to Google Drive.</p>
+              <button type="button" onclick="window.app.bindDiskFile()" class="px-3 py-1.5 rounded-lg bg-emerald-600 text-white keep-white font-semibold">🔗 Bind Local Google Drive File</button>
+            </div>
+            <div class="bg-vault-950 border border-vault-800 rounded-xl p-3.5 space-y-2.5 text-xs">
+              <div class="font-bold text-sky-300">Option B: Online Google Drive API v3</div>
+              <input id="drv-cid" type="text" value="${this.esc(this.driveClientId)}" placeholder="Google OAuth Client ID (optional)" onchange="window.app.driveClientId=this.value.trim();localStorage.setItem('sv_drive_client_id',this.value.trim())" class="w-full bg-vault-900 border border-vault-700 rounded-lg px-2.5 py-1.5 font-mono text-white" />
+              <input id="drv-fid" type="text" value="${this.esc(this.driveFileId)}" placeholder="Drive File ID (auto-filled on Push)" onchange="window.app.driveFileId=this.value.trim();localStorage.setItem('sv_drive_file_id',this.value.trim())" class="w-full bg-vault-900 border border-vault-700 rounded-lg px-2.5 py-1.5 font-mono text-white" />
+              <div class="flex flex-wrap gap-2 pt-1">
+                <button type="button" onclick="window.app.oauthDriveSignIn()" class="px-3 py-1.5 rounded-lg bg-sky-600 text-white keep-white font-semibold">Sign In with Google</button>
+                <button type="button" onclick="window.app.pushDrive()" class="px-3 py-1.5 rounded-lg bg-vault-800 text-emerald-300">↑ Push DB</button>
+                <button type="button" onclick="window.app.pullDrive()" class="px-3 py-1.5 rounded-lg bg-vault-800 text-sky-300">↓ Pull DB</button>
+              </div>
+            </div>
+          </div>
+        `);
+      },
+
+      oauthDriveSignIn() {
+        if (!this.driveClientId) return this.toast('Enter your Google OAuth Client ID first, or use Option A (Local Drive File)', 'amber');
+        if (!window.google?.accounts?.oauth2) return this.toast('Google Identity script loading...', 'amber');
+        const client = google.accounts.oauth2.initTokenClient({
+          client_id: this.driveClientId,
+          scope: 'https://www.googleapis.com/auth/drive.file',
+          hint: this.googleEmail || undefined,
+          callback: resp => {
+            if (resp.access_token) {
+              this.driveToken = resp.access_token;
+              this.renderHeaderStatus();
+              this.toast('☁️ Connected to Google Drive API!', 'emerald');
+            }
+          }
+        });
+        client.requestAccessToken({ prompt: 'consent' });
+      },
+
+      async pushDrive() {
+        if (this.localHandle) {
+          await this.saveDb(true);
+          return this.toast('💾 Synced directly to bound Drive file (' + this.localFileName + ')', 'emerald');
+        }
+        if (!this.driveToken) return this.openDriveModal();
+        try {
+          const body = JSON.stringify(this.db, null, 2);
+          if (this.driveFileId) {
+            await fetch(`https://www.googleapis.com/upload/drive/v3/files/${this.driveFileId}?uploadType=media`, {
+              method: 'PATCH', headers: { Authorization: `Bearer ${this.driveToken}`, 'Content-Type': 'application/json' }, body
+            });
+          } else {
+            const meta = { name: 'stackvault-db.json', mimeType: 'application/json' };
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify(meta)], { type: 'application/json' }));
+            form.append('file', new Blob([body], { type: 'application/json' }));
+            const res = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+              method: 'POST', headers: { Authorization: `Bearer ${this.driveToken}` }, body: form
+            });
+            const data = await res.json();
+            if (data.id) {
+              this.driveFileId = data.id;
+              localStorage.setItem('sv_drive_file_id', data.id);
+            }
+          }
+          this.toast('☁️ Pushed encrypted DB to Google Drive!', 'emerald');
+        } catch (e) {
+          this.toast('Drive Push failed: ' + e.message, 'rose');
+        }
+      },
+
+      async pullDrive() {
+        if (!this.driveToken || !this.driveFileId) return this.openDriveModal();
+        try {
+          const res = await fetch(`https://www.googleapis.com/drive/v3/files/${this.driveFileId}?alt=media`, {
+            headers: { Authorization: `Bearer ${this.driveToken}` }
+          });
+          const data = await res.json();
+          if (data?.projects) {
+            this.db = data;
+            await this.decryptAllToCache();
+            await this.saveDb(false);
+            this.render();
+            this.toast('☁️ Pulled latest encrypted DB from Google Drive!', 'emerald');
+          }
+        } catch (e) {
+          this.toast('Drive Pull failed: ' + e.message, 'rose');
+        }
+      },
+
+      async bindDiskFile() {
+        if (!window.showSaveFilePicker) return this.toast('Use Export/Import JSON in this browser', 'amber');
+        try {
+          const handle = await window.showSaveFilePicker({
+            suggestedName: 'stackvault-db.json',
+            types: [{ description: 'JSON Database', accept: { 'application/json': ['.json'] } }]
+          });
+          this.localHandle = handle;
+          this.localFileName = handle.name;
+          await this.saveDb(true);
+          this.renderHeaderStatus();
+          this.toast('🔗 Bound to ' + handle.name + ' (Auto-saving enabled)', 'emerald');
+        } catch (e) {}
+      },
+
+      openBackupModal() {
+        this.openModal(`
+          <div class="p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-white">💾 Local Backup &amp; Encrypted DB Inspector</h3>
+              <button type="button" onclick="window.app.closeModal()" class="text-xs text-slate-400">✕</button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button type="button" onclick="window.app.bindDiskFile()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 text-white keep-white">🔗 Bind Local / GDrive File</button>
+              <button type="button" onclick="window.app.exportJson()" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-200">⬇️ Export JSON Backup</button>
+              <label class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-indigo-300 cursor-pointer">
+                📂 Import JSON File
+                <input type="file" accept=".json" class="hidden" onchange="window.app.importJsonFile(this)" />
+              </label>
+            </div>
+            <div>
+              <label class="block text-[11px] font-mono text-slate-400 mb-1">Raw Stored JSON (Notice all secrets start with "enc:gcm:"):</label>
+              <textarea readonly rows="8" class="w-full bg-vault-950 border border-vault-800 rounded-xl p-2.5 text-[11px] font-mono text-emerald-300">${this.esc(JSON.stringify(this.db, null, 2))}</textarea>
+            </div>
+          </div>
+        `);
+      },
+
+      exportJson() {
+        const blob = new Blob([JSON.stringify(this.db, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'stackvault-db.json';
+        a.click();
+        this.toast('⬇️ Downloaded stackvault-db.json', 'emerald');
+      },
+
+      importJsonFile(input) {
+        const file = input.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async () => {
+          try {
+            const parsed = JSON.parse(reader.result);
+            if (Array.isArray(parsed.projects)) {
+              this.db = parsed;
+              await this.decryptAllToCache();
+              await this.saveDb();
+              this.closeModal();
+              this.render();
+              this.toast('📂 Imported database successfully!', 'emerald');
+            }
+          } catch (e) {
+            this.toast('Invalid JSON file', 'rose');
+          }
+        };
+        reader.readAsText(file);
+      },
+
+      // 4-STEP FIRST-TIME ONBOARDING WIZARD
+      openOnboardingWizard(step = 1) {
+        this.wizStep = step;
+        if (!this.wizTempKey) {
+          this.wizTempKey = (this.masterKey && this.masterKey !== DEMO_KEY) ? this.masterKey : CryptoVault.randomKey();
+        }
+        const steps = ['1. Google Account', '2. Master Key', '3. Drive & Backup', '4. Workspace'];
+        const nav = `
+          <div class="grid grid-cols-4 gap-1.5 p-3 bg-vault-950 border-b border-vault-800">
+            ${steps.map((s, i) => `
+              <button type="button" onclick="window.app.openOnboardingWizard(${i + 1})" class="p-2 rounded-lg text-[11px] font-semibold border text-left ${this.wizStep === i + 1 ? 'bg-indigo-600/20 border-indigo-500 text-white' : 'bg-vault-900 border-vault-800 text-slate-400'}">
+                ${s}
+              </button>
+            `).join('')}
+          </div>
+        `;
+
+        let body = '';
+        if (step === 1) {
+          body = `
+            <div class="p-5 space-y-4">
+              <div>
+                <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">Welcome to StackVault · Step 1 of 4</span>
+                <h3 class="text-base font-bold text-white mt-1">Connect Your Private Google Account</h3>
+                <p class="text-xs text-slate-400">Set your primary Google email used for storing your encrypted DB on Google Drive and saving your Master Key in Google Password Manager.</p>
+              </div>
+              <div class="space-y-3 bg-vault-950 border border-vault-800 rounded-xl p-4">
+                <div>
+                  <label class="block text-xs text-slate-300 mb-1">Private Google Account Email</label>
+                  <input id="wiz-email" type="email" value="${this.esc(this.googleEmail)}" placeholder="you@gmail.com" class="w-full bg-vault-900 border border-vault-700 rounded-lg px-3 py-2 text-xs font-mono text-white" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Optional: Google OAuth Client ID (for browser Drive API Push/Pull)</label>
+                  <input id="wiz-cid" type="text" value="${this.esc(this.driveClientId)}" placeholder="Optional: 12345-abc.apps.googleusercontent.com" class="w-full bg-vault-900 border border-vault-700 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-200" />
+                </div>
+              </div>
+              <div class="flex justify-between pt-1">
+                <button type="button" onclick="window.app.finishOnboarding(false)" class="text-xs text-slate-400 hover:text-white">Skip Setup</button>
+                <button type="button" onclick="window.app.saveWizStep1()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white keep-white">Next: Master Key →</button>
+              </div>
+            </div>
+          `;
+        } else if (step === 2) {
+          body = `
+            <div class="p-5 space-y-4">
+              <div>
+                <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Step 2 of 4 · AES-256-GCM Encryption</span>
+                <h3 class="text-base font-bold text-white mt-1">Generate or Use Existing Master Key</h3>
+                <p class="text-xs text-slate-400">Your database file is stored on Google Drive, while this Master Key is saved separately in your Google Password Manager.</p>
+              </div>
+              <form action="about:blank" target="pm-frame" method="post" onsubmit="window.app.saveKeyToPM(event)" class="bg-vault-950 border border-vault-800 rounded-xl p-4 space-y-3">
+                <input type="text" name="username" autocomplete="username" value="${this.esc(this.googleEmail || 'stackvault-master-key')}" class="w-full bg-vault-900 border border-vault-700 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-400" />
+                <div class="flex gap-1.5">
+                  <input id="wiz-key" type="text" name="password" autocomplete="new-password" value="${this.esc(this.wizTempKey)}" oninput="window.app.wizTempKey=this.value.trim()" class="flex-1 bg-vault-900 border border-emerald-500/50 rounded-lg px-3 py-2 text-xs font-mono text-emerald-300" />
+                  <button type="button" onclick="window.app.wizTempKey=window.app.randomKey();document.getElementById('wiz-key').value=window.app.wizTempKey;" class="px-2.5 py-1.5 rounded-lg bg-vault-800 text-xs font-mono text-indigo-300">🎲 Generate</button>
+                  <button type="button" onclick="window.app.copyText(document.getElementById('wiz-key').value, 'Master Key copied')" class="px-2.5 py-1.5 rounded-lg bg-vault-800 text-xs">📋 Copy</button>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button type="submit" class="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-semibold">🔐 Save Key to Google Password Manager</button>
+                  <button type="button" onclick="window.app.downloadKeyFile(document.getElementById('wiz-key').value)" class="px-3 py-1.5 rounded-lg bg-vault-800 text-xs text-slate-200">⬇️ Download .key File</button>
+                </div>
+              </form>
+              <div class="flex justify-between pt-1">
+                <button type="button" onclick="window.app.openOnboardingWizard(1)" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-300">← Back</button>
+                <button type="button" onclick="window.app.saveWizStep2()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white keep-white">Next: Connect Drive DB →</button>
+              </div>
+            </div>
+          `;
+        } else if (step === 3) {
+          body = `
+            <div class="p-5 space-y-4">
+              <div>
+                <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">Step 3 of 4 · Cloud &amp; Local Storage</span>
+                <h3 class="text-base font-bold text-white mt-1">Connect Google Drive (Local or Online) &amp; Backup</h3>
+                <p class="text-xs text-slate-400">Connect your encrypted <code class="font-mono text-white">stackvault-db.json</code> file.</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="bg-vault-950 border border-emerald-500/40 rounded-xl p-3.5 space-y-2">
+                  <div class="text-xs font-bold text-emerald-300">💻 Option A: Local Google Drive Folder</div>
+                  <p class="text-[11px] text-slate-400">Bind directly to <code class="font-mono">G:\\My Drive\\stackvault-db.json</code> on your PC. Auto-saves every change.</p>
+                  <button type="button" onclick="window.app.bindDiskFile()" class="w-full py-1.5 rounded-lg bg-emerald-600 text-white keep-white text-xs font-semibold">🔗 Choose / Create File in Drive Folder</button>
+                </div>
+                <div class="bg-vault-950 border border-sky-500/40 rounded-xl p-3.5 space-y-2">
+                  <div class="text-xs font-bold text-sky-300">☁️ Option B: Online Drive API &amp; Backup</div>
+                  <p class="text-[11px] text-slate-400">Sign in via Google OAuth or download a local JSON backup right now.</p>
+                  <div class="flex gap-1.5">
+                    <button type="button" onclick="window.app.oauthDriveSignIn()" class="flex-1 py-1.5 rounded-lg bg-sky-600 text-white keep-white text-xs font-semibold">☁️ Google Sign-In</button>
+                    <button type="button" onclick="window.app.exportJson()" class="px-2.5 py-1.5 rounded-lg bg-vault-800 text-xs text-slate-200">⬇️ Backup</button>
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-between pt-1">
+                <button type="button" onclick="window.app.openOnboardingWizard(2)" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-300">← Back</button>
+                <button type="button" onclick="window.app.openOnboardingWizard(4)" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white keep-white">Next: Starter Workspace →</button>
+              </div>
+            </div>
+          `;
+        } else {
+          body = `
+            <div class="p-5 space-y-4">
+              <div>
+                <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">Step 4 of 4 · Ready to Launch</span>
+                <h3 class="text-base font-bold text-white mt-1">Choose Your Starting Workspace</h3>
+                <p class="text-xs text-slate-400">After finishing, an interactive spotlight tour will walk you through the interface.</p>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <button type="button" onclick="window.app.wizWorkspaceChoice='sample';window.app.openOnboardingWizard(4)" class="p-3 rounded-xl border text-left ${this.wizWorkspaceChoice === 'sample' ? 'bg-indigo-600/20 border-indigo-500' : 'bg-vault-950 border-vault-800'}">
+                  <div class="text-xs font-bold text-white">🚀 Starter Projects</div>
+                  <p class="text-[11px] text-slate-400 mt-1">Keep sample projects (Snappy, StringMaster, Renovator, NUC) to explore.</p>
+                </button>
+                <button type="button" onclick="window.app.wizWorkspaceChoice='empty';window.app.openOnboardingWizard(4)" class="p-3 rounded-xl border text-left ${this.wizWorkspaceChoice === 'empty' ? 'bg-indigo-600/20 border-indigo-500' : 'bg-vault-950 border-vault-800'}">
+                  <div class="text-xs font-bold text-amber-300">✨ Empty Workspace</div>
+                  <p class="text-[11px] text-slate-400 mt-1">Start fresh with a single clean project using your Google email.</p>
+                </button>
+                <label class="p-3 rounded-xl border bg-vault-950 border-vault-800 hover:border-emerald-500 cursor-pointer block">
+                  <div class="text-xs font-bold text-emerald-300">📂 Import Existing DB</div>
+                  <p class="text-[11px] text-slate-400 mt-1">Load an existing <code class="font-mono">stackvault-db.json</code> file.</p>
+                  <input type="file" accept=".json" class="hidden" onchange="window.app.importJsonFile(this)" />
+                </label>
+              </div>
+              <div class="flex justify-between pt-2">
+                <button type="button" onclick="window.app.openOnboardingWizard(3)" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-300">← Back</button>
+                <button type="button" onclick="window.app.finishOnboarding(true)" class="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white keep-white shadow-lg">Finish Setup &amp; Start Guided Tour 🚀</button>
+              </div>
+            </div>
+          `;
+        }
+        this.openModal(nav + body);
+      },
+
+      saveWizStep1() {
+        this.googleEmail = document.getElementById('wiz-email')?.value.trim() || '';
+        this.driveClientId = document.getElementById('wiz-cid')?.value.trim() || '';
+        localStorage.setItem('sv_google_email', this.googleEmail);
+        localStorage.setItem('sv_drive_client_id', this.driveClientId);
+        this.openOnboardingWizard(2);
+      },
+
+      saveKeyToPM() {
+        const k = document.getElementById('wiz-key')?.value.trim();
+        if (k) this.wizTempKey = k;
+        this.toast('🔐 Triggered browser Password Manager save!', 'emerald');
+      },
+
+      async saveWizStep2() {
+        const k = document.getElementById('wiz-key')?.value.trim() || this.wizTempKey;
+        if (!k || k.length < 6) return this.toast('Master Key must be at least 6 characters', 'rose');
+        this.wizTempKey = k;
+        await this.setOrRotateKey(k);
+        this.openOnboardingWizard(3);
+      },
+
+      async finishOnboarding(runTour) {
+        if (this.wizWorkspaceChoice === 'empty') {
+          const pid = 'p_' + Date.now();
+          const tid = 't_' + Date.now();
+          this.db.projects = [{
+            id: pid, name: 'My First App', subtitle: 'Production Stack',
+            tools: [{ id: tid, preset: 'vercel', name: 'Vercel', env: 'Prod', account: this.googleEmail || '', url: 'https://vercel.com', resourceId: '', usedFor: 'App Hosting', fields: [] }]
+          }];
+          this.activeTab = pid;
+          this.activeToolId = tid;
+        }
+        if (this.wizTempKey) await this.setOrRotateKey(this.wizTempKey);
+        localStorage.setItem('sv_onboarded', 'true');
+        this.closeModal();
+        this.render();
+        if (runTour) setTimeout(() => this.startTour(0), 150);
+      },
+
+      // INTERACTIVE GUIDED SPOTLIGHT TOUR
+      startTour(idx = 0) {
+        this.tourIdx = idx;
+        if (['matrix', 'accounts'].includes(this.activeTab) && this.db.projects[0]) {
+          this.selectTab(this.db.projects[0].id);
+        }
+        this.renderTourStep();
+      },
+
+      renderTourStep() {
+        document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+        const steps = [
+          { id: 'project-tabs', title: '1. Project Tabs & Global Matrix', body: 'Switch between your projects here, or click "📊 All Projects Matrix" and "👤 Accounts" to see which app uses which service and with which email account.' },
+          { id: 'tools-sidebar', title: '2. Project Tools Sidebar', body: 'Every tool used by the selected project (Vercel, Firebase, Turso, AI Studio, etc.) is listed here with its environment badge and account email. Click "+ Add Tool" anytime.' },
+          { id: 'main-editor', title: '3. Tool Details & AES-256 Encrypted Tokens', body: 'Manage the Account Used, Console URL, Resource ID, and dynamic secret fields. Click 📋 Copy or 📥 Paste on any field, or use "📥 Bulk Paste .env" to import an entire .env file.' },
+          { id: 'header-actions', title: '4. Vault Key, Google Drive Sync & Theme Toggle', body: 'Lock/Unlock your Master Key, Push/Pull your encrypted DB to Google Drive, export a Local Backup, re-run 🪄 Setup, or toggle Light/Dark Mode (☀️/🌙).' }
+        ];
+        if (this.tourIdx < 0 || this.tourIdx >= steps.length) return this.endTour();
+        const s = steps[this.tourIdx];
+        const target = document.getElementById(s.id);
+        if (target) target.classList.add('tour-highlight');
+        document.getElementById('tour-badge').textContent = `Guided Tour · Step ${this.tourIdx + 1} of ${steps.length}`;
+        document.getElementById('tour-title').textContent = s.title;
+        document.getElementById('tour-body').textContent = s.body;
+        document.getElementById('tour-prev').style.visibility = this.tourIdx === 0 ? 'hidden' : 'visible';
+        document.getElementById('tour-next').textContent = this.tourIdx === steps.length - 1 ? 'Finish ✓' : 'Next →';
+        document.getElementById('tour-card').classList.remove('hidden');
+      },
+
+      stepTour(delta) {
+        this.tourIdx += delta;
+        this.renderTourStep();
+      },
+
+      endTour() {
+        document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+        document.getElementById('tour-card')?.classList.add('hidden');
+      }
+    });
+
+    // Boot application immediately
+    window.app.init();
+  </script>
+</body>
+</html>
