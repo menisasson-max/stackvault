@@ -3,23 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>StackVault</title>
+  <title>StackVault - Token Tracker</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'><path d='M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm8 13H5v-8h14v8z'/></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script>
-    tailwind.config = { darkMode: 'class' }
-  </script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
   <style>
-    :root { color-scheme: light dark; }
-    body { @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200; }
+    body { @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100; }
     .btn { @apply px-3 py-1.5 rounded-md font-medium text-sm transition-colors; }
     .btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white; }
     .btn-secondary { @apply bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700; }
-    .input { @apply w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none; }
+    .input { @apply w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md outline-none; }
   </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden font-sans">
+<body class="flex flex-col h-screen overflow-hidden">
   
   <!-- Header -->
   <header class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10">
@@ -29,7 +26,6 @@
       </div>
       <div>
         <h1 class="font-bold text-lg leading-none">StackVault</h1>
-        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Zero-Knowledge Token Tracker</span>
       </div>
     </div>
     
@@ -43,28 +39,33 @@
   <!-- Main Layout -->
   <div class="flex flex-1 overflow-hidden">
     <!-- Sidebar -->
-    <aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col">
-      <div class="p-4 border-b border-slate-200 dark:border-slate-800">
-        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Projects</h2>
-        <ul id="projectList" class="space-y-1"></ul>
-      </div>
+    <aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col p-4">
+      <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Projects</h2>
+      <ul id="projectList" class="space-y-1"></ul>
     </aside>
 
     <!-- Content -->
     <main class="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-950" id="mainContent">
-      <div class="max-w-3xl mx-auto text-center mt-20" id="welcomeScreen">
+      <div id="workspace" class="hidden max-w-4xl mx-auto space-y-6">
+        <div class="flex justify-between items-center">
+          <h2 id="currentProjectTitle" class="text-2xl font-bold"></h2>
+          <button onclick="window.app.addToolModal()" class="btn btn-secondary">+ Add Tool</button>
+        </div>
+        <div id="toolsList" class="space-y-6"></div>
+      </div>
+      
+      <div id="welcomeScreen" class="max-w-3xl mx-auto text-center mt-20">
         <h2 class="text-2xl font-bold mb-4">Welcome to StackVault</h2>
-        <p class="text-slate-500 mb-6">Your encrypted, local-first stack and token manager.</p>
-        <button onclick="window.app.initOnboarding()" class="btn btn-primary text-lg px-6 py-3">🪄 Start Setup Wizard</button>
+        <p class="text-slate-500 mb-6">Create a project or select one from the sidebar.</p>
       </div>
     </main>
   </div>
 
-  <!-- Setup Wizard Modal -->
+  <!-- Modal -->
   <div id="modalOverlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden">
       <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
-        <h3 id="modalTitle" class="font-bold">Setup Wizard</h3>
+        <h3 id="modalTitle" class="font-bold"></h3>
         <button onclick="window.app.closeModal()" class="text-slate-400 hover:text-white">&times;</button>
       </div>
       <div id="modalBody" class="p-6"></div>
@@ -73,18 +74,18 @@
 
   <script>
     const app = {
-      // Your Hardcoded Client ID
+      // Your Hardcoded Google Client ID
       CLIENT_ID: "960610723494-m518prusem5tfqkg9n3rh5s9guo5u018.apps.googleusercontent.com",
       
       state: {
         theme: localStorage.getItem('sv_theme') || 'dark',
-        user: null,
-        projects: JSON.parse(localStorage.getItem('sv_projects')) || []
+        projects: JSON.parse(localStorage.getItem('sv_projects')) || [],
+        activeProjectId: null
       },
 
       init() {
         this.applyTheme();
-        this.renderProjects();
+        this.renderSidebar();
         this.initGoogleIdentityBtn();
       },
 
@@ -102,45 +103,74 @@
         if (!window.google) return setTimeout(() => this.initGoogleIdentityBtn(), 100);
         google.accounts.id.initialize({
           client_id: this.CLIENT_ID,
-          callback: this.handleCredentialResponse.bind(this)
+          callback: (res) => {
+            const payload = JSON.parse(atob(res.credential.split('.')[1]));
+            document.getElementById("gSignInBtn").innerHTML = `<div class="px-3 py-1.5 bg-slate-800 rounded-md text-sm text-emerald-400">✓ ${payload.email}</div>`;
+          }
         });
-        google.accounts.id.renderButton(
-          document.getElementById("gSignInBtn"),
-          { theme: this.state.theme === 'dark' ? "filled_black" : "outline", size: "medium" }
-        );
+        google.accounts.id.renderButton(document.getElementById("gSignInBtn"), { theme: this.state.theme === 'dark' ? "filled_black" : "outline", size: "medium" });
       },
 
-      handleCredentialResponse(response) {
-        const payload = JSON.parse(atob(response.credential.split('.')[1]));
-        this.state.user = { email: payload.email, name: payload.name };
-        document.getElementById("gSignInBtn").innerHTML = `<div class="px-3 py-1.5 bg-slate-800 rounded-md text-sm text-emerald-400 flex items-center gap-2">✓ ${payload.email}</div>`;
-      },
-
-      renderProjects() {
+      renderSidebar() {
         const list = document.getElementById('projectList');
-        if (this.state.projects.length === 0) {
-          list.innerHTML = `<li class="text-sm text-slate-500 py-2">No projects yet.</li>`;
-          return;
-        }
         list.innerHTML = this.state.projects.map(p => `
           <li>
-            <button class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 text-sm font-medium transition-colors">
+            <button onclick="window.app.openProject('${p.id}')" class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 text-sm font-medium ${this.state.activeProjectId === p.id ? 'bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-700' : ''}">
               ${p.name}
             </button>
           </li>
-        `).join('');
+        `).join('') || `<li class="text-sm text-slate-500">No projects yet.</li>`;
+      },
+
+      openProject(id) {
+        this.state.activeProjectId = id;
+        this.renderSidebar();
+        document.getElementById('welcomeScreen').classList.add('hidden');
+        document.getElementById('workspace').classList.remove('hidden');
+        this.renderWorkspace();
+      },
+
+      renderWorkspace() {
+        const project = this.state.projects.find(p => p.id === this.state.activeProjectId);
+        document.getElementById('currentProjectTitle').innerText = project.name;
+        
+        document.getElementById('toolsList').innerHTML = project.tools.map((t, idx) => `
+          <div class="p-5 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-900/50">
+            <h3 class="font-bold text-lg mb-4 text-indigo-400">${t.name}</h3>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Account</label>
+                <input type="text" value="${t.account || ''}" onchange="window.app.updateTool(${idx}, 'account', this.value)" class="input text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Resource ID</label>
+                <input type="text" value="${t.resourceId || ''}" onchange="window.app.updateTool(${idx}, 'resourceId', this.value)" class="input text-sm">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-500 mb-1">Secret / Token</label>
+              <div class="flex gap-2">
+                <input type="password" value="${t.secret || ''}" onchange="window.app.updateTool(${idx}, 'secret', this.value)" class="input text-sm font-mono">
+                <button onclick="this.previousElementSibling.type = this.previousElementSibling.type === 'password' ? 'text' : 'password'" class="btn btn-secondary">👁</button>
+              </div>
+            </div>
+          </div>
+        `).join('') || `<p class="text-slate-500 text-sm">No tools added to this project yet.</p>`;
+      },
+
+      updateTool(toolIdx, field, value) {
+        const project = this.state.projects.find(p => p.id === this.state.activeProjectId);
+        project.tools[toolIdx][field] = value;
+        this.saveData();
       },
 
       openProjectModal() {
         this.openModal("Create New Project", `
           <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-1">Project Name</label>
-              <input type="text" id="newProjectName" class="input" placeholder="e.g. SaaS Web Platform">
-            </div>
+            <input type="text" id="newProjectName" class="input" placeholder="e.g. SaaS Web Platform">
             <div class="flex justify-end gap-2 pt-4">
               <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
-              <button onclick="window.app.saveProject()" class="btn btn-primary">Save Project</button>
+              <button onclick="window.app.saveProject()" class="btn btn-primary">Save</button>
             </div>
           </div>
         `);
@@ -148,23 +178,41 @@
 
       saveProject() {
         const name = document.getElementById('newProjectName').value.trim();
-        if (!name) return;
-        this.state.projects.push({ id: Date.now().toString(), name, tools: [] });
-        localStorage.setItem('sv_projects', JSON.stringify(this.state.projects));
-        this.renderProjects();
-        this.closeModal();
+        if (name) {
+          const newId = Date.now().toString();
+          this.state.projects.push({ id: newId, name, tools: [] });
+          this.saveData();
+          this.openProject(newId);
+          this.closeModal();
+        }
       },
 
-      initOnboarding() {
-        this.openModal("Step 1: Google Account & Drive", `
-          <div class="space-y-4 text-sm text-slate-300">
-            <p>Your app is already configured with your OAuth Client ID.</p>
-            <p>Please use the <strong>Sign In</strong> button in the top right header to connect your account and establish a zero-knowledge connection to your Google Drive.</p>
-            <div class="flex justify-end pt-4">
-              <button onclick="window.app.closeModal()" class="btn btn-primary">Got it</button>
+      addToolModal() {
+        this.openModal("Add Tool to Project", `
+          <div class="space-y-4">
+            <input type="text" id="newToolName" class="input" placeholder="e.g. Vercel Production">
+            <div class="flex justify-end gap-2 pt-4">
+              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
+              <button onclick="window.app.saveTool()" class="btn btn-primary">Add Tool</button>
             </div>
           </div>
         `);
+      },
+
+      saveTool() {
+        const name = document.getElementById('newToolName').value.trim();
+        if (name && this.state.activeProjectId) {
+          const project = this.state.projects.find(p => p.id === this.state.activeProjectId);
+          project.tools.push({ name, account: '', resourceId: '', secret: '' });
+          this.saveData();
+          this.renderWorkspace();
+          this.closeModal();
+        }
+      },
+
+      saveData() {
+        localStorage.setItem('sv_projects', JSON.stringify(this.state.projects));
+        this.renderSidebar();
       },
 
       openModal(title, html) {
@@ -173,9 +221,7 @@
         document.getElementById('modalOverlay').classList.replace('hidden', 'flex');
       },
 
-      closeModal() {
-        document.getElementById('modalOverlay').classList.replace('flex', 'hidden');
-      }
+      closeModal() { document.getElementById('modalOverlay').classList.replace('flex', 'hidden'); }
     };
 
     window.app = app;
