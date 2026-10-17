@@ -1,647 +1,185 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StackVault — Multi-User Encrypted Dev Stack Tracker</title>
-  
-  <!-- Lock Favicon -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230b0f19'/%3E%3Cpath d='M22 28V20a10 10 0 0 1 20 0v8' fill='none' stroke='%23818cf8' stroke-width='5' stroke-linecap='round'/%3E%3Crect x='16' y='28' width='32' height='24' rx='6' fill='%236366f1'/%3E%3Ccircle cx='32' cy='38' r='3' fill='%23ffffff'/%3E%3Cpath d='M32 41v5' stroke='%23ffffff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
-  
-  <!-- Tailwind & Google Identity Services -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StackVault</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2310b981'><path d='M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm8 13H5v-8h14v8z'/></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
-          colors: { vault: { 950: 'var(--v-950)', 900: 'var(--v-900)', 800: 'var(--v-800)', 700: 'var(--v-700)' } }
-        }
-      }
-    };
+    tailwind.config = { darkMode: 'class' }
   </script>
   <style>
-    :root { --v-950: #090b10; --v-900: #11151f; --v-800: #1c2230; --v-700: #2a3346; }
-    html.light-mode { --v-950: #f1f5f9; --v-900: #ffffff; --v-800: #e2e8f0; --v-700: #cbd5e1; }
-    html.light-mode body { color: #0f172a; }
-    html.light-mode .text-white { color: #0f172a !important; }
-    html.light-mode .keep-white, html.light-mode button.bg-indigo-600, html.light-mode button.bg-emerald-600, html.light-mode button.bg-sky-600, html.light-mode button.bg-rose-600 { color: #ffffff !important; }
-    html.light-mode .text-slate-200, html.light-mode .text-slate-300 { color: #334155 !important; }
-    html.light-mode .text-slate-400 { color: #475569 !important; }
-    html.light-mode .text-indigo-300 { color: #4338ca !important; }
-    html.light-mode .text-emerald-300 { color: #047857 !important; }
-    html.light-mode .text-amber-300 { color: #b45309 !important; }
-    html.light-mode .text-sky-300 { color: #0369a1 !important; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .tour-highlight { position: relative; z-index: 45 !important; box-shadow: 0 0 0 3px #6366f1, 0 0 0 9999px rgba(5, 8, 15, 0.72) !important; border-radius: 10px; }
+    :root { color-scheme: light dark; }
+    body { @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200; }
+    .btn { @apply px-3 py-1.5 rounded-md font-medium text-sm transition-colors; }
+    .btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white; }
+    .btn-secondary { @apply bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700; }
+    .input { @apply w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none; }
   </style>
 </head>
-<body class="bg-vault-950 text-slate-100 font-sans h-screen flex flex-col overflow-hidden select-none">
-
-  <!-- TOP HEADER -->
-  <header class="bg-vault-900 border-b border-vault-700 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shrink-0 z-30">
-    <div class="flex items-center gap-3 flex-1 min-w-[250px]">
-      <div class="flex items-center gap-2.5 cursor-pointer" onclick="window.app.selectTab('matrix')">
-        <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
-          <svg class="w-4 h-4 text-white keep-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
-        </div>
-        <div>
-          <div class="flex items-center gap-1.5">
-            <span class="font-bold text-sm tracking-tight text-white">StackVault</span>
-            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">ZERO-KNOWLEDGE</span>
-          </div>
-          <p class="text-[10px] text-slate-400 hidden sm:block">Multi-User Encrypted Stack &amp; Token Tracker</p>
-        </div>
+<body class="flex flex-col h-screen overflow-hidden font-sans">
+  
+  <!-- Header -->
+  <header class="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-10">
+    <div class="flex items-center gap-3">
+      <div class="text-emerald-500">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C9.243 2 7 4.243 7 7v3H6c-1.103 0-2 .897-2 2v8c0 1.103.897 2 2 2h12c1.103 0 2-.897 2-2v-8c0-1.103-.897-2-2-2h-1V7c0-2.757-2.243-5-5-5zm-3 5c0-1.654 1.346-3 3-3s3 1.346 3 3v3H9V7zm8 13H5v-8h14v8z"/></svg>
       </div>
-      <div class="relative flex-1 max-w-xs ml-1">
-        <input id="global-search" type="text" placeholder="Search (Ctrl+K)..." class="w-full bg-vault-950 border border-vault-700 focus:border-indigo-500 rounded-lg pl-3 pr-12 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none" oninput="window.app.renderSearchDropdown(this.value)" onfocus="window.app.renderSearchDropdown(this.value)" />
-        <kbd class="hidden sm:inline-block absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-mono text-slate-400 bg-vault-800 px-1.5 py-0.5 rounded">Ctrl+K</kbd>
-        <div id="search-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-vault-900 border border-vault-700 rounded-xl shadow-2xl max-h-80 overflow-y-auto z-50 divide-y divide-vault-800"></div>
+      <div>
+        <h1 class="font-bold text-lg leading-none">StackVault</h1>
+        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Zero-Knowledge Token Tracker</span>
       </div>
     </div>
-    <div id="header-actions" class="flex items-center gap-1.5 flex-wrap">
-      <button id="user-pill" type="button" onclick="window.app.openOnboardingWizard(1)" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-vault-950 border border-vault-700 text-slate-200 hover:bg-vault-800 flex items-center gap-1.5"></button>
-      <button id="vault-btn" type="button" onclick="window.app.openKeyModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium border transition flex items-center gap-1.5"></button>
-      <div class="flex items-center bg-vault-950 border border-vault-700 rounded-lg p-0.5">
-        <button type="button" onclick="window.app.openDriveModal()" class="flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium text-slate-300 hover:bg-vault-800"><span id="drive-dot" class="w-2 h-2 rounded-full bg-amber-400"></span><span>GDrive</span></button>
-        <button type="button" onclick="window.app.pullDrive()" class="px-2 py-1 text-[11px] font-mono text-slate-300 hover:text-sky-300 border-l border-vault-800">↓ Pull</button>
-        <button type="button" onclick="window.app.pushDrive()" class="px-2 py-1 text-[11px] font-mono text-slate-300 hover:text-emerald-300 border-l border-vault-800">↑ Push</button>
-      </div>
-      <button type="button" onclick="window.app.openBackupModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-vault-950 border border-vault-700 text-slate-300 hover:bg-vault-800">💾 <span id="backup-label" class="hidden xl:inline">Backup</span></button>
-      <button type="button" onclick="window.app.openShareModal()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25">🚀 Share</button>
-      <button type="button" onclick="window.app.openOnboardingWizard(1)" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/25">🪄 Setup</button>
-      <button type="button" onclick="window.app.startTour(0)" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-vault-950 border border-vault-700 text-slate-300 hover:bg-vault-800">🎯 Tour</button>
-      <button id="theme-btn" type="button" onclick="window.app.toggleTheme()" class="p-1.5 rounded-lg bg-vault-950 border border-vault-700 text-slate-300 hover:bg-vault-800">☀️</button>
+    
+    <div class="flex items-center gap-3">
+      <div id="gSignInBtn" class="h-10"></div>
+      <button onclick="window.app.toggleTheme()" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800">☀️/🌙</button>
+      <button onclick="window.app.openProjectModal()" class="btn btn-primary">+ New Project</button>
     </div>
   </header>
 
-  <!-- TABS BAR -->
-  <nav id="project-tabs" class="bg-vault-900 border-b border-vault-700 px-4 flex items-center justify-between gap-2 shrink-0 z-20">
-    <div id="tabs-list" class="flex items-center gap-1 overflow-x-auto no-scrollbar py-1.5"></div>
-    <button type="button" onclick="window.app.openProjectModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white keep-white shrink-0">+ New Project</button>
-  </nav>
-
-  <!-- WORKSPACE -->
-  <div class="flex-1 flex overflow-hidden">
-    <aside id="tools-sidebar" class="w-72 bg-vault-900/70 border-r border-vault-700 flex flex-col shrink-0">
-      <div id="sidebar-header" class="p-3 border-b border-vault-800 flex items-center justify-between"></div>
-      <div class="px-3 pt-2.5 pb-1 flex items-center justify-between">
-        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Project Tools</span>
-        <button type="button" onclick="window.app.openAddToolModal()" class="text-xs font-medium text-indigo-300 hover:underline px-2 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20">+ Add Tool</button>
-      </div>
-      <div id="sidebar-tools" class="flex-1 overflow-y-auto p-2.5 space-y-1.5"></div>
-      <div class="p-2.5 border-t border-vault-800 bg-vault-950/50 flex items-center gap-1.5">
-        <button type="button" onclick="window.app.copyProjectEnv()" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-mono bg-vault-800 hover:bg-vault-700 text-slate-200 border border-vault-700">📤 Copy Project .env</button>
-        <button type="button" onclick="window.app.openProjectModal(true)" class="p-1.5 rounded-lg bg-vault-800 hover:bg-vault-700 text-slate-300 border border-vault-700">⚙️</button>
+  <!-- Main Layout -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col">
+      <div class="p-4 border-b border-slate-200 dark:border-slate-800">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Projects</h2>
+        <ul id="projectList" class="space-y-1"></ul>
       </div>
     </aside>
-    <main id="main-editor" class="flex-1 overflow-y-auto bg-vault-950 p-4 md:p-6 select-text"></main>
+
+    <!-- Content -->
+    <main class="flex-1 overflow-y-auto p-6 bg-white dark:bg-slate-950" id="mainContent">
+      <div class="max-w-3xl mx-auto text-center mt-20" id="welcomeScreen">
+        <h2 class="text-2xl font-bold mb-4">Welcome to StackVault</h2>
+        <p class="text-slate-500 mb-6">Your encrypted, local-first stack and token manager.</p>
+        <button onclick="window.app.initOnboarding()" class="btn btn-primary text-lg px-6 py-3">🪄 Start Setup Wizard</button>
+      </div>
+    </main>
   </div>
 
-  <datalist id="accounts-datalist"></datalist>
-
-  <!-- MODALS -->
-  <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-40 flex items-center justify-center p-4 overflow-y-auto">
-    <div id="modal-root" class="bg-vault-900 border border-vault-700 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden my-8 select-text"></div>
-  </div>
-
-  <!-- TOUR -->
-  <div id="tour-card" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg px-4">
-    <div class="bg-vault-900 border-2 border-indigo-500 rounded-2xl shadow-2xl p-4">
-      <div class="flex items-center justify-between mb-1.5">
-        <span id="tour-badge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">Tour</span>
-        <button type="button" onclick="window.app.endTour()" class="text-xs text-slate-400 hover:text-white">Skip ✕</button>
+  <!-- Setup Wizard Modal -->
+  <div id="modalOverlay" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+      <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+        <h3 id="modalTitle" class="font-bold">Setup Wizard</h3>
+        <button onclick="window.app.closeModal()" class="text-slate-400 hover:text-white">&times;</button>
       </div>
-      <h4 id="tour-title" class="text-sm font-bold text-white mb-1"></h4>
-      <p id="tour-body" class="text-xs text-slate-300 leading-relaxed mb-3"></p>
-      <div class="flex items-center justify-between">
-        <button id="tour-prev" type="button" onclick="window.app.stepTour(-1)" class="px-3 py-1.5 rounded-lg text-xs bg-vault-800 text-slate-300">← Back</button>
-        <button id="tour-next" type="button" onclick="window.app.stepTour(1)" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 text-white keep-white">Next →</button>
-      </div>
+      <div id="modalBody" class="p-6"></div>
     </div>
   </div>
 
-  <div id="toast-root" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
-  <iframe name="pm-frame" class="hidden"></iframe>
-  <textarea id="clip-helper" class="fixed -top-96 -left-96 opacity-0 pointer-events-none" readonly></textarea>
-
   <script>
-    const app = {};
-    window.app = app;
-
-    // Optional: Pre-fill your Google OAuth 2.0 Web Client ID here.
-    const DEFAULT_GOOGLE_CLIENT_ID = "960610723494-m518prusem5tfqkg9n3rh5s9guo5u018.apps.googleusercontent.com";
-    const DEMO_KEY = 'svk_demo_master_key_2026';
-
-    const PRESETS = {
-      vercel: { name: 'Vercel', badge: '▲ Vercel', url: 'https://vercel.com/dashboard', color: 'bg-zinc-800 text-zinc-100 border-zinc-600' },
-      firebase: { name: 'Firebase', badge: '🔥 Firebase', url: 'https://console.firebase.google.com/', color: 'bg-amber-500/15 text-amber-300 border-amber-500/30' },
-      turso: { name: 'Turso (libSQL)', badge: '🐢 Turso', url: 'https://app.turso.tech/', color: 'bg-teal-500/15 text-teal-300 border-teal-500/30' },
-      aistudio: { name: 'Google AI Studio', badge: '✨ AI Studio', url: 'https://aistudio.google.com/app/apikey', color: 'bg-blue-500/15 text-blue-300 border-blue-500/30' },
-      github: { name: 'GitHub', badge: '🐙 GitHub', url: 'https://github.com/', color: 'bg-purple-500/15 text-purple-300 border-purple-500/30' },
-      gcp: { name: 'Google Cloud', badge: '☁️ GCP', url: 'https://console.cloud.google.com/', color: 'bg-sky-500/15 text-sky-300 border-sky-500/30' },
-      cloudflare: { name: 'Cloudflare', badge: '⚡ Cloudflare', url: 'https://dash.cloudflare.com/', color: 'bg-orange-500/15 text-orange-300 border-orange-500/30' },
-      supabase: { name: 'Supabase', badge: '⚡ Supabase', url: 'https://supabase.com/dashboard', color: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
-      custom: { name: 'Custom Service', badge: '🔧 Custom', url: 'https://', color: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30' }
-    };
-
-    const CryptoVault = {
-      PREFIX: 'enc:gcm:',
-      isEnc(v) { return typeof v === 'string' && v.startsWith(this.PREFIX); },
-      toB64(buf) { return btoa(String.fromCharCode(...new Uint8Array(buf))); },
-      fromB64(b64) { return Uint8Array.from(atob(b64), c => c.charCodeAt(0)); },
-      async getKey(secret, salt) {
-        const raw = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), 'PBKDF2', false, ['deriveKey']);
-        return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    const app = {
+      // Your Hardcoded Client ID
+      CLIENT_ID: "960610723494-m518prusem5tfqkg9n3rh5s9guo5u018.apps.googleusercontent.com",
+      
+      state: {
+        theme: localStorage.getItem('sv_theme') || 'dark',
+        user: null,
+        projects: JSON.parse(localStorage.getItem('sv_projects')) || []
       },
-      async encrypt(plain, secret) {
-        if (!plain || this.isEnc(plain)) return plain || '';
-        const salt = crypto.getRandomValues(new Uint8Array(16));
-        const iv = crypto.getRandomValues(new Uint8Array(12));
-        const key = await this.getKey(secret, salt);
-        const buf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plain));
-        return this.PREFIX + this.toB64(salt) + ':' + this.toB64(iv) + ':' + this.toB64(buf);
+
+      init() {
+        this.applyTheme();
+        this.renderProjects();
+        this.initGoogleIdentityBtn();
       },
-      async decrypt(cipher, secret) {
-        if (!cipher || !this.isEnc(cipher)) return cipher || '';
-        const [sB64, ivB64, cB64] = cipher.slice(this.PREFIX.length).split(':');
-        const key = await this.getKey(secret, this.fromB64(sB64));
-        const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: this.fromB64(ivB64) }, key, this.fromB64(cB64));
-        return new TextDecoder().decode(plainBuf);
+
+      applyTheme() {
+        document.documentElement.className = this.state.theme;
+        localStorage.setItem('sv_theme', this.state.theme);
       },
-      randomKey() {
-        const arr = crypto.getRandomValues(new Uint8Array(18));
-        return 'svk_' + Array.from(arr, b => b.toString(16).padStart(2, '0')).join('');
-      }
-    };
 
-    function getSeedData(defaultEmail = 'dev@example.com') {
-      return {
-        version: '3.0',
-        updatedAt: new Date().toISOString(),
-        verifyToken: '',
-        projects: [
-          {
-            id: 'p_saas', name: 'SaaS Web Platform', subtitle: 'Next.js + Turso + Vercel',
-            tools: [
-              { id: 't_saas_vc', preset: 'vercel', name: 'Vercel Production', env: 'Prod', account: defaultEmail, url: 'https://vercel.com/dashboard', resourceId: 'prj_saas_web', usedFor: 'Frontend deploy', fields: [{ id: 'f1', key: 'VERCEL_TOKEN', type: 'secret', value: 'demo_token_123', encrypted: false }] },
-              { id: 't_saas_tr', preset: 'turso', name: 'Turso SQLite', env: 'Prod', account: defaultEmail, url: 'https://app.turso.tech/', resourceId: 'db-prod', usedFor: 'Primary DB', fields: [{ id: 'f2', key: 'TURSO_URL', type: 'url', value: 'libsql://demo.turso.io', encrypted: false }] }
-            ]
-          },
-          {
-            id: 'p_mob', name: 'AI Microservice', subtitle: 'Cloud Run + Gemini',
-            tools: [
-              { id: 't_mob_gcp', preset: 'gcp', name: 'Google Cloud Run', env: 'Prod', account: defaultEmail, url: 'https://console.cloud.google.com/', resourceId: 'ai-api-service', usedFor: 'Docker container', fields: [] },
-              { id: 't_mob_ai', preset: 'aistudio', name: 'Google AI Studio', env: 'Prod', account: defaultEmail, url: 'https://aistudio.google.com/app/apikey', resourceId: 'gemini-key', usedFor: 'Inference', fields: [{ id: 'f3', key: 'GEMINI_API_KEY', type: 'secret', value: 'AIzaSyDemoKey', encrypted: false }] }
-            ]
-          }
-        ]
-      };
-    }
+      toggleTheme() {
+        this.state.theme = this.state.theme === 'dark' ? 'light' : 'dark';
+        this.applyTheme();
+      },
 
-    Object.assign(app, {
-      db: null,
-      activeTab: 'p_saas',
-      activeToolId: 't_saas_vc',
-      masterKey: sessionStorage.getItem('sv_master_key') || DEMO_KEY,
-      cache: {},
-      revealed: new Set(),
-      theme: localStorage.getItem('sv_theme') || 'dark',
-      googleEmail: localStorage.getItem('sv_google_email') || '',
-      googleName: localStorage.getItem('sv_google_name') || '',
-      googleAvatar: localStorage.getItem('sv_google_avatar') || '',
-      driveClientId: localStorage.getItem('sv_drive_client_id') || DEFAULT_GOOGLE_CLIENT_ID || '',
-      driveFileId: localStorage.getItem('sv_drive_file_id') || '',
-      driveToken: null,
-      localHandle: null,
-      localFileName: '',
-      wizStep: 1,
-      wizTempKey: '',
-      wizWorkspaceChoice: 'sample',
-      tourIdx: 0,
-
-      esc(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); },
-
-      async init() {
-        this.applyTheme(this.theme);
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('cid')) { this.driveClientId = params.get('cid'); localStorage.setItem('sv_drive_client_id', this.driveClientId); }
-
-        const raw = localStorage.getItem('stackvault_db_v3');
-        if (raw) { try { this.db = JSON.parse(raw); } catch (e) { this.db = null; } }
-        if (!this.db || !Array.isArray(this.db.projects)) {
-          this.db = getSeedData(this.googleEmail || 'dev@example.com');
-          await this.encryptPlainSecrets(this.masterKey);
-          this.db.verifyToken = await CryptoVault.encrypt('SV_OK', this.masterKey);
-          this.saveDb(false);
-        } else if (this.db.verifyToken) {
-          try { const check = await CryptoVault.decrypt(this.db.verifyToken, this.masterKey); if (check !== 'SV_OK') this.masterKey = null; }
-          catch (e) { this.masterKey = null; }
-        }
-
-        if (this.masterKey) await this.decryptAllToCache();
-        if (this.db.projects.length && !['matrix', 'accounts'].includes(this.activeTab)) {
-          const p = this.getProject() || this.db.projects[0];
-          this.activeTab = p.id;
-          this.activeToolId = p.tools[0]?.id || null;
-        }
-
-        window.addEventListener('keydown', e => {
-          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); document.getElementById('global-search')?.focus(); }
-          if (e.key === 'Escape') { this.closeModal(); document.getElementById('search-dropdown')?.classList.add('hidden'); }
+      initGoogleIdentityBtn() {
+        if (!window.google) return setTimeout(() => this.initGoogleIdentityBtn(), 100);
+        google.accounts.id.initialize({
+          client_id: this.CLIENT_ID,
+          callback: this.handleCredentialResponse.bind(this)
         });
-
-        this.render();
-        if (!localStorage.getItem('sv_onboarded_v3')) setTimeout(() => this.openOnboardingWizard(1), 100);
+        google.accounts.id.renderButton(
+          document.getElementById("gSignInBtn"),
+          { theme: this.state.theme === 'dark' ? "filled_black" : "outline", size: "medium" }
+        );
       },
 
-      applyTheme(mode) {
-        this.theme = mode === 'light' ? 'light' : 'dark';
-        localStorage.setItem('sv_theme', this.theme);
-        document.documentElement.classList.toggle('light-mode', this.theme === 'light');
-        const btn = document.getElementById('theme-btn');
-        if (btn) btn.textContent = this.theme === 'light' ? '🌙' : '☀️';
-      },
-      toggleTheme() { this.applyTheme(this.theme === 'dark' ? 'light' : 'dark'); },
-
-      toast(msg, tone = 'indigo') {
-        const root = document.getElementById('toast-root');
-        if (!root) return;
-        const colors = { indigo: 'border-indigo-500 bg-vault-900 text-indigo-200', emerald: 'border-emerald-500 bg-vault-900 text-emerald-200', rose: 'border-rose-500 bg-vault-900 text-rose-200', amber: 'border-amber-500 bg-vault-900 text-amber-200' };
-        const el = document.createElement('div');
-        el.className = `px-3.5 py-2 rounded-xl border-l-4 shadow-xl text-xs font-medium transition ${colors[tone] || colors.indigo}`;
-        el.textContent = msg;
-        root.appendChild(el);
-        setTimeout(() => el.remove(), 3000);
+      handleCredentialResponse(response) {
+        const payload = JSON.parse(atob(response.credential.split('.')[1]));
+        this.state.user = { email: payload.email, name: payload.name };
+        document.getElementById("gSignInBtn").innerHTML = `<div class="px-3 py-1.5 bg-slate-800 rounded-md text-sm text-emerald-400 flex items-center gap-2">✓ ${payload.email}</div>`;
       },
 
-      copyText(val, label = 'Copied') {
-        if (!val) return;
-        const helper = document.getElementById('clip-helper');
-        helper.value = val; helper.select(); document.execCommand('copy');
-        if (navigator.clipboard) navigator.clipboard.writeText(val).catch(() => {});
-        this.toast('📋 ' + label, 'emerald');
-      },
-
-      // GOOGLE SIGN IN & DRIVE OAUTH
-      handleGoogleCredentialResponse(response) {
-        try {
-          // Decode JWT payload safely
-          const base64Url = response.credential.split('.')[1];
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-          const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-              return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
-          const payload = JSON.parse(jsonPayload);
-          
-          this.googleEmail = payload.email;
-          this.googleName = payload.name;
-          this.googleAvatar = payload.picture;
-          localStorage.setItem('sv_google_email', this.googleEmail);
-          localStorage.setItem('sv_google_name', this.googleName);
-          localStorage.setItem('sv_google_avatar', this.googleAvatar);
-          
-          this.toast(`✅ Signed in as ${this.googleEmail}`, 'emerald');
-          this.renderHeaderStatus();
-          
-          // Auto-advance to next step in wizard if open
-          if (document.getElementById('wiz-cid')) {
-            this.openOnboardingWizard(2);
-          }
-        } catch(e) {
-          this.toast('Failed to parse Google Sign-In response', 'rose');
-        }
-      },
-
-      renderGoogleSignInButton() {
-        const container = document.getElementById('google-signin-btn-container');
-        const cid = document.getElementById('wiz-cid')?.value.trim();
-        
-        if (!container) return;
-        if (!cid) {
-          container.innerHTML = `<div class="text-xs text-amber-300 p-2 border border-amber-500/30 rounded bg-amber-500/10">Please enter a Google OAuth Client ID first.</div>`;
+      renderProjects() {
+        const list = document.getElementById('projectList');
+        if (this.state.projects.length === 0) {
+          list.innerHTML = `<li class="text-sm text-slate-500 py-2">No projects yet.</li>`;
           return;
         }
-
-        if (window.google?.accounts?.id) {
-          google.accounts.id.initialize({
-            client_id: cid,
-            callback: this.handleGoogleCredentialResponse.bind(this)
-          });
-          google.accounts.id.renderButton(
-            container,
-            { theme: this.theme === 'light' ? "outline" : "filled_blue", size: "large", shape: "rectangular", width: 280 }
-          );
-        } else {
-          container.innerHTML = `<div class="text-xs text-rose-300">Google Identity Services script not loaded.</div>`;
-        }
-      },
-
-      authorizeDriveForSync(callback) {
-        const cid = document.getElementById('drv-cid')?.value.trim() || this.driveClientId;
-        if (!cid) return this.toast('Client ID missing', 'rose');
-        this.driveClientId = cid;
-        localStorage.setItem('sv_drive_client_id', cid);
-
-        if (!window.google?.accounts?.oauth2) return this.toast('OAuth script not ready', 'rose');
-        const client = google.accounts.oauth2.initTokenClient({
-          client_id: this.driveClientId,
-          scope: 'https://www.googleapis.com/auth/drive.file',
-          hint: this.googleEmail || undefined,
-          callback: async (resp) => {
-            if (resp.error) return this.toast('Drive auth failed', 'rose');
-            this.driveToken = resp.access_token;
-            await this.findExistingDriveDb();
-            this.renderHeaderStatus();
-            this.toast('✅ Google Drive Connected', 'emerald');
-            if (callback) callback();
-            else this.render();
-          }
-        });
-        client.requestAccessToken();
-      },
-
-      async findExistingDriveDb() {
-        if (!this.driveToken) return;
-        try {
-          const q = encodeURIComponent("name = 'stackvault-db.json' and trashed = false");
-          const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)&pageSize=1`, { headers: { Authorization: `Bearer ${this.driveToken}` } });
-          const data = await res.json();
-          if (data.files && data.files.length > 0) {
-            this.driveFileId = data.files[0].id;
-            localStorage.setItem('sv_drive_file_id', this.driveFileId);
-            this.toast('☁️ Found stackvault-db.json in Drive!', 'indigo');
-          }
-        } catch (e) {}
-      },
-
-      // CORE CRYPTO / PASSWORD MANAGER
-      async storeKeyInBrowserPasswordManager(keyToSave) {
-        const key = (keyToSave || this.wizTempKey || this.masterKey || '').trim();
-        if (!key) return;
-        const userId = this.googleEmail || 'stackvault-master-key';
-        if (window.PasswordCredential && navigator.credentials && window.isSecureContext) {
-          try { await navigator.credentials.store(new PasswordCredential({ id: userId, password: key, name: `StackVault Master Key (${userId})` })); } catch (e) {}
-        }
-        this.toast('🔐 Master Key saved to browser!', 'emerald');
-      },
-
-      async encryptPlainSecrets(key) {
-        if (!key) return;
-        for (const p of this.db.projects) for (const t of p.tools) for (const f of (t.fields || [])) {
-          if ((f.type === 'secret' || f.type === 'password') && f.value && !CryptoVault.isEnc(f.value)) {
-            this.cache[f.id] = f.value; f.value = await CryptoVault.encrypt(f.value, key); f.encrypted = true;
-          }
-        }
-      },
-      async decryptAllToCache() {
-        this.cache = {}; if (!this.masterKey) return;
-        for (const p of this.db.projects) for (const t of p.tools) for (const f of (t.fields || [])) {
-          if (CryptoVault.isEnc(f.value)) { try { this.cache[f.id] = await CryptoVault.decrypt(f.value, this.masterKey); } catch (e) { this.cache[f.id] = null; } }
-          else this.cache[f.id] = f.value;
-        }
-      },
-      async saveDb(syncDisk = true) {
-        this.db.updatedAt = new Date().toISOString();
-        localStorage.setItem('stackvault_db_v3', JSON.stringify(this.db));
-        if (syncDisk && this.localHandle) { try { const w = await this.localHandle.createWritable(); await w.write(JSON.stringify(this.db, null, 2)); await w.close(); } catch (e) {} }
-      },
-
-      getProject() { return this.db.projects.find(p => p.id === this.activeTab) || null; },
-      getTool() { const p = this.getProject(); return p ? (p.tools.find(t => t.id === this.activeToolId) || p.tools[0] || null) : null; },
-      getAllAccounts() { const s = new Set(); if (this.googleEmail) s.add(this.googleEmail); this.db.projects.forEach(p => p.tools.forEach(t => { if (t.account?.trim()) s.add(t.account.trim()); })); return Array.from(s); },
-
-      // RENDERING
-      render() {
-        this.renderHeaderStatus();
-        this.renderTabs();
-        this.renderSidebar();
-        this.renderMain();
-        const dl = document.getElementById('accounts-datalist');
-        if (dl) dl.innerHTML = this.getAllAccounts().map(a => `<option value="${this.esc(a)}"></option>`).join('');
-      },
-
-      renderHeaderStatus() {
-        const uPill = document.getElementById('user-pill');
-        if (uPill) {
-          if (this.googleEmail) uPill.innerHTML = `${this.googleAvatar ? `<img src="${this.esc(this.googleAvatar)}" class="w-4 h-4 rounded-full" />` : `<span class="w-2 h-2 rounded-full ${this.driveToken ? 'bg-emerald-400' : 'bg-indigo-400'}"></span>`}<span class="max-w-[140px] truncate font-mono text-[11px]">${this.esc(this.googleEmail)}</span>`;
-          else uPill.innerHTML = `<span>👤 Sign In</span>`;
-        }
-        const vBtn = document.getElementById('vault-btn');
-        if (vBtn) {
-          vBtn.className = `px-2.5 py-1.5 rounded-lg text-xs font-medium border flex items-center gap-1.5 ${this.masterKey ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-rose-500/40 bg-rose-500/15 text-rose-300'}`;
-          vBtn.innerHTML = this.masterKey ? '🔓 Unlocked' : '🔒 Locked';
-        }
-        const dot = document.getElementById('drive-dot');
-        if (dot) dot.className = 'w-2 h-2 rounded-full ' + (this.driveToken || this.localHandle ? 'bg-emerald-400' : 'bg-amber-400');
-        const bLbl = document.getElementById('backup-label');
-        if (bLbl) bLbl.textContent = this.localFileName ? this.localFileName : 'Backup';
-      },
-
-      renderTabs() {
-        const el = document.getElementById('tabs-list');
-        if (!el) return;
-        let html = `
-          <button type="button" onclick="window.app.selectTab('matrix')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 ${this.activeTab === 'matrix' ? 'bg-indigo-600 text-white keep-white' : 'text-slate-400 hover:text-white hover:bg-vault-800'}">📊 All Projects Matrix</button>
-          <button type="button" onclick="window.app.selectTab('accounts')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition shrink-0 ${this.activeTab === 'accounts' ? 'bg-indigo-600 text-white keep-white' : 'text-slate-400 hover:text-white hover:bg-vault-800'}">👤 Accounts</button>
-          <div class="h-4 w-[1px] bg-vault-700 mx-1 shrink-0"></div>
-        `;
-        for (const p of this.db.projects) {
-          html += `<button type="button" onclick="window.app.selectTab('${p.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 shrink-0 ${this.activeTab === p.id ? 'bg-vault-800 text-white border border-indigo-500/50' : 'text-slate-400 hover:text-white hover:bg-vault-800/50'}"><span>${this.esc(p.name)}</span><span class="text-[10px] font-mono px-1.5 py-0.2 rounded bg-vault-950 text-slate-400">${p.tools.length}</span></button>`;
-        }
-        el.innerHTML = html;
-      },
-
-      selectTab(t) { this.activeTab = t; const p = this.getProject(); if (p) this.activeToolId = p.tools[0]?.id || null; this.render(); },
-
-      renderSidebar() {
-        const aside = document.getElementById('tools-sidebar');
-        const p = this.getProject();
-        if (!p) return aside.classList.add('hidden');
-        aside.classList.remove('hidden');
-        document.getElementById('sidebar-header').innerHTML = `<div class="truncate"><h2 class="text-sm font-bold text-white truncate">${this.esc(p.name)}</h2><p class="text-[11px] text-slate-400 truncate">${this.esc(p.subtitle)}</p></div>`;
-        document.getElementById('sidebar-tools').innerHTML = p.tools.map(t => `
-          <button type="button" onclick="window.app.activeToolId='${t.id}';window.app.render();" class="w-full text-left p-2.5 rounded-xl border transition block ${t.id === this.activeToolId ? 'bg-indigo-600/15 border-indigo-500/60' : 'bg-vault-950/60 border-vault-800 hover:border-vault-700'}">
-            <div class="flex items-center justify-between gap-1 mb-1"><span class="text-xs font-semibold text-white truncate">${this.esc(t.name)}</span><span class="text-[10px] font-mono px-1.5 py-0.5 rounded border ${(PRESETS[t.preset]||PRESETS.custom).color}">${this.esc(t.env)}</span></div>
-            <div class="text-[11px] font-mono text-slate-400 truncate">👤 ${this.esc(t.account || 'no-account')}</div>
-          </button>
+        list.innerHTML = this.state.projects.map(p => `
+          <li>
+            <button class="w-full text-left px-3 py-2 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 text-sm font-medium transition-colors">
+              ${p.name}
+            </button>
+          </li>
         `).join('');
       },
 
-      renderMain() {
-        const main = document.getElementById('main-editor');
-        if (this.activeTab === 'matrix' || this.activeTab === 'accounts') {
-           main.innerHTML = `<div class="p-6 text-white font-bold">Global View Active - Feature rendered here</div>`;
-           // Stripped Matrix rendering for brevity, standard HTML output
-           return;
-        }
-        const p = this.getProject(); const t = this.getTool();
-        if (!p || !t) return main.innerHTML = `<div class="p-12 text-center text-sm text-slate-400">Select or add a tool.</div>`;
-        
-        main.innerHTML = `
-          <div class="max-w-4xl mx-auto space-y-5">
-            <div class="bg-vault-900 border border-vault-700 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
-              <div class="flex items-center gap-2.5 flex-1"><input type="text" value="${this.esc(t.name)}" onchange="window.app.updateToolProp('name', this.value)" class="bg-transparent border-b border-transparent focus:border-indigo-500 text-base font-bold text-white focus:outline-none flex-1" /></div>
-              <div class="flex items-center gap-1.5"><button onclick="window.app.deleteCurrentTool()" class="px-2.5 py-1.5 rounded-lg text-xs bg-rose-500/10 text-rose-300">🗑️ Delete</button></div>
+      openProjectModal() {
+        this.openModal("Create New Project", `
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Project Name</label>
+              <input type="text" id="newProjectName" class="input" placeholder="e.g. SaaS Web Platform">
             </div>
-            <div class="bg-vault-900 border border-vault-700 rounded-2xl p-4 grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              <div><label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Account</label><input type="text" value="${this.esc(t.account)}" onchange="window.app.updateToolProp('account', this.value)" class="w-full bg-vault-950 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs text-white" /></div>
-              <div><label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Resource ID</label><input type="text" value="${this.esc(t.resourceId)}" onchange="window.app.updateToolProp('resourceId', this.value)" class="w-full bg-vault-950 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs text-white" /></div>
-            </div>
-            <div class="bg-vault-900 border border-vault-700 rounded-2xl p-4 space-y-3">
-              <div class="flex justify-between items-center"><h3 class="text-xs font-bold uppercase text-white">Secrets & Fields</h3><button onclick="window.app.addField('secret')" class="px-2.5 py-1 rounded-lg text-xs bg-emerald-500/15 text-emerald-300">+ Secret</button></div>
-              <div class="space-y-2">${(t.fields || []).map(f => this.renderFieldRow(f)).join('')}</div>
+            <div class="flex justify-end gap-2 pt-4">
+              <button onclick="window.app.closeModal()" class="btn btn-secondary">Cancel</button>
+              <button onclick="window.app.saveProject()" class="btn btn-primary">Save Project</button>
             </div>
           </div>
-        `;
+        `);
       },
 
-      renderFieldRow(f) {
-        const isSec = f.type === 'secret' || f.type === 'password';
-        const plainVal = isSec ? (this.masterKey ? (this.cache[f.id] ?? '') : '') : (f.value ?? '');
-        const isShown = !isSec || this.revealed.has(f.id);
-        return `
-          <div class="bg-vault-950 border border-vault-800 rounded-xl p-2.5 flex items-center gap-2">
-            <input type="text" value="${this.esc(f.key)}" onchange="window.app.updateFieldKey('${f.id}', this.value)" class="w-40 bg-vault-900 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-indigo-300" />
-            <input type="${isShown ? 'text' : 'password'}" value="${this.esc(plainVal)}" ${!this.masterKey && isSec ? 'disabled placeholder="Locked"' : ''} onchange="window.app.updateFieldValue('${f.id}', this.value)" class="flex-1 bg-vault-900 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs font-mono text-white" />
-            ${isSec ? `<button onclick="window.app.toggleReveal('${f.id}')" class="px-2 py-1.5 rounded-lg bg-vault-800 text-xs">${isShown ? '🙈' : '👁️'}</button>` : ''}
+      saveProject() {
+        const name = document.getElementById('newProjectName').value.trim();
+        if (!name) return;
+        this.state.projects.push({ id: Date.now().toString(), name, tools: [] });
+        localStorage.setItem('sv_projects', JSON.stringify(this.state.projects));
+        this.renderProjects();
+        this.closeModal();
+      },
+
+      initOnboarding() {
+        this.openModal("Step 1: Google Account & Drive", `
+          <div class="space-y-4 text-sm text-slate-300">
+            <p>Your app is already configured with your OAuth Client ID.</p>
+            <p>Please use the <strong>Sign In</strong> button in the top right header to connect your account and establish a zero-knowledge connection to your Google Drive.</p>
+            <div class="flex justify-end pt-4">
+              <button onclick="window.app.closeModal()" class="btn btn-primary">Got it</button>
+            </div>
           </div>
-        `;
+        `);
       },
 
-      // ACTIONS
-      updateToolProp(p, v) { const t = this.getTool(); if (t) { t[p] = v; this.saveDb(); this.render(); } },
-      async addField(type) {
-        const t = this.getTool(); if (!t) return;
-        if ((type==='secret'||type==='password') && !this.masterKey) return this.openKeyModal();
-        const id = 'f_'+Date.now();
-        t.fields.push({ id, key: 'NEW_KEY', type, value: '', encrypted: type==='secret' });
-        this.cache[id] = ''; this.revealed.add(id); await this.saveDb(); this.render();
-      },
-      updateFieldKey(id, k) { const f = this.getTool()?.fields?.find(x=>x.id===id); if (f) { f.key = k; this.saveDb(); } },
-      async updateFieldValue(id, v) {
-        const f = this.getTool()?.fields?.find(x=>x.id===id); if (!f) return;
-        if (f.type==='secret') {
-          if (!this.masterKey) return this.toast('Unlock vault first', 'rose');
-          this.cache[id] = v; f.value = v ? await CryptoVault.encrypt(v, this.masterKey) : ''; f.encrypted = true;
-        } else { f.value = v; this.cache[id] = v; }
-        await this.saveDb(); this.toast('Saved', 'emerald');
-      },
-      toggleReveal(id) { if (!this.masterKey) return this.openKeyModal(); this.revealed.has(id) ? this.revealed.delete(id) : this.revealed.add(id); this.render(); },
-
-      // MODALS & WIZARD
-      openModal(html) { document.getElementById('modal-root').innerHTML = html; document.getElementById('modal-backdrop').classList.remove('hidden'); },
-      closeModal() { document.getElementById('modal-backdrop').classList.add('hidden'); },
-
-      openOnboardingWizard(step = 1) {
-        this.wizStep = step;
-        if (!this.wizTempKey) this.wizTempKey = (this.masterKey && this.masterKey !== DEMO_KEY) ? this.masterKey : CryptoVault.randomKey();
-        
-        const nav = `<div class="grid grid-cols-4 gap-1 p-2 bg-vault-950 border-b border-vault-800">${['1. Google', '2. Master Key', '3. Drive Sync', '4. Workspace'].map((s, i) => `<button onclick="window.app.openOnboardingWizard(${i+1})" class="p-1.5 rounded text-[10px] font-semibold ${step===i+1?'bg-indigo-600/20 text-white':'text-slate-400'}">${s}</button>`).join('')}</div>`;
-        let body = '';
-
-        if (step === 1) {
-          body = `
-            <div class="p-5 space-y-4">
-              <h3 class="text-base font-bold text-white">Connect Your Google Account</h3>
-              <p class="text-xs text-slate-400">Step 1: Set your Client ID and click the official Google Sign-In button.</p>
-              
-              <div class="bg-vault-950 border border-vault-800 rounded-xl p-4 space-y-4">
-                <div>
-                  <label class="block text-[11px] text-slate-400 mb-1">1. Google OAuth Client ID</label>
-                  <input id="wiz-cid" type="text" value="${this.esc(this.driveClientId)}" placeholder="12345-abc.apps.googleusercontent.com" class="w-full bg-vault-900 border border-vault-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-200" oninput="window.app.driveClientId=this.value; localStorage.setItem('sv_drive_client_id', this.value); window.app.renderGoogleSignInButton();" />
-                </div>
-                
-                <div class="border-t border-vault-800 pt-3">
-                  <label class="block text-[11px] text-slate-400 mb-2">2. Sign In to authenticate</label>
-                  <div id="google-signin-btn-container" class="h-10 flex items-center">
-                    <!-- Google GIS Button injected here -->
-                  </div>
-                </div>
-
-                <div class="border-t border-vault-800 pt-3 mt-3">
-                  <label class="block text-[11px] text-slate-400 mb-1">Or enter email manually (Fallback)</label>
-                  <input id="wiz-email" type="email" value="${this.esc(this.googleEmail)}" placeholder="you@gmail.com" class="w-full bg-vault-900 border border-vault-700 rounded-lg px-2.5 py-1.5 text-xs text-white" />
-                </div>
-              </div>
-              <div class="flex justify-between"><button onclick="window.app.closeModal()" class="text-xs text-slate-400">Skip</button><button onclick="window.app.saveWizStep1()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white">Next →</button></div>
-            </div>
-          `;
-          setTimeout(() => this.renderGoogleSignInButton(), 50);
-        } else if (step === 2) {
-          body = `
-            <div class="p-5 space-y-4">
-              <h3 class="text-base font-bold text-white">Master Encryption Key</h3>
-              <form action="about:blank" target="pm-frame" method="post" onsubmit="window.app.saveWizStep2(event)" class="bg-vault-950 border border-vault-800 rounded-xl p-4 space-y-3">
-                <input type="text" name="username" autocomplete="username" value="${this.esc(this.googleEmail || 'stackvault')}" class="w-full bg-vault-900 rounded px-3 py-1.5 text-xs text-slate-400" />
-                <input id="wiz-key" type="text" name="password" autocomplete="new-password" value="${this.esc(this.wizTempKey)}" class="w-full bg-vault-900 border border-emerald-500/50 rounded px-3 py-2 text-xs font-mono text-emerald-300" />
-                <button type="submit" class="px-3.5 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold w-full">🔐 Save to Google Password Manager & Continue</button>
-              </form>
-            </div>
-          `;
-        } else if (step === 3) {
-          body = `
-            <div class="p-5 space-y-4">
-              <h3 class="text-base font-bold text-white">Drive & Backup Sync</h3>
-              <div class="bg-vault-950 border border-sky-500/40 rounded-xl p-4 space-y-2">
-                <div class="text-xs font-bold text-sky-300">Option A: Online Google Drive Sync</div>
-                <button onclick="window.app.authorizeDriveForSync(() => window.app.openOnboardingWizard(4))" class="w-full py-2 rounded bg-sky-600 text-white text-xs font-bold">Authorize Drive API</button>
-              </div>
-              <button onclick="window.app.openOnboardingWizard(4)" class="w-full py-2 rounded text-xs text-slate-400 hover:text-white">Skip Sync</button>
-            </div>
-          `;
-        } else {
-          body = `
-            <div class="p-5 space-y-4">
-              <h3 class="text-base font-bold text-white">Setup Complete</h3>
-              <button onclick="window.app.finishOnboarding()" class="w-full py-3 rounded-xl bg-indigo-600 text-white font-bold shadow-lg">Finish & Start Tour 🚀</button>
-            </div>
-          `;
-        }
-        this.openModal(nav + body);
+      openModal(title, html) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('modalOverlay').classList.replace('hidden', 'flex');
       },
 
-      saveWizStep1() {
-        const emailInp = document.getElementById('wiz-email')?.value.trim();
-        if (emailInp) { this.googleEmail = emailInp; localStorage.setItem('sv_google_email', this.googleEmail); }
-        this.renderHeaderStatus(); this.openOnboardingWizard(2);
-      },
-      async saveWizStep2(e) {
-        if(e) e.preventDefault();
-        const k = document.getElementById('wiz-key')?.value.trim();
-        if (!k) return;
-        this.wizTempKey = k;
-        await this.storeKeyInBrowserPasswordManager(k);
-        await this.setOrRotateKey(k);
-        this.openOnboardingWizard(3);
-      },
-      async setOrRotateKey(newKey) {
-        await this.decryptAllToCache(); this.masterKey = newKey;
-        for (const p of this.db.projects) for (const t of p.tools) for (const f of (t.fields||[])) {
-          if (f.type==='secret') { f.value = this.cache[f.id] ? await CryptoVault.encrypt(this.cache[f.id], newKey) : ''; f.encrypted = true; }
-        }
-        this.db.verifyToken = await CryptoVault.encrypt('SV_OK', newKey); await this.saveDb();
-        sessionStorage.setItem('sv_master_key', newKey);
-      },
-      finishOnboarding() { localStorage.setItem('sv_onboarded_v3', 'true'); this.closeModal(); this.render(); this.startTour(0); },
-      
-      startTour(idx) { this.tourIdx = idx; this.renderTourStep(); },
-      renderTourStep() {
-        if (this.tourIdx > 2) return document.getElementById('tour-card')?.classList.add('hidden');
-        document.getElementById('tour-card').classList.remove('hidden');
-        document.getElementById('tour-title').textContent = "Step " + (this.tourIdx+1);
-        document.getElementById('tour-body').textContent = "Guided tour information here.";
-      },
-      stepTour(dir) { this.tourIdx += dir; this.renderTourStep(); },
-      endTour() { document.getElementById('tour-card')?.classList.add('hidden'); }
-    });
+      closeModal() {
+        document.getElementById('modalOverlay').classList.replace('flex', 'hidden');
+      }
+    };
 
-    window.app.init();
+    window.app = app;
+    document.addEventListener('DOMContentLoaded', () => app.init());
   </script>
 </body>
 </html>
